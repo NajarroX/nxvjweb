@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# server.py - NX PRO VAULT (Diseño Elegante Akaru-Inspired)
+# server.py - NX PRO VAULT (Diseño Elegante con Tektur + Bloqueo configurable)
 
 from flask import Flask, request, jsonify, send_file, abort
 import os
@@ -21,6 +21,9 @@ app = Flask(__name__)
 # ============================================
 # CONFIGURACIÓN
 # ============================================
+
+# ⏱️ TIEMPO DE DEMO EN SEGUNDOS (cambia este valor cuando quieras)
+DEMO_DURATION_SECONDS = 120  # 2 minutos = 120 | 3 minutos = 180 | 1 minuto = 60
 
 PRODUCTOS = {
     "prod_bundle_vj": {
@@ -112,7 +115,7 @@ def crear_zip_bundle():
             <meta charset="UTF-8">
             <title>NX ENGINES • Manual</title>
             <style>
-                @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Tektur:wght@400;500;600;700&display=swap');
                 * { margin: 0; padding: 0; box-sizing: border-box; }
                 body {
                     font-family: 'Inter', sans-serif;
@@ -121,8 +124,8 @@ def crear_zip_bundle():
                     line-height: 1.5;
                 }
                 .container { max-width: 720px; margin: 0 auto; padding: 60px 24px; }
-                h1 { font-size: 2.5rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 16px; }
-                h2 { font-size: 1.25rem; font-weight: 500; margin: 32px 0 16px; letter-spacing: -0.01em; }
+                h1 { font-family: 'Tektur', monospace; font-size: 2rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 16px; }
+                h2 { font-family: 'Tektur', monospace; font-size: 1rem; font-weight: 500; margin: 32px 0 16px; letter-spacing: -0.01em; text-transform: uppercase; }
                 p { color: #555; margin-bottom: 16px; }
                 .divider { width: 40px; height: 1px; background: #e0e0e0; margin: 32px 0; }
                 .card { border: 1px solid #eaeaea; border-radius: 12px; padding: 24px; margin: 24px 0; background: #fafafa; }
@@ -265,7 +268,7 @@ def webhook_recurrente():
             <head><meta charset="UTF-8"></head>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif; background: #ffffff; padding: 32px;">
                 <div style="max-width: 520px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 16px; padding: 40px;">
-                    <h1 style="font-size: 1.5rem; font-weight: 500; margin-bottom: 16px;">Gracias, {nombre}</h1>
+                    <h1 style="font-family: 'Tektur', monospace; font-size: 1.5rem; font-weight: 500; margin-bottom: 16px;">Gracias, {nombre}</h1>
                     <p style="color: #555;">Tu bundle <strong>{producto['nombre']}</strong> está listo para descargar.</p>
                     <div style="background: #fafafa; padding: 20px; border-radius: 12px; margin: 24px 0;">
                         <p style="margin-bottom: 12px;"><strong>Enlace de descarga</strong></p>
@@ -307,7 +310,7 @@ def webhook_recurrente():
             <head><meta charset="UTF-8"></head>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif; background: #ffffff; padding: 32px;">
                 <div style="max-width: 520px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 16px; padding: 40px;">
-                    <h1 style="font-size: 1.5rem; font-weight: 500;">Bienvenido a NX PRO</h1>
+                    <h1 style="font-family: 'Tektur', monospace; font-size: 1.5rem; font-weight: 500;">Bienvenido a NX PRO</h1>
                     <p style="color: #555;">Tu suscripción está activa, {nombre}.</p>
                     <div style="background: #fafafa; padding: 20px; border-radius: 12px; margin: 24px 0;">
                         <p><strong>Tu vault personal</strong></p>
@@ -383,7 +386,7 @@ def verificar_suscripcion_endpoint():
     })
 
 # ============================================
-# VAULT — DISEÑO ELEGANTE BLANCO/NEGRO
+# VAULT — DISEÑO CON TEKTUR
 # ============================================
 
 @app.route('/vault')
@@ -394,9 +397,9 @@ def vault_suscriptor():
         <!DOCTYPE html>
         <html>
         <head><meta charset="UTF-8"><title>Acceso</title></head>
-        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif; background: #fff; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+        <body style="font-family: 'Inter', sans-serif; background: #fff; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
             <div style="text-align: center; padding: 32px;">
-                <h1 style="font-weight: 400; font-size: 1.75rem;">Acceso restringido</h1>
+                <h1 style="font-family: 'Tektur', monospace; font-weight: 400; font-size: 1.5rem;">Acceso restringido</h1>
                 <p style="color: #666;">Este contenido es exclusivo para suscriptores.</p>
                 <a href="https://www.najarrox.xyz" style="color: #000; border: 1px solid #e0e0e0; padding: 10px 24px; text-decoration: none; display: inline-block; margin-top: 24px;">Suscribirse</a>
             </div>
@@ -419,7 +422,7 @@ def vault_suscriptor():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>NX PRO VAULT</title>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=Tektur:wght@400;500;600;700&display=swap');
             
             * {{
                 margin: 0;
@@ -428,13 +431,12 @@ def vault_suscriptor():
             }}
             
             body {{
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                font-family: 'Inter', sans-serif;
                 background: #ffffff;
                 color: #1a1a1a;
                 line-height: 1.5;
             }}
             
-            /* Header elegante */
             .header {{
                 border-bottom: 1px solid #eaeaea;
                 padding: 28px 32px;
@@ -455,7 +457,8 @@ def vault_suscriptor():
             }}
             
             .logo-area h1 {{
-                font-size: 1.1rem;
+                font-family: 'Tektur', monospace;
+                font-size: 1rem;
                 font-weight: 500;
                 letter-spacing: -0.01em;
                 color: #1a1a1a;
@@ -494,14 +497,12 @@ def vault_suscriptor():
                 color: #555;
             }}
             
-            /* Contenedor principal */
             .container {{
                 max-width: 1280px;
                 margin: 0 auto;
                 padding: 56px 32px;
             }}
             
-            /* Stats */
             .stats-grid {{
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
@@ -519,6 +520,7 @@ def vault_suscriptor():
             }}
             
             .stat-number {{
+                font-family: 'Tektur', monospace;
                 font-size: 2.2rem;
                 font-weight: 500;
                 letter-spacing: -0.02em;
@@ -533,13 +535,13 @@ def vault_suscriptor():
                 margin-top: 8px;
             }}
             
-            /* Temporadas */
             .season {{
                 margin-bottom: 72px;
             }}
             
             .season-title {{
-                font-size: 1.5rem;
+                font-family: 'Tektur', monospace;
+                font-size: 1.2rem;
                 font-weight: 400;
                 letter-spacing: -0.01em;
                 margin-bottom: 40px;
@@ -547,7 +549,6 @@ def vault_suscriptor():
                 border-bottom: 1px solid #eaeaea;
             }}
             
-            /* Grid de visuales */
             .visual-grid {{
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -575,7 +576,8 @@ def vault_suscriptor():
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 3rem;
+                font-family: 'Tektur', monospace;
+                font-size: 2.5rem;
                 font-weight: 400;
                 color: #ccc;
                 border-bottom: 1px solid #eaeaea;
@@ -586,7 +588,8 @@ def vault_suscriptor():
             }}
             
             .visual-info h3 {{
-                font-size: 1.1rem;
+                font-family: 'Tektur', monospace;
+                font-size: 1rem;
                 font-weight: 500;
                 margin-bottom: 8px;
                 letter-spacing: -0.01em;
@@ -606,7 +609,7 @@ def vault_suscriptor():
                 font-size: 0.7rem;
                 font-weight: 500;
                 cursor: pointer;
-                font-family: inherit;
+                font-family: 'Inter', sans-serif;
                 transition: all 0.15s ease;
                 color: #1a1a1a;
             }}
@@ -616,7 +619,6 @@ def vault_suscriptor():
                 color: #fff;
             }}
             
-            /* Footer */
             .footer {{
                 border-top: 1px solid #eaeaea;
                 padding: 40px 32px;
@@ -628,10 +630,6 @@ def vault_suscriptor():
             .footer a {{
                 color: #1a1a1a;
                 text-decoration: none;
-            }}
-            
-            .footer a:hover {{
-                text-decoration: underline;
             }}
             
             @media (max-width: 768px) {{
@@ -650,7 +648,7 @@ def vault_suscriptor():
                     padding: 32px 20px;
                 }}
                 .season-title {{
-                    font-size: 1.2rem;
+                    font-size: 1rem;
                 }}
                 .visual-grid {{
                     grid-template-columns: 1fr;
@@ -727,7 +725,7 @@ def vault_suscriptor():
     return html
 
 # ============================================
-# SERVIDOR DE VISUALES Y DEMO
+# SERVIDOR DE VISUALES Y DEMO (CON BLOQUEO CONFIGURABLE)
 # ============================================
 
 @app.route('/visual/<season>/<filename>')
@@ -750,53 +748,59 @@ def servir_visual(season, filename):
         contenido = f.read()
     
     if not modo_suscriptor:
-        demo_script = '''
+        # Usar la variable configurable DEMO_DURATION_SECONDS
+        demo_script = f'''
         <div id="nx-demo-badge" style="position:fixed;bottom:24px;right:24px;background:#ffffff;color:#1a1a1a;font-family:'Inter',-apple-system,sans-serif;padding:10px 20px;z-index:9999;font-size:13px;font-weight:500;border:1px solid #e0e0e0;border-radius:40px;backdrop-filter:blur(8px);box-shadow:0 2px 8px rgba(0,0,0,0.02);pointer-events:none;">
-            Demo · 2:00
+            Demo · {DEMO_DURATION_SECONDS//60}:{(DEMO_DURATION_SECONDS%60):02d}
         </div>
         <script>
-            (function() {
-                let tiempo = 120;
+            (function() {{
+                let tiempo = {DEMO_DURATION_SECONDS};
                 let bloqueado = false;
                 const badge = document.getElementById('nx-demo-badge');
                 if(!badge) return;
                 
-                function bloquearPantalla() {
+                function bloquearPantalla() {{
                     if(bloqueado) return;
                     bloqueado = true;
                     
+                    // Intentar detener animaciones de Three.js si existen
+                    if(typeof cancelAnimationFrame !== 'undefined') {{
+                        if(window.__NX_ANIMATION_ID__) cancelAnimationFrame(window.__NX_ANIMATION_ID__);
+                    }}
+                    
                     const blocker = document.createElement('div');
                     blocker.id = 'nx-blocker';
-                    blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#ffffff;z-index:100000;display:flex;align-items:center;justify-content:center;font-family:\'Inter\',-apple-system,sans-serif;text-align:center;';
+                    blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#ffffff;z-index:100000;display:flex;align-items:center;justify-content:center;font-family:\\'Inter\\',-apple-system,sans-serif;text-align:center;';
                     blocker.innerHTML = `
                         <div style="max-width:400px;padding:40px;">
                             <div style="width:40px;height:1px;background:#e0e0e0;margin:0 auto 32px;"></div>
-                            <h1 style="font-weight:400;font-size:1.5rem;margin-bottom:16px;">Demo finalizada</h1>
+                            <h1 style="font-family:\\'Tektur\\',monospace;font-weight:400;font-size:1.5rem;margin-bottom:16px;">Demo finalizada</h1>
                             <p style="color:#666;margin-bottom:32px;">El tiempo de prueba ha terminado.</p>
                             <a href="https://nxvjweb.onrender.com/" style="background:#1a1a1a;color:#fff;padding:10px 28px;text-decoration:none;border-radius:40px;display:inline-block;">Adquirir bundle</a>
                             <div style="width:40px;height:1px;background:#e0e0e0;margin:32px auto 0;"></div>
                         </div>
                     `;
                     document.body.appendChild(blocker);
-                }
+                }}
                 
-                const interval = setInterval(function() {
+                const interval = setInterval(function() {{
                     if(bloqueado) return;
                     tiempo--;
                     var mins = Math.floor(tiempo/60);
                     var segs = (tiempo%60).toString().padStart(2,'0');
                     if(badge) badge.innerHTML = 'Demo · ' + mins + ':' + segs;
                     
-                    if(tiempo <= 10 && tiempo > 0) {
+                    if(tiempo <= 10 && tiempo > 0) {{
                         badge.style.borderColor = '#ccc';
-                    }
+                    }}
                     
-                    if(tiempo <= 0) {
+                    if(tiempo <= 0) {{
                         clearInterval(interval);
                         bloquearPantalla();
-                    }
-                }, 1000);
-            })();
+                    }}
+                }}, 1000);
+            }})();
         </script>
         '''
         contenido = contenido.replace('</body>', demo_script + '</body>')
@@ -812,53 +816,58 @@ def demo_kaleido():
     with open(ruta, 'r', encoding='utf-8') as f:
         contenido = f.read()
     
-    demo_script = '''
+    demo_script = f'''
     <div id="nx-demo-badge" style="position:fixed;bottom:24px;right:24px;background:#ffffff;color:#1a1a1a;font-family:'Inter',-apple-system,sans-serif;padding:10px 20px;z-index:9999;font-size:13px;font-weight:500;border:1px solid #e0e0e0;border-radius:40px;backdrop-filter:blur(8px);box-shadow:0 2px 8px rgba(0,0,0,0.02);pointer-events:none;">
-        Demo · 2:00
+        Demo · {DEMO_DURATION_SECONDS//60}:{(DEMO_DURATION_SECONDS%60):02d}
     </div>
     <script>
-        (function() {
-            let tiempo = 120;
+        (function() {{
+            let tiempo = {DEMO_DURATION_SECONDS};
             let bloqueado = false;
             const badge = document.getElementById('nx-demo-badge');
             if(!badge) return;
             
-            function bloquearPantalla() {
+            function bloquearPantalla() {{
                 if(bloqueado) return;
                 bloqueado = true;
                 
+                // Intentar detener animaciones de Three.js
+                if(typeof cancelAnimationFrame !== 'undefined') {{
+                    if(window.__NX_ANIMATION_ID__) cancelAnimationFrame(window.__NX_ANIMATION_ID__);
+                }}
+                
                 const blocker = document.createElement('div');
                 blocker.id = 'nx-blocker';
-                blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#ffffff;z-index:100000;display:flex;align-items:center;justify-content:center;font-family:\'Inter\',-apple-system,sans-serif;text-align:center;';
+                blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#ffffff;z-index:100000;display:flex;align-items:center;justify-content:center;font-family:\\'Inter\\',-apple-system,sans-serif;text-align:center;';
                 blocker.innerHTML = `
                     <div style="max-width:400px;padding:40px;">
                         <div style="width:40px;height:1px;background:#e0e0e0;margin:0 auto 32px;"></div>
-                        <h1 style="font-weight:400;font-size:1.5rem;margin-bottom:16px;">Demo finalizada</h1>
+                        <h1 style="font-family:\\'Tektur\\',monospace;font-weight:400;font-size:1.5rem;margin-bottom:16px;">Demo finalizada</h1>
                         <p style="color:#666;margin-bottom:32px;">El tiempo de prueba ha terminado.</p>
                         <a href="https://nxvjweb.onrender.com/" style="background:#1a1a1a;color:#fff;padding:10px 28px;text-decoration:none;border-radius:40px;display:inline-block;">Adquirir bundle</a>
                         <div style="width:40px;height:1px;background:#e0e0e0;margin:32px auto 0;"></div>
                     </div>
                 `;
                 document.body.appendChild(blocker);
-            }
+            }}
             
-            const interval = setInterval(function() {
+            const interval = setInterval(function() {{
                 if(bloqueado) return;
                 tiempo--;
                 var mins = Math.floor(tiempo/60);
                 var segs = (tiempo%60).toString().padStart(2,'0');
                 if(badge) badge.innerHTML = 'Demo · ' + mins + ':' + segs;
                 
-                if(tiempo <= 10 && tiempo > 0) {
+                if(tiempo <= 10 && tiempo > 0) {{
                     badge.style.borderColor = '#ccc';
-                }
+                }}
                 
-                if(tiempo <= 0) {
+                if(tiempo <= 0) {{
                     clearInterval(interval);
                     bloquearPantalla();
-                }
-            }, 1000);
-        })();
+                }}
+            }}, 1000);
+        }})();
     </script>
     '''
     contenido = contenido.replace('</body>', demo_script + '</body>')
@@ -873,7 +882,7 @@ def servir_imagen(filename):
     return send_file(ruta)
 
 # ============================================
-# PÁGINA PRINCIPAL — AKARU INSPIRED
+# PÁGINA PRINCIPAL — CON TEKTUR
 # ============================================
 
 @app.route('/')
@@ -889,7 +898,7 @@ def home():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Najarro X — VJ Live Engines</title>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=Tektur:wght@400;500;600;700&display=swap');
             
             * {{
                 margin: 0;
@@ -898,13 +907,12 @@ def home():
             }}
             
             body {{
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                font-family: 'Inter', sans-serif;
                 background: #ffffff;
                 color: #1a1a1a;
                 line-height: 1.5;
             }}
             
-            /* Navegación */
             .nav {{
                 padding: 28px 32px;
                 border-bottom: 1px solid #eaeaea;
@@ -922,6 +930,7 @@ def home():
             }}
             
             .nav-brand {{
+                font-family: 'Tektur', monospace;
                 font-size: 0.9rem;
                 font-weight: 500;
                 letter-spacing: -0.01em;
@@ -944,7 +953,6 @@ def home():
                 opacity: 0.6;
             }}
             
-            /* Hero */
             .hero {{
                 max-width: 800px;
                 margin: 80px auto 120px;
@@ -953,7 +961,8 @@ def home():
             }}
             
             .hero h1 {{
-                font-size: 3.2rem;
+                font-family: 'Tektur', monospace;
+                font-size: 3rem;
                 font-weight: 500;
                 letter-spacing: -0.02em;
                 line-height: 1.2;
@@ -974,7 +983,6 @@ def home():
                 margin: 32px auto 0;
             }}
             
-            /* Grid de productos */
             .products {{
                 max-width: 1000px;
                 margin: 0 auto;
@@ -999,13 +1007,15 @@ def home():
             }}
             
             .product-card h2 {{
-                font-size: 1.5rem;
+                font-family: 'Tektur', monospace;
+                font-size: 1.3rem;
                 font-weight: 500;
                 letter-spacing: -0.01em;
                 margin-bottom: 12px;
             }}
             
             .product-price {{
+                font-family: 'Tektur', monospace;
                 font-size: 1.8rem;
                 font-weight: 500;
                 margin: 20px 0 8px;
@@ -1051,7 +1061,6 @@ def home():
                 background: #333;
             }}
             
-            /* Features */
             .features {{
                 max-width: 800px;
                 margin: 0 auto;
@@ -1068,6 +1077,7 @@ def home():
             }}
             
             .feature-number {{
+                font-family: 'Tektur', monospace;
                 font-size: 1.5rem;
                 font-weight: 500;
                 margin-bottom: 4px;
@@ -1080,7 +1090,6 @@ def home():
                 letter-spacing: 1px;
             }}
             
-            /* Footer */
             .footer {{
                 border-top: 1px solid #eaeaea;
                 padding: 40px 32px;
@@ -1177,6 +1186,7 @@ def status():
         "temporadas": len(obtener_temporadas()),
         "suscriptores_activos": len(suscripciones_activas),
         "descargas_unicas": len(descargas_autorizadas),
+        "demo_duration_seconds": DEMO_DURATION_SECONDS,
         "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     })
 
@@ -1192,4 +1202,5 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
     logger.info(f"🌐 Servidor iniciado en puerto {port}")
     logger.info(f"💰 Bundle: $15 | Suscripción: $7/mes")
+    logger.info(f"⏱️ Demo duration: {DEMO_DURATION_SECONDS} segundos")
     app.run(host='0.0.0.0', port=port, debug=False)
