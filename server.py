@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # server.py - NX PRO VAULT (Diseño Elegante con Tektur + Bloqueo configurable)
-# Versión: H1 más grande, espacios reducidos entre texto
+# Versión: Precios y features +30% más grandes
 
 from flask import Flask, request, jsonify, send_file, abort
 import os
@@ -156,7 +156,7 @@ def crear_zip_bundle():
                 
                 <h2>Controles generales</h2>
                 <table>
-                    <tr><td><span class="key">TAB</span></td><td>Ocultar o mostrar interfaz</td></tr>
+                    <tr><td><span class="key">TAB</span></td><td>Ocultar o mostrar interfaz</td>
                     <tr><td><span class="key">P</span></td><td>Activar o desactivar micrófono</td></tr>
                     <tr><td><span class="key">O</span></td><td>Cambiar banda de audio (bajo, medios, agudos)</td></tr>
                     <tr><td><span class="key">+ / -</span></td><td>Ajustar intensidad de efectos</td></tr>
@@ -522,18 +522,18 @@ def vault_suscriptor():
             
             .stat-number {{
                 font-family: 'Tektur', monospace;
-                font-size: 2rem;
+                font-size: 2.5rem;
                 font-weight: 700;
                 letter-spacing: -0.02em;
                 color: #1a1a1a;
             }}
             
             .stat-label {{
-                font-size: 0.65rem;
+                font-size: 0.7rem;
                 text-transform: uppercase;
                 letter-spacing: 1px;
                 color: #999;
-                margin-top: 6px;
+                margin-top: 8px;
             }}
             
             .season {{
@@ -880,7 +880,7 @@ def servir_imagen(filename):
     return send_file(ruta)
 
 # ============================================
-# PÁGINA PRINCIPAL — H1 MÁS GRANDE Y BOLD
+# PÁGINA PRINCIPAL — H1 MÁS GRANDE Y BOLD + PRECIOS GRANDES
 # ============================================
 
 @app.route('/')
@@ -1015,13 +1015,13 @@ def home():
             
             .product-price {{
                 font-family: 'Tektur', monospace;
-                font-size: 1.6rem;
+                font-size: 2rem;
                 font-weight: 700;
                 margin: 16px 0 6px;
             }}
             
             .product-price small {{
-                font-size: 0.7rem;
+                font-size: 0.85rem;
                 font-weight: 400;
                 color: #888;
             }}
@@ -1077,13 +1077,13 @@ def home():
             
             .feature-number {{
                 font-family: 'Tektur', monospace;
-                font-size: 1.3rem;
+                font-size: 1.7rem;
                 font-weight: 700;
-                margin-bottom: 4px;
+                margin-bottom: 6px;
             }}
             
             .feature-label {{
-                font-size: 0.65rem;
+                font-size: 0.75rem;
                 color: #999;
                 text-transform: uppercase;
                 letter-spacing: 1px;
@@ -1123,6 +1123,9 @@ def home():
                 .features {{
                     gap: 32px;
                     padding: 40px 20px;
+                }}
+                .product-price {{
+                    font-size: 1.6rem;
                 }}
             }}
         </style>
