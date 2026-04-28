@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-# server.py - NX PRO VAULT (Diseño con precios y features GIGANTES)
+# server.py - NX PRO VAULT (Versión final con servidor de archivos propio)
 
-from flask import Flask, request, jsonify, send_file, abort
+from flask import Flask, request, jsonify, send_file, abort, redirect
 import os
 import logging
 import hashlib
@@ -25,9 +25,14 @@ app = Flask(__name__)
 # ⏱️ TIEMPO DE DEMO EN SEGUNDOS (cambia este valor cuando quieras)
 DEMO_DURATION_SECONDS = 120  # 2 minutos = 120 | 3 minutos = 180 | 1 minuto = 60
 
+# ============================================
+# PRODUCTOS - ACTUALIZA EL ID CON EL DE RECURRENTE
+# ============================================
+
 PRODUCTOS = {
-    "prod_bundle_vj": {
-        "nombre": "NX BUNDLE",
+    # ⚠️ CAMBIA "prod_AQUI_VA_TU_ID_DE_RECURRENTE" por el ID real de tu producto
+    "prod_jfvog09k": {
+        "nombre": "NX VJ LIVE PACK",
         "archivo": "bundle",
         "precio": 15.00,
         "tipo": "bundle",
@@ -96,6 +101,7 @@ def obtener_temporadas():
     return sorted(seasons, key=lambda x: x["numero"]) if seasons else []
 
 def crear_zip_bundle():
+    """Crea un ZIP con los 3 visualizadores + manual desde los archivos del servidor"""
     memory_file = BytesIO()
     
     with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
@@ -155,12 +161,12 @@ def crear_zip_bundle():
                 
                 <h2>Controles generales</h2>
                 <table>
-                    <tr><td><span class="key">TAB</span></td><td>Ocultar o mostrar interfaz</td>
-                    <tr><td><span class="key">P</span></td><td>Activar o desactivar micrófono</td>
-                    <tr><td><span class="key">O</span></td><td>Cambiar banda de audio (bajo, medios, agudos)</td>
-                    <tr><td><span class="key">+ / -</span></td><td>Ajustar intensidad de efectos</td>
-                    <tr><td><span class="key">T</span></td><td>Capturar pantalla (PNG)</td>
-                    <tr><td><span class="key">Y</span></td><td>Grabar video (WEBM)</td>
+                    <tr><td><span class="key">TAB</span></td><td>Ocultar o mostrar interfaz</td></tr>
+                    <tr><td><span class="key">P</span></td><td>Activar o desactivar micrófono</td></tr>
+                    <tr><td><span class="key">O</span></td><td>Cambiar banda de audio (bajo, medios, agudos)</td></tr>
+                    <tr><td><span class="key">+ / -</span></td><td>Ajustar intensidad de efectos</td></tr>
+                    <tr><td><span class="key">T</span></td><td>Capturar pantalla (PNG)</td></tr>
+                    <tr><td><span class="key">Y</span></td><td>Grabar video (WEBM)</td></tr>
                 </table>
                 
                 <h2>Soporte</h2>
@@ -223,7 +229,7 @@ def enviar_email_simple(destinatario, nombre, asunto, cuerpo_html):
         return False
 
 # ============================================
-# WEBHOOK
+# WEBHOOK DE RECURRENTE
 # ============================================
 
 @app.route('/webhook', methods=['POST'])
@@ -234,19 +240,25 @@ def webhook_recurrente():
             return jsonify({"status": "error"}), 400
         
         event_type = data.get('event_type')
-        logger.info(f"📨 Evento: {event_type}")
+        logger.info(f"📨 Evento recibido: {event_type}")
         
+        # ========================================
+        # PAGO ÚNICO EXITOSO (Bundle)
+        # ========================================
         if event_type == 'payment_intent.succeeded':
             producto_id = data.get('product', {}).get('id')
             email = data.get('customer', {}).get('email')
             nombre = data.get('customer', {}).get('full_name', 'Cliente')
             
+            logger.info(f"💰 Pago exitoso - Producto: {producto_id}, Cliente: {email}")
+            
             if not producto_id or not email:
+                logger.error("Faltan datos en el webhook")
                 return jsonify({"status": "error"}), 400
             
             if producto_id not in PRODUCTOS:
                 logger.warning(f"Producto desconocido: {producto_id}")
-                return jsonify({"status": "ignored"}), 200
+                return jsonify({"status": "ignored", "reason": "unknown_product"}), 200
             
             producto = PRODUCTOS[producto_id]
             token = secrets.token_urlsafe(32)
@@ -282,14 +294,20 @@ def webhook_recurrente():
             """
             
             enviar_email_simple(email, nombre, f"Tu {producto['nombre']} está listo", html_email)
-            logger.info(f"✅ Venta completada: {producto_id} -> {email}")
+            logger.info(f"✅ Email enviado a {email}")
             return jsonify({"status": "ok"}), 200
         
-        elif event_type == 'subscription.active':
+        # ========================================
+        # SUSCRIPCIÓN CREADA
+        # ========================================
+        elif event_type == 'subscription.create':
+            logger.info("🔄 Procesando creación de suscripción")
+            
             email = data.get('customer', {}).get('email')
             nombre = data.get('customer', {}).get('full_name', 'Cliente')
             
             if not email:
+                logger.error("No se encontró email en el webhook")
                 return jsonify({"status": "error"}), 400
             
             token_sub = secrets.token_urlsafe(32)
@@ -299,7 +317,8 @@ def webhook_recurrente():
                 "email": email,
                 "nombre": nombre,
                 "expira": fecha_expiracion,
-                "activa": True
+                "activa": True,
+                "fecha_inicio": datetime.now().timestamp()
             }
             
             link_vault = f"https://{request.host}/vault?token={token_sub}"
@@ -310,43 +329,63 @@ def webhook_recurrente():
             <head><meta charset="UTF-8"></head>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif; background: #ffffff; padding: 32px;">
                 <div style="max-width: 520px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 20px; padding: 32px;">
-                    <h1 style="font-family: 'Tektur', monospace; font-size: 1.5rem; font-weight: 700; margin-bottom: 12px;">Bienvenido a NX PRO</h1>
-                    <p style="color: #555; margin-bottom: 12px;">Tu suscripción está activa, {nombre}.</p>
+                    <h1 style="font-family: 'Tektur', monospace; font-size: 1.5rem; font-weight: 700;">Bienvenido a NX PRO</h1>
+                    <p style="color: #555; margin: 16px 0;">Tu suscripción está activa, {nombre}.</p>
                     <div style="background: #fafafa; padding: 20px; border-radius: 12px; margin: 20px 0;">
                         <p style="margin-bottom: 8px;"><strong>Tu vault personal</strong></p>
-                        <a href="{link_vault}" style="color: #000;">{link_vault}</a>
+                        <a href="{link_vault}" style="color: #000; word-break: break-all;">{link_vault}</a>
                     </div>
-                    <p style="font-size: 0.7rem; color: #999;">Guarda este enlace. Se renueva automáticamente.</p>
+                    <p style="font-size: 0.7rem; color: #999;">Guarda este enlace. Se renueva automáticamente cada mes.</p>
                 </div>
             </body>
             </html>
             """
             
             enviar_email_simple(email, nombre, "NX PRO — Tu suscripción está activa", html_email)
-            logger.info(f"✅ Suscripción activada para {email}")
+            logger.info(f"✅ Suscripción creada para {email}")
             return jsonify({"status": "ok", "token": token_sub}), 200
         
-        elif event_type == 'subscription.canceled':
+        # ========================================
+        # SUSCRIPCIÓN CANCELADA
+        # ========================================
+        elif event_type == 'subscription.cance.':
+            logger.info("❌ Procesando cancelación de suscripción")
+            
             email = data.get('customer', {}).get('email')
+            
+            if not email:
+                logger.error("No se encontró email en el webhook")
+                return jsonify({"status": "error"}), 400
+            
+            encontrado = False
             for token, sub in suscripciones_activas.items():
-                if sub["email"] == email:
+                if sub["email"] == email and sub["activa"]:
                     suscripciones_activas[token]["activa"] = False
-                    logger.info(f"❌ Suscripción cancelada para {email}")
+                    encontrado = True
+                    logger.info(f"❌ Suscripción desactivada para {email}")
                     break
+            
+            if not encontrado:
+                logger.warning(f"No se encontró suscripción activa para {email}")
+            
             return jsonify({"status": "ok"}), 200
         
-        return jsonify({"status": "ignored"}), 200
+        # Eventos no manejados
+        else:
+            logger.info(f"Evento ignorado: {event_type}")
+            return jsonify({"status": "ignored"}), 200
         
     except Exception as e:
-        logger.error(f"Error en webhook: {e}")
+        logger.error(f"❌ Error en webhook: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 # ============================================
-# ENDPOINTS
+# ENDPOINTS DE DESCARGA
 # ============================================
 
 @app.route('/descargar/<token>')
 def descargar_archivo(token):
+    """Entrega el ZIP con los visualizadores al cliente que compró"""
     email = None
     datos = None
     for mail, d in descargas_autorizadas.items():
@@ -359,8 +398,15 @@ def descargar_archivo(token):
         return "Enlace inválido", 404
     
     if datetime.now().timestamp() - datos["timestamp"] > 7 * 24 * 3600:
-        return "Enlace expirado", 403
+        return "Enlace expirado (máximo 7 días)", 403
     
+    producto_id = datos["producto_id"]
+    
+    # Verificar que el producto existe
+    if producto_id not in PRODUCTOS:
+        return "Producto no encontrado", 404
+    
+    # Entregar el ZIP generado desde el servidor
     return send_file(
         crear_zip_bundle(), 
         as_attachment=True, 
@@ -386,7 +432,7 @@ def verificar_suscripcion_endpoint():
     })
 
 # ============================================
-# VAULT — CON STATS MÁS GRANDES
+# VAULT PARA SUSCRIPTORES
 # ============================================
 
 @app.route('/vault')
@@ -423,239 +469,42 @@ def vault_suscriptor():
         <title>NX PRO VAULT</title>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=Tektur:wght@400;500;600;700;800;900&display=swap');
-            
-            * {{
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }}
-            
-            body {{
-                font-family: 'Inter', sans-serif;
-                background: #ffffff;
-                color: #1a1a1a;
-                line-height: 1.4;
-            }}
-            
-            .header {{
-                border-bottom: 1px solid #eaeaea;
-                padding: 24px 32px;
-                background: #ffffff;
-                position: sticky;
-                top: 0;
-                z-index: 10;
-            }}
-            
-            .header-inner {{
-                max-width: 1280px;
-                margin: 0 auto;
-                display: flex;
-                justify-content: space-between;
-                align-items: baseline;
-                flex-wrap: wrap;
-                gap: 20px;
-            }}
-            
-            .logo-area h1 {{
-                font-family: 'Tektur', monospace;
-                font-size: 1rem;
-                font-weight: 700;
-                letter-spacing: -0.01em;
-                color: #1a1a1a;
-            }}
-            
-            .logo-area p {{
-                font-size: 0.65rem;
-                color: #999;
-                margin-top: 4px;
-                letter-spacing: 0.3px;
-            }}
-            
-            .user-area {{
-                text-align: right;
-            }}
-            
-            .user-name {{
-                font-weight: 500;
-                font-size: 0.85rem;
-            }}
-            
-            .user-expiry {{
-                font-size: 0.65rem;
-                color: #00a86b;
-                margin-top: 2px;
-            }}
-            
-            .badge {{
-                display: inline-block;
-                background: #f0f0f0;
-                padding: 2px 10px;
-                border-radius: 20px;
-                font-size: 0.6rem;
-                font-weight: 400;
-                margin-top: 6px;
-                color: #555;
-            }}
-            
-            .container {{
-                max-width: 1280px;
-                margin: 0 auto;
-                padding: 40px 32px;
-            }}
-            
-            .stats-grid {{
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 1px;
-                background: #eaeaea;
-                border-radius: 16px;
-                overflow: hidden;
-                margin-bottom: 60px;
-            }}
-            
-            .stat-card {{
-                background: #fff;
-                padding: 28px 24px;
-                text-align: center;
-            }}
-            
-            .stat-number {{
-                font-family: 'Tektur', monospace;
-                font-size: 2.5rem;
-                font-weight: 700;
-                letter-spacing: -0.02em;
-                color: #1a1a1a;
-            }}
-            
-            .stat-label {{
-                font-size: 0.7rem;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                color: #999;
-                margin-top: 8px;
-            }}
-            
-            .season {{
-                margin-bottom: 60px;
-            }}
-            
-            .season-title {{
-                font-family: 'Tektur', monospace;
-                font-size: 1rem;
-                font-weight: 700;
-                letter-spacing: -0.01em;
-                margin-bottom: 28px;
-                padding-bottom: 10px;
-                border-bottom: 1px solid #eaeaea;
-            }}
-            
-            .visual-grid {{
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-                gap: 28px;
-            }}
-            
-            .visual-card {{
-                border: 1px solid #eaeaea;
-                border-radius: 20px;
-                background: #ffffff;
-                transition: all 0.2s ease;
-                cursor: pointer;
-                overflow: hidden;
-            }}
-            
-            .visual-card:hover {{
-                transform: translateY(-4px);
-                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04);
-                border-color: #d0d0d0;
-            }}
-            
-            .visual-preview {{
-                height: 180px;
-                background: #fafafa;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-family: 'Tektur', monospace;
-                font-size: 2rem;
-                font-weight: 700;
-                color: #ccc;
-                border-bottom: 1px solid #eaeaea;
-            }}
-            
-            .visual-info {{
-                padding: 20px;
-            }}
-            
-            .visual-info h3 {{
-                font-family: 'Tektur', monospace;
-                font-size: 0.9rem;
-                font-weight: 700;
-                margin-bottom: 6px;
-                letter-spacing: -0.01em;
-            }}
-            
-            .visual-info p {{
-                font-size: 0.7rem;
-                color: #888;
-                margin-bottom: 16px;
-            }}
-            
-            .btn-open {{
-                background: none;
-                border: 1px solid #1a1a1a;
-                padding: 6px 18px;
-                border-radius: 40px;
-                font-size: 0.65rem;
-                font-weight: 500;
-                cursor: pointer;
-                font-family: 'Inter', sans-serif;
-                transition: all 0.15s ease;
-                color: #1a1a1a;
-            }}
-            
-            .btn-open:hover {{
-                background: #1a1a1a;
-                color: #fff;
-            }}
-            
-            .footer {{
-                border-top: 1px solid #eaeaea;
-                padding: 32px 32px;
-                text-align: center;
-                font-size: 0.65rem;
-                color: #999;
-            }}
-            
-            .footer a {{
-                color: #1a1a1a;
-                text-decoration: none;
-            }}
-            
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{ font-family: 'Inter', sans-serif; background: #ffffff; color: #1a1a1a; line-height: 1.4; }}
+            .header {{ border-bottom: 1px solid #eaeaea; padding: 24px 32px; background: #ffffff; position: sticky; top: 0; z-index: 10; }}
+            .header-inner {{ max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 20px; }}
+            .logo-area h1 {{ font-family: 'Tektur', monospace; font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; color: #1a1a1a; }}
+            .logo-area p {{ font-size: 0.65rem; color: #999; margin-top: 4px; letter-spacing: 0.3px; }}
+            .user-area {{ text-align: right; }}
+            .user-name {{ font-weight: 500; font-size: 0.85rem; }}
+            .user-expiry {{ font-size: 0.65rem; color: #00a86b; margin-top: 2px; }}
+            .badge {{ display: inline-block; background: #f0f0f0; padding: 2px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 400; margin-top: 6px; color: #555; }}
+            .container {{ max-width: 1280px; margin: 0 auto; padding: 40px 32px; }}
+            .stats-grid {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #eaeaea; border-radius: 16px; overflow: hidden; margin-bottom: 60px; }}
+            .stat-card {{ background: #fff; padding: 28px 24px; text-align: center; }}
+            .stat-number {{ font-family: 'Tektur', monospace; font-size: 2.5rem; font-weight: 700; letter-spacing: -0.02em; color: #1a1a1a; }}
+            .stat-label {{ font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-top: 8px; }}
+            .season {{ margin-bottom: 60px; }}
+            .season-title {{ font-family: 'Tektur', monospace; font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 28px; padding-bottom: 10px; border-bottom: 1px solid #eaeaea; }}
+            .visual-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 28px; }}
+            .visual-card {{ border: 1px solid #eaeaea; border-radius: 20px; background: #ffffff; transition: all 0.2s ease; cursor: pointer; overflow: hidden; }}
+            .visual-card:hover {{ transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04); border-color: #d0d0d0; }}
+            .visual-preview {{ height: 180px; background: #fafafa; display: flex; align-items: center; justify-content: center; font-family: 'Tektur', monospace; font-size: 2rem; font-weight: 700; color: #ccc; border-bottom: 1px solid #eaeaea; }}
+            .visual-info {{ padding: 20px; }}
+            .visual-info h3 {{ font-family: 'Tektur', monospace; font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; }}
+            .visual-info p {{ font-size: 0.7rem; color: #888; margin-bottom: 16px; }}
+            .btn-open {{ background: none; border: 1px solid #1a1a1a; padding: 6px 18px; border-radius: 40px; font-size: 0.65rem; font-weight: 500; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s ease; color: #1a1a1a; }}
+            .btn-open:hover {{ background: #1a1a1a; color: #fff; }}
+            .footer {{ border-top: 1px solid #eaeaea; padding: 32px 32px; text-align: center; font-size: 0.65rem; color: #999; }}
+            .footer a {{ color: #1a1a1a; text-decoration: none; }}
             @media (max-width: 768px) {{
-                .header-inner {{
-                    flex-direction: column;
-                    align-items: flex-start;
-                }}
-                .user-area {{
-                    text-align: left;
-                }}
-                .stats-grid {{
-                    grid-template-columns: 1fr;
-                    gap: 1px;
-                }}
-                .container {{
-                    padding: 28px 20px;
-                }}
-                .season-title {{
-                    font-size: 0.9rem;
-                }}
-                .visual-grid {{
-                    grid-template-columns: 1fr;
-                }}
-                .stat-number {{
-                    font-size: 1.8rem;
-                }}
+                .header-inner {{ flex-direction: column; align-items: flex-start; }}
+                .user-area {{ text-align: left; }}
+                .stats-grid {{ grid-template-columns: 1fr; gap: 1px; }}
+                .container {{ padding: 28px 20px; }}
+                .season-title {{ font-size: 0.9rem; }}
+                .visual-grid {{ grid-template-columns: 1fr; }}
+                .stat-number {{ font-size: 1.8rem; }}
             }}
         </style>
     </head>
@@ -879,16 +728,18 @@ def servir_imagen(filename):
     ruta = os.path.join("files", "images", filename)
     if not os.path.exists(ruta):
         return "", 404
-    return send_file(ruta)
+    return send_file(ruta, mimetype='image/png')
 
 # ============================================
-# PÁGINA PRINCIPAL — PRECIOS Y FEATURES GIGANTES
+# PÁGINA PRINCIPAL
 # ============================================
 
 @app.route('/')
 def home():
     seasons = obtener_temporadas()
     total_visuales = sum(len(s["visuales"]) for s in seasons)
+    
+    logo_html = '<img src="/files/images/logo.png" alt="Najarro X" style="height: 48px; width: auto;">' if os.path.exists("files/images/logo.png") else '<h1 style="font-size: 1.8rem;">NX</h1>'
     
     return f'''
     <!DOCTYPE html>
@@ -899,249 +750,46 @@ def home():
         <title>Najarro X — VJ Live Engines</title>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=Tektur:wght@400;500;600;700;800;900&display=swap');
-            
-            * {{
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }}
-            
-            body {{
-                font-family: 'Inter', sans-serif;
-                background: #ffffff;
-                color: #1a1a1a;
-                line-height: 1.4;
-            }}
-            
-            .nav {{
-                padding: 24px 32px;
-                border-bottom: 1px solid #eaeaea;
-                max-width: 1280px;
-                margin: 0 auto;
-                width: 100%;
-            }}
-            
-            .nav-inner {{
-                display: flex;
-                justify-content: space-between;
-                align-items: baseline;
-                flex-wrap: wrap;
-                gap: 20px;
-            }}
-            
-            .nav-brand {{
-                font-family: 'Tektur', monospace;
-                font-size: 0.85rem;
-                font-weight: 700;
-                letter-spacing: -0.01em;
-            }}
-            
-            .nav-brand span {{
-                color: #999;
-                font-weight: 400;
-            }}
-            
-            .nav-links a {{
-                color: #1a1a1a;
-                text-decoration: none;
-                font-size: 0.75rem;
-                margin-left: 28px;
-                transition: opacity 0.2s;
-            }}
-            
-            .nav-links a:hover {{
-                opacity: 0.6;
-            }}
-            
-            .hero {{
-                max-width: 800px;
-                margin: 60px auto 80px;
-                padding: 0 32px;
-                text-align: center;
-            }}
-            
-            .hero h1 {{
-                font-family: 'Tektur', monospace;
-                font-size: 4rem;
-                font-weight: 800;
-                letter-spacing: -0.02em;
-                line-height: 1.1;
-                margin-bottom: 12px;
-            }}
-            
-            .hero p {{
-                font-size: 0.95rem;
-                color: #666;
-                max-width: 560px;
-                margin: 0 auto;
-                line-height: 1.4;
-            }}
-            
-            .divider {{
-                width: 40px;
-                height: 1px;
-                background: #e0e0e0;
-                margin: 20px auto 0;
-            }}
-            
-            .products {{
-                max-width: 1000px;
-                margin: 0 auto;
-                padding: 0 32px 60px;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 32px;
-            }}
-            
-            .product-card {{
-                border: 1px solid #eaeaea;
-                border-radius: 24px;
-                padding: 32px;
-                transition: all 0.2s ease;
-                background: #ffffff;
-            }}
-            
-            .product-card:hover {{
-                transform: translateY(-4px);
-                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04);
-                border-color: #d0d0d0;
-            }}
-            
-            .product-card h2 {{
-                font-family: 'Tektur', monospace;
-                font-size: 1.2rem;
-                font-weight: 700;
-                letter-spacing: -0.01em;
-                margin-bottom: 8px;
-            }}
-            
-            .product-price {{
-                font-family: 'Tektur', monospace;
-                font-size: 3.5rem;
-                font-weight: 800;
-                margin: 20px 0 8px;
-                letter-spacing: -0.02em;
-                line-height: 1;
-            }}
-            
-            .product-price small {{
-                font-size: 1.1rem;
-                font-weight: 500;
-                color: #888;
-            }}
-            
-            .product-desc {{
-                font-size: 0.75rem;
-                color: #888;
-                margin-bottom: 24px;
-                line-height: 1.4;
-            }}
-            
-            .product-link {{
-                display: inline-block;
-                background: #1a1a1a;
-                color: #fff;
-                padding: 8px 24px;
-                border-radius: 40px;
-                text-decoration: none;
-                font-size: 0.7rem;
-                font-weight: 500;
-                transition: background 0.2s;
-                margin-right: 12px;
-            }}
-            
-            .product-link-secondary {{
-                background: transparent;
-                color: #1a1a1a;
-                border: 1px solid #e0e0e0;
-            }}
-            
-            .product-link-secondary:hover {{
-                background: #f5f5f5;
-            }}
-            
-            .product-link:hover {{
-                background: #333;
-            }}
-            
-            .features {{
-                max-width: 800px;
-                margin: 0 auto;
-                padding: 50px 32px;
-                border-top: 1px solid #eaeaea;
-                display: flex;
-                justify-content: center;
-                gap: 48px;
-                flex-wrap: wrap;
-            }}
-            
-            .feature-item {{
-                text-align: center;
-            }}
-            
-            .feature-number {{
-                font-family: 'Tektur', monospace;
-                font-size: 3rem;
-                font-weight: 800;
-                margin-bottom: 8px;
-                letter-spacing: -0.02em;
-                line-height: 1;
-            }}
-            
-            .feature-label {{
-                font-size: 0.9rem;
-                color: #999;
-                text-transform: uppercase;
-                letter-spacing: 1.5px;
-            }}
-            
-            .footer {{
-                border-top: 1px solid #eaeaea;
-                padding: 32px 32px;
-                text-align: center;
-                font-size: 0.65rem;
-                color: #999;
-            }}
-            
-            .footer a {{
-                color: #1a1a1a;
-                text-decoration: none;
-            }}
-            
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{ font-family: 'Inter', sans-serif; background: #ffffff; color: #1a1a1a; line-height: 1.4; }}
+            .nav {{ padding: 24px 32px; border-bottom: 1px solid #eaeaea; max-width: 1280px; margin: 0 auto; width: 100%; }}
+            .nav-inner {{ display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 20px; }}
+            .nav-brand {{ font-family: 'Tektur', monospace; font-size: 0.85rem; font-weight: 700; letter-spacing: -0.01em; }}
+            .nav-brand span {{ color: #999; font-weight: 400; }}
+            .nav-links a {{ color: #1a1a1a; text-decoration: none; font-size: 0.75rem; margin-left: 28px; transition: opacity 0.2s; }}
+            .nav-links a:hover {{ opacity: 0.6; }}
+            .hero {{ max-width: 800px; margin: 60px auto 80px; padding: 0 32px; text-align: center; }}
+            .hero h1 {{ font-family: 'Tektur', monospace; font-size: 4rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 12px; }}
+            .hero p {{ font-size: 0.95rem; color: #666; max-width: 560px; margin: 0 auto; line-height: 1.4; }}
+            .divider {{ width: 40px; height: 1px; background: #e0e0e0; margin: 20px auto 0; }}
+            .products {{ max-width: 1000px; margin: 0 auto; padding: 0 32px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }}
+            .product-card {{ border: 1px solid #eaeaea; border-radius: 24px; padding: 32px; transition: all 0.2s ease; background: #ffffff; }}
+            .product-card:hover {{ transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04); border-color: #d0d0d0; }}
+            .product-card h2 {{ font-family: 'Tektur', monospace; font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 8px; }}
+            .product-price {{ font-family: 'Tektur', monospace; font-size: 3.5rem; font-weight: 800; margin: 20px 0 8px; letter-spacing: -0.02em; line-height: 1; }}
+            .product-price small {{ font-size: 1.1rem; font-weight: 500; color: #888; }}
+            .product-desc {{ font-size: 0.75rem; color: #888; margin-bottom: 24px; line-height: 1.4; }}
+            .product-link {{ display: inline-block; background: #1a1a1a; color: #fff; padding: 8px 24px; border-radius: 40px; text-decoration: none; font-size: 0.7rem; font-weight: 500; transition: background 0.2s; margin-right: 12px; }}
+            .product-link-secondary {{ background: transparent; color: #1a1a1a; border: 1px solid #e0e0e0; }}
+            .product-link-secondary:hover {{ background: #f5f5f5; }}
+            .product-link:hover {{ background: #333; }}
+            .features {{ max-width: 800px; margin: 0 auto; padding: 50px 32px; border-top: 1px solid #eaeaea; display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; }}
+            .feature-item {{ text-align: center; }}
+            .feature-number {{ font-family: 'Tektur', monospace; font-size: 3rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.02em; line-height: 1; }}
+            .feature-label {{ font-size: 0.9rem; color: #999; text-transform: uppercase; letter-spacing: 1.5px; }}
+            .footer {{ border-top: 1px solid #eaeaea; padding: 32px 32px; text-align: center; font-size: 0.65rem; color: #999; }}
+            .footer a {{ color: #1a1a1a; text-decoration: none; }}
             @media (max-width: 768px) {{
-                .hero h1 {{
-                    font-size: 2.5rem;
-                }}
-                .products {{
-                    grid-template-columns: 1fr;
-                    gap: 20px;
-                }}
-                .nav-links a {{
-                    margin-left: 0;
-                    margin-right: 20px;
-                }}
-                .product-card {{
-                    padding: 24px;
-                }}
-                .hero {{
-                    margin: 40px auto 50px;
-                }}
-                .features {{
-                    gap: 32px;
-                    padding: 40px 20px;
-                }}
-                .product-price {{
-                    font-size: 2.2rem;
-                }}
-                .product-price small {{
-                    font-size: 0.9rem;
-                }}
-                .feature-number {{
-                    font-size: 2rem;
-                }}
-                .feature-label {{
-                    font-size: 0.75rem;
-                }}
+                .hero h1 {{ font-size: 2.5rem; }}
+                .products {{ grid-template-columns: 1fr; gap: 20px; }}
+                .nav-links a {{ margin-left: 0; margin-right: 20px; }}
+                .product-card {{ padding: 24px; }}
+                .hero {{ margin: 40px auto 50px; }}
+                .features {{ gap: 32px; padding: 40px 20px; }}
+                .product-price {{ font-size: 2.2rem; }}
+                .product-price small {{ font-size: 0.9rem; }}
+                .feature-number {{ font-size: 2rem; }}
+                .feature-label {{ font-size: 0.75rem; }}
             }}
         </style>
     </head>
@@ -1224,7 +872,7 @@ def health():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
-    logger.info(f"🌐 Servidor iniciado en puerto {port}")
+    logger.info(f"🌐 Servidor NX PRO VAULT iniciado en puerto {port}")
     logger.info(f"💰 Bundle: $15 | Suscripción: $7/mes")
     logger.info(f"⏱️ Demo duration: {DEMO_DURATION_SECONDS} segundos")
     app.run(host='0.0.0.0', port=port, debug=False)
