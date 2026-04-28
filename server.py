@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # server.py - NX PRO VAULT (Diseño Elegante con Tektur + Bloqueo configurable)
+# Versión: H1 más grande, espacios reducidos entre texto
 
 from flask import Flask, request, jsonify, send_file, abort
 import os
@@ -115,24 +116,24 @@ def crear_zip_bundle():
             <meta charset="UTF-8">
             <title>NX ENGINES • Manual</title>
             <style>
-                @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Tektur:wght@400;500;600;700&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Tektur:wght@400;500;600;700;800;900&display=swap');
                 * { margin: 0; padding: 0; box-sizing: border-box; }
                 body {
                     font-family: 'Inter', sans-serif;
                     background: #ffffff;
                     color: #1a1a1a;
-                    line-height: 1.5;
+                    line-height: 1.4;
                 }
                 .container { max-width: 720px; margin: 0 auto; padding: 60px 24px; }
-                h1 { font-family: 'Tektur', monospace; font-size: 2rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 16px; }
-                h2 { font-family: 'Tektur', monospace; font-size: 1rem; font-weight: 500; margin: 32px 0 16px; letter-spacing: -0.01em; text-transform: uppercase; }
-                p { color: #555; margin-bottom: 16px; }
-                .divider { width: 40px; height: 1px; background: #e0e0e0; margin: 32px 0; }
-                .card { border: 1px solid #eaeaea; border-radius: 12px; padding: 24px; margin: 24px 0; background: #fafafa; }
+                h1 { font-family: 'Tektur', monospace; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 12px; }
+                h2 { font-family: 'Tektur', monospace; font-size: 1rem; font-weight: 600; margin: 24px 0 12px; letter-spacing: -0.01em; text-transform: uppercase; }
+                p { color: #555; margin-bottom: 12px; line-height: 1.4; }
+                .divider { width: 40px; height: 1px; background: #e0e0e0; margin: 24px 0; }
+                .card { border: 1px solid #eaeaea; border-radius: 12px; padding: 20px; margin: 20px 0; background: #fafafa; }
                 .key { font-family: monospace; background: #f0f0f0; padding: 2px 8px; border-radius: 6px; font-size: 0.85rem; }
-                table { width: 100%; border-collapse: collapse; margin: 16px 0; }
-                td, th { padding: 10px 0; border-bottom: 1px solid #eee; text-align: left; }
-                .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #eee; color: #999; font-size: 0.75rem; text-align: center; }
+                table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+                td, th { padding: 8px 0; border-bottom: 1px solid #eee; text-align: left; }
+                .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 0.75rem; text-align: center; }
             </style>
         </head>
         <body>
@@ -267,15 +268,15 @@ def webhook_recurrente():
             <html>
             <head><meta charset="UTF-8"></head>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif; background: #ffffff; padding: 32px;">
-                <div style="max-width: 520px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 16px; padding: 40px;">
-                    <h1 style="font-family: 'Tektur', monospace; font-size: 1.5rem; font-weight: 500; margin-bottom: 16px;">Gracias, {nombre}</h1>
-                    <p style="color: #555;">Tu bundle <strong>{producto['nombre']}</strong> está listo para descargar.</p>
-                    <div style="background: #fafafa; padding: 20px; border-radius: 12px; margin: 24px 0;">
-                        <p style="margin-bottom: 12px;"><strong>Enlace de descarga</strong></p>
+                <div style="max-width: 520px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 20px; padding: 32px;">
+                    <h1 style="font-family: 'Tektur', monospace; font-size: 1.5rem; font-weight: 700; margin-bottom: 12px;">Gracias, {nombre}</h1>
+                    <p style="color: #555; margin-bottom: 12px;">Tu bundle <strong>{producto['nombre']}</strong> está listo para descargar.</p>
+                    <div style="background: #fafafa; padding: 20px; border-radius: 12px; margin: 20px 0;">
+                        <p style="margin-bottom: 8px;"><strong>Enlace de descarga</strong></p>
                         <a href="{link_descarga}" style="color: #000; word-break: break-all;">{link_descarga}</a>
-                        <p style="margin-top: 16px;"><strong>Contraseña</strong><br><span style="font-family: monospace;">{contrasena}</span></p>
+                        <p style="margin-top: 12px;"><strong>Contraseña</strong><br><span style="font-family: monospace;">{contrasena}</span></p>
                     </div>
-                    <p style="font-size: 0.75rem; color: #999;">Este enlace expira en 7 días.</p>
+                    <p style="font-size: 0.7rem; color: #999;">Este enlace expira en 7 días.</p>
                 </div>
             </body>
             </html>
@@ -309,14 +310,14 @@ def webhook_recurrente():
             <html>
             <head><meta charset="UTF-8"></head>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif; background: #ffffff; padding: 32px;">
-                <div style="max-width: 520px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 16px; padding: 40px;">
-                    <h1 style="font-family: 'Tektur', monospace; font-size: 1.5rem; font-weight: 500;">Bienvenido a NX PRO</h1>
-                    <p style="color: #555;">Tu suscripción está activa, {nombre}.</p>
-                    <div style="background: #fafafa; padding: 20px; border-radius: 12px; margin: 24px 0;">
-                        <p><strong>Tu vault personal</strong></p>
+                <div style="max-width: 520px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 20px; padding: 32px;">
+                    <h1 style="font-family: 'Tektur', monospace; font-size: 1.5rem; font-weight: 700; margin-bottom: 12px;">Bienvenido a NX PRO</h1>
+                    <p style="color: #555; margin-bottom: 12px;">Tu suscripción está activa, {nombre}.</p>
+                    <div style="background: #fafafa; padding: 20px; border-radius: 12px; margin: 20px 0;">
+                        <p style="margin-bottom: 8px;"><strong>Tu vault personal</strong></p>
                         <a href="{link_vault}" style="color: #000;">{link_vault}</a>
                     </div>
-                    <p style="font-size: 0.75rem; color: #999;">Guarda este enlace. Se renueva automáticamente.</p>
+                    <p style="font-size: 0.7rem; color: #999;">Guarda este enlace. Se renueva automáticamente.</p>
                 </div>
             </body>
             </html>
@@ -386,7 +387,7 @@ def verificar_suscripcion_endpoint():
     })
 
 # ============================================
-# VAULT — DISEÑO CON TEKTUR
+# VAULT — DISEÑO CON TEKTUR BOLD
 # ============================================
 
 @app.route('/vault')
@@ -399,9 +400,9 @@ def vault_suscriptor():
         <head><meta charset="UTF-8"><title>Acceso</title></head>
         <body style="font-family: 'Inter', sans-serif; background: #fff; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
             <div style="text-align: center; padding: 32px;">
-                <h1 style="font-family: 'Tektur', monospace; font-weight: 400; font-size: 1.5rem;">Acceso restringido</h1>
-                <p style="color: #666;">Este contenido es exclusivo para suscriptores.</p>
-                <a href="https://www.najarrox.xyz" style="color: #000; border: 1px solid #e0e0e0; padding: 10px 24px; text-decoration: none; display: inline-block; margin-top: 24px;">Suscribirse</a>
+                <h1 style="font-family: 'Tektur', monospace; font-weight: 700; font-size: 1.5rem; margin-bottom: 12px;">Acceso restringido</h1>
+                <p style="color: #666; margin-bottom: 12px;">Este contenido es exclusivo para suscriptores.</p>
+                <a href="https://www.najarrox.xyz" style="color: #000; border: 1px solid #e0e0e0; padding: 10px 24px; text-decoration: none; display: inline-block; margin-top: 20px;">Suscribirse</a>
             </div>
         </body>
         </html>
@@ -422,7 +423,7 @@ def vault_suscriptor():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>NX PRO VAULT</title>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=Tektur:wght@400;500;600;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=Tektur:wght@400;500;600;700;800;900&display=swap');
             
             * {{
                 margin: 0;
@@ -434,12 +435,12 @@ def vault_suscriptor():
                 font-family: 'Inter', sans-serif;
                 background: #ffffff;
                 color: #1a1a1a;
-                line-height: 1.5;
+                line-height: 1.4;
             }}
             
             .header {{
                 border-bottom: 1px solid #eaeaea;
-                padding: 28px 32px;
+                padding: 24px 32px;
                 background: #ffffff;
                 position: sticky;
                 top: 0;
@@ -459,13 +460,13 @@ def vault_suscriptor():
             .logo-area h1 {{
                 font-family: 'Tektur', monospace;
                 font-size: 1rem;
-                font-weight: 500;
+                font-weight: 700;
                 letter-spacing: -0.01em;
                 color: #1a1a1a;
             }}
             
             .logo-area p {{
-                font-size: 0.7rem;
+                font-size: 0.65rem;
                 color: #999;
                 margin-top: 4px;
                 letter-spacing: 0.3px;
@@ -477,11 +478,11 @@ def vault_suscriptor():
             
             .user-name {{
                 font-weight: 500;
-                font-size: 0.9rem;
+                font-size: 0.85rem;
             }}
             
             .user-expiry {{
-                font-size: 0.7rem;
+                font-size: 0.65rem;
                 color: #00a86b;
                 margin-top: 2px;
             }}
@@ -489,9 +490,9 @@ def vault_suscriptor():
             .badge {{
                 display: inline-block;
                 background: #f0f0f0;
-                padding: 2px 12px;
+                padding: 2px 10px;
                 border-radius: 20px;
-                font-size: 0.65rem;
+                font-size: 0.6rem;
                 font-weight: 400;
                 margin-top: 6px;
                 color: #555;
@@ -500,7 +501,7 @@ def vault_suscriptor():
             .container {{
                 max-width: 1280px;
                 margin: 0 auto;
-                padding: 56px 32px;
+                padding: 40px 32px;
             }}
             
             .stats-grid {{
@@ -510,49 +511,49 @@ def vault_suscriptor():
                 background: #eaeaea;
                 border-radius: 16px;
                 overflow: hidden;
-                margin-bottom: 80px;
+                margin-bottom: 60px;
             }}
             
             .stat-card {{
                 background: #fff;
-                padding: 32px 24px;
+                padding: 28px 24px;
                 text-align: center;
             }}
             
             .stat-number {{
                 font-family: 'Tektur', monospace;
-                font-size: 2.2rem;
-                font-weight: 500;
+                font-size: 2rem;
+                font-weight: 700;
                 letter-spacing: -0.02em;
                 color: #1a1a1a;
             }}
             
             .stat-label {{
-                font-size: 0.7rem;
+                font-size: 0.65rem;
                 text-transform: uppercase;
                 letter-spacing: 1px;
                 color: #999;
-                margin-top: 8px;
+                margin-top: 6px;
             }}
             
             .season {{
-                margin-bottom: 72px;
+                margin-bottom: 60px;
             }}
             
             .season-title {{
                 font-family: 'Tektur', monospace;
-                font-size: 1.2rem;
-                font-weight: 400;
+                font-size: 1rem;
+                font-weight: 700;
                 letter-spacing: -0.01em;
-                margin-bottom: 40px;
-                padding-bottom: 12px;
+                margin-bottom: 28px;
+                padding-bottom: 10px;
                 border-bottom: 1px solid #eaeaea;
             }}
             
             .visual-grid {{
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-                gap: 32px;
+                gap: 28px;
             }}
             
             .visual-card {{
@@ -571,42 +572,42 @@ def vault_suscriptor():
             }}
             
             .visual-preview {{
-                height: 200px;
+                height: 180px;
                 background: #fafafa;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-family: 'Tektur', monospace;
-                font-size: 2.5rem;
-                font-weight: 400;
+                font-size: 2rem;
+                font-weight: 700;
                 color: #ccc;
                 border-bottom: 1px solid #eaeaea;
             }}
             
             .visual-info {{
-                padding: 24px;
+                padding: 20px;
             }}
             
             .visual-info h3 {{
                 font-family: 'Tektur', monospace;
-                font-size: 1rem;
-                font-weight: 500;
-                margin-bottom: 8px;
+                font-size: 0.9rem;
+                font-weight: 700;
+                margin-bottom: 6px;
                 letter-spacing: -0.01em;
             }}
             
             .visual-info p {{
-                font-size: 0.8rem;
+                font-size: 0.7rem;
                 color: #888;
-                margin-bottom: 20px;
+                margin-bottom: 16px;
             }}
             
             .btn-open {{
                 background: none;
                 border: 1px solid #1a1a1a;
-                padding: 8px 20px;
+                padding: 6px 18px;
                 border-radius: 40px;
-                font-size: 0.7rem;
+                font-size: 0.65rem;
                 font-weight: 500;
                 cursor: pointer;
                 font-family: 'Inter', sans-serif;
@@ -621,9 +622,9 @@ def vault_suscriptor():
             
             .footer {{
                 border-top: 1px solid #eaeaea;
-                padding: 40px 32px;
+                padding: 32px 32px;
                 text-align: center;
-                font-size: 0.7rem;
+                font-size: 0.65rem;
                 color: #999;
             }}
             
@@ -645,10 +646,10 @@ def vault_suscriptor():
                     gap: 1px;
                 }}
                 .container {{
-                    padding: 32px 20px;
+                    padding: 28px 20px;
                 }}
                 .season-title {{
-                    font-size: 1rem;
+                    font-size: 0.9rem;
                 }}
                 .visual-grid {{
                     grid-template-columns: 1fr;
@@ -715,7 +716,7 @@ def vault_suscriptor():
     html += '''
             <div class="footer">
                 <p><a href="https://www.najarrox.xyz">najarrox.xyz</a> — soporte@najarrox.xyz</p>
-                <p style="margin-top: 12px;">© Najarro X Studio</p>
+                <p style="margin-top: 8px;">© Najarro X Studio</p>
             </div>
         </div>
     </body>
@@ -725,7 +726,7 @@ def vault_suscriptor():
     return html
 
 # ============================================
-# SERVIDOR DE VISUALES Y DEMO (CON BLOQUEO CONFIGURABLE)
+# SERVIDOR DE VISUALES Y DEMO
 # ============================================
 
 @app.route('/visual/<season>/<filename>')
@@ -748,9 +749,8 @@ def servir_visual(season, filename):
         contenido = f.read()
     
     if not modo_suscriptor:
-        # Usar la variable configurable DEMO_DURATION_SECONDS
         demo_script = f'''
-        <div id="nx-demo-badge" style="position:fixed;bottom:24px;right:24px;background:#ffffff;color:#1a1a1a;font-family:'Inter',-apple-system,sans-serif;padding:10px 20px;z-index:9999;font-size:13px;font-weight:500;border:1px solid #e0e0e0;border-radius:40px;backdrop-filter:blur(8px);box-shadow:0 2px 8px rgba(0,0,0,0.02);pointer-events:none;">
+        <div id="nx-demo-badge" style="position:fixed;bottom:24px;right:24px;background:#ffffff;color:#1a1a1a;font-family:'Inter',-apple-system,sans-serif;padding:8px 16px;z-index:9999;font-size:12px;font-weight:500;border:1px solid #e0e0e0;border-radius:40px;backdrop-filter:blur(8px);box-shadow:0 2px 8px rgba(0,0,0,0.02);pointer-events:none;">
             Demo · {DEMO_DURATION_SECONDS//60}:{(DEMO_DURATION_SECONDS%60):02d}
         </div>
         <script>
@@ -764,7 +764,6 @@ def servir_visual(season, filename):
                     if(bloqueado) return;
                     bloqueado = true;
                     
-                    // Intentar detener animaciones de Three.js si existen
                     if(typeof cancelAnimationFrame !== 'undefined') {{
                         if(window.__NX_ANIMATION_ID__) cancelAnimationFrame(window.__NX_ANIMATION_ID__);
                     }}
@@ -773,12 +772,12 @@ def servir_visual(season, filename):
                     blocker.id = 'nx-blocker';
                     blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#ffffff;z-index:100000;display:flex;align-items:center;justify-content:center;font-family:\\'Inter\\',-apple-system,sans-serif;text-align:center;';
                     blocker.innerHTML = `
-                        <div style="max-width:400px;padding:40px;">
-                            <div style="width:40px;height:1px;background:#e0e0e0;margin:0 auto 32px;"></div>
-                            <h1 style="font-family:\\'Tektur\\',monospace;font-weight:400;font-size:1.5rem;margin-bottom:16px;">Demo finalizada</h1>
-                            <p style="color:#666;margin-bottom:32px;">El tiempo de prueba ha terminado.</p>
-                            <a href="https://nxvjweb.onrender.com/" style="background:#1a1a1a;color:#fff;padding:10px 28px;text-decoration:none;border-radius:40px;display:inline-block;">Adquirir bundle</a>
-                            <div style="width:40px;height:1px;background:#e0e0e0;margin:32px auto 0;"></div>
+                        <div style="max-width:400px;padding:32px;">
+                            <div style="width:40px;height:1px;background:#e0e0e0;margin:0 auto 24px;"></div>
+                            <h1 style="font-family:\\'Tektur\\',monospace;font-weight:700;font-size:1.5rem;margin-bottom:12px;">Demo finalizada</h1>
+                            <p style="color:#666;margin-bottom:28px;">El tiempo de prueba ha terminado.</p>
+                            <a href="https://nxvjweb.onrender.com/" style="background:#1a1a1a;color:#fff;padding:10px 24px;text-decoration:none;border-radius:40px;display:inline-block;">Adquirir bundle</a>
+                            <div style="width:40px;height:1px;background:#e0e0e0;margin:24px auto 0;"></div>
                         </div>
                     `;
                     document.body.appendChild(blocker);
@@ -817,7 +816,7 @@ def demo_kaleido():
         contenido = f.read()
     
     demo_script = f'''
-    <div id="nx-demo-badge" style="position:fixed;bottom:24px;right:24px;background:#ffffff;color:#1a1a1a;font-family:'Inter',-apple-system,sans-serif;padding:10px 20px;z-index:9999;font-size:13px;font-weight:500;border:1px solid #e0e0e0;border-radius:40px;backdrop-filter:blur(8px);box-shadow:0 2px 8px rgba(0,0,0,0.02);pointer-events:none;">
+    <div id="nx-demo-badge" style="position:fixed;bottom:24px;right:24px;background:#ffffff;color:#1a1a1a;font-family:'Inter',-apple-system,sans-serif;padding:8px 16px;z-index:9999;font-size:12px;font-weight:500;border:1px solid #e0e0e0;border-radius:40px;backdrop-filter:blur(8px);box-shadow:0 2px 8px rgba(0,0,0,0.02);pointer-events:none;">
         Demo · {DEMO_DURATION_SECONDS//60}:{(DEMO_DURATION_SECONDS%60):02d}
     </div>
     <script>
@@ -831,7 +830,6 @@ def demo_kaleido():
                 if(bloqueado) return;
                 bloqueado = true;
                 
-                // Intentar detener animaciones de Three.js
                 if(typeof cancelAnimationFrame !== 'undefined') {{
                     if(window.__NX_ANIMATION_ID__) cancelAnimationFrame(window.__NX_ANIMATION_ID__);
                 }}
@@ -840,12 +838,12 @@ def demo_kaleido():
                 blocker.id = 'nx-blocker';
                 blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#ffffff;z-index:100000;display:flex;align-items:center;justify-content:center;font-family:\\'Inter\\',-apple-system,sans-serif;text-align:center;';
                 blocker.innerHTML = `
-                    <div style="max-width:400px;padding:40px;">
-                        <div style="width:40px;height:1px;background:#e0e0e0;margin:0 auto 32px;"></div>
-                        <h1 style="font-family:\\'Tektur\\',monospace;font-weight:400;font-size:1.5rem;margin-bottom:16px;">Demo finalizada</h1>
-                        <p style="color:#666;margin-bottom:32px;">El tiempo de prueba ha terminado.</p>
-                        <a href="https://nxvjweb.onrender.com/" style="background:#1a1a1a;color:#fff;padding:10px 28px;text-decoration:none;border-radius:40px;display:inline-block;">Adquirir bundle</a>
-                        <div style="width:40px;height:1px;background:#e0e0e0;margin:32px auto 0;"></div>
+                    <div style="max-width:400px;padding:32px;">
+                        <div style="width:40px;height:1px;background:#e0e0e0;margin:0 auto 24px;"></div>
+                        <h1 style="font-family:\\'Tektur\\',monospace;font-weight:700;font-size:1.5rem;margin-bottom:12px;">Demo finalizada</h1>
+                        <p style="color:#666;margin-bottom:28px;">El tiempo de prueba ha terminado.</p>
+                        <a href="https://nxvjweb.onrender.com/" style="background:#1a1a1a;color:#fff;padding:10px 24px;text-decoration:none;border-radius:40px;display:inline-block;">Adquirir bundle</a>
+                        <div style="width:40px;height:1px;background:#e0e0e0;margin:24px auto 0;"></div>
                     </div>
                 `;
                 document.body.appendChild(blocker);
@@ -882,7 +880,7 @@ def servir_imagen(filename):
     return send_file(ruta)
 
 # ============================================
-# PÁGINA PRINCIPAL — CON TEKTUR
+# PÁGINA PRINCIPAL — H1 MÁS GRANDE Y BOLD
 # ============================================
 
 @app.route('/')
@@ -898,7 +896,7 @@ def home():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Najarro X — VJ Live Engines</title>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=Tektur:wght@400;500;600;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=Tektur:wght@400;500;600;700;800;900&display=swap');
             
             * {{
                 margin: 0;
@@ -910,11 +908,11 @@ def home():
                 font-family: 'Inter', sans-serif;
                 background: #ffffff;
                 color: #1a1a1a;
-                line-height: 1.5;
+                line-height: 1.4;
             }}
             
             .nav {{
-                padding: 28px 32px;
+                padding: 24px 32px;
                 border-bottom: 1px solid #eaeaea;
                 max-width: 1280px;
                 margin: 0 auto;
@@ -931,8 +929,8 @@ def home():
             
             .nav-brand {{
                 font-family: 'Tektur', monospace;
-                font-size: 0.9rem;
-                font-weight: 500;
+                font-size: 0.85rem;
+                font-weight: 700;
                 letter-spacing: -0.01em;
             }}
             
@@ -944,7 +942,7 @@ def home():
             .nav-links a {{
                 color: #1a1a1a;
                 text-decoration: none;
-                font-size: 0.8rem;
+                font-size: 0.75rem;
                 margin-left: 28px;
                 transition: opacity 0.2s;
             }}
@@ -955,47 +953,48 @@ def home():
             
             .hero {{
                 max-width: 800px;
-                margin: 80px auto 120px;
+                margin: 60px auto 80px;
                 padding: 0 32px;
                 text-align: center;
             }}
             
             .hero h1 {{
                 font-family: 'Tektur', monospace;
-                font-size: 3rem;
-                font-weight: 500;
+                font-size: 4rem;
+                font-weight: 800;
                 letter-spacing: -0.02em;
-                line-height: 1.2;
-                margin-bottom: 24px;
+                line-height: 1.1;
+                margin-bottom: 12px;
             }}
             
             .hero p {{
-                font-size: 1rem;
+                font-size: 0.95rem;
                 color: #666;
                 max-width: 560px;
                 margin: 0 auto;
+                line-height: 1.4;
             }}
             
             .divider {{
                 width: 40px;
                 height: 1px;
                 background: #e0e0e0;
-                margin: 32px auto 0;
+                margin: 20px auto 0;
             }}
             
             .products {{
                 max-width: 1000px;
                 margin: 0 auto;
-                padding: 0 32px 80px;
+                padding: 0 32px 60px;
                 display: grid;
                 grid-template-columns: 1fr 1fr;
-                gap: 48px;
+                gap: 32px;
             }}
             
             .product-card {{
                 border: 1px solid #eaeaea;
                 border-radius: 24px;
-                padding: 40px;
+                padding: 32px;
                 transition: all 0.2s ease;
                 background: #ffffff;
             }}
@@ -1008,29 +1007,29 @@ def home():
             
             .product-card h2 {{
                 font-family: 'Tektur', monospace;
-                font-size: 1.3rem;
-                font-weight: 500;
+                font-size: 1.2rem;
+                font-weight: 700;
                 letter-spacing: -0.01em;
-                margin-bottom: 12px;
+                margin-bottom: 8px;
             }}
             
             .product-price {{
                 font-family: 'Tektur', monospace;
-                font-size: 1.8rem;
-                font-weight: 500;
-                margin: 20px 0 8px;
+                font-size: 1.6rem;
+                font-weight: 700;
+                margin: 16px 0 6px;
             }}
             
             .product-price small {{
-                font-size: 0.8rem;
+                font-size: 0.7rem;
                 font-weight: 400;
                 color: #888;
             }}
             
             .product-desc {{
-                font-size: 0.8rem;
+                font-size: 0.75rem;
                 color: #888;
-                margin-bottom: 28px;
+                margin-bottom: 24px;
                 line-height: 1.4;
             }}
             
@@ -1041,7 +1040,7 @@ def home():
                 padding: 8px 24px;
                 border-radius: 40px;
                 text-decoration: none;
-                font-size: 0.75rem;
+                font-size: 0.7rem;
                 font-weight: 500;
                 transition: background 0.2s;
                 margin-right: 12px;
@@ -1064,7 +1063,7 @@ def home():
             .features {{
                 max-width: 800px;
                 margin: 0 auto;
-                padding: 60px 32px;
+                padding: 50px 32px;
                 border-top: 1px solid #eaeaea;
                 display: flex;
                 justify-content: center;
@@ -1078,13 +1077,13 @@ def home():
             
             .feature-number {{
                 font-family: 'Tektur', monospace;
-                font-size: 1.5rem;
-                font-weight: 500;
+                font-size: 1.3rem;
+                font-weight: 700;
                 margin-bottom: 4px;
             }}
             
             .feature-label {{
-                font-size: 0.7rem;
+                font-size: 0.65rem;
                 color: #999;
                 text-transform: uppercase;
                 letter-spacing: 1px;
@@ -1092,9 +1091,9 @@ def home():
             
             .footer {{
                 border-top: 1px solid #eaeaea;
-                padding: 40px 32px;
+                padding: 32px 32px;
                 text-align: center;
-                font-size: 0.7rem;
+                font-size: 0.65rem;
                 color: #999;
             }}
             
@@ -1105,18 +1104,25 @@ def home():
             
             @media (max-width: 768px) {{
                 .hero h1 {{
-                    font-size: 2rem;
+                    font-size: 2.5rem;
                 }}
                 .products {{
                     grid-template-columns: 1fr;
-                    gap: 24px;
+                    gap: 20px;
                 }}
                 .nav-links a {{
                     margin-left: 0;
                     margin-right: 20px;
                 }}
                 .product-card {{
-                    padding: 28px;
+                    padding: 24px;
+                }}
+                .hero {{
+                    margin: 40px auto 50px;
+                }}
+                .features {{
+                    gap: 32px;
+                    padding: 40px 20px;
                 }}
             }}
         </style>
@@ -1173,7 +1179,7 @@ def home():
         
         <div class="footer">
             <p><a href="https://www.najarrox.xyz">najarrox.xyz</a> — <a href="mailto:soporte@najarrox.xyz">soporte@najarrox.xyz</a></p>
-            <p style="margin-top: 12px;">© Najarro X Studio · Panamá</p>
+            <p style="margin-top: 8px;">© Najarro X Studio · Panamá</p>
         </div>
     </body>
     </html>
