@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NX VJ GLITCH ENGINE • AUDIO REACTIVE</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Courier New', monospace; background-color: black; color: white; }
+        .ui-panel { transition: opacity 0.3s ease, transform 0.3s ease; pointer-events: auto; }
+        .info-panel { position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); padding: 12px 20px; border-radius: 8px; border-left: 3px solid #ff00ff; font-size: 11px; z-index: 200; font-weight: bold; text-shadow: 0 0 5px rgba(255,0,255,0.5); letter-spacing: 1px; max-width: 300px; pointer-events: none; }
+        .controls { position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); padding: 12px 20px; border-radius: 8px; border-right: 3px solid #00ffff; font-size: 10px; font-family: monospace; text-align: right; z-index: 200; color: #ccffcc; pointer-events: auto; max-width: 370px; }
+        .controls span { color: #ffaa66; display: inline-block; min-width: 65px; }
+        .controls h3 { margin: 0 0 8px 0; font-size: 13px; color: #ff66ff; text-align: center; }
+        .controls .section-title { color: #88ff88; margin-top: 6px; font-size: 11px; border-top: 1px solid #444; padding-top: 4px; }
+        .fps-counter { position: fixed; top: 15px; right: 15px; background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 4px; font-family: monospace; font-size: 12px; z-index: 200; backdrop-filter: blur(4px); font-weight: bold; pointer-events: none; }
+        .mode-badge { position: fixed; top: 15px; left: 15px; background: rgba(0,0,0,0.6); padding: 4px 12px; border-radius: 20px; font-family: monospace; font-size: 10px; z-index: 200; backdrop-filter: blur(4px); color: #ffaa88; border: 1px solid #ff66ff; pointer-events: none; max-width: 340px; }
+        .hide-ui-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); padding: 8px 20px; border-radius: 30px; font-family: monospace; font-size: 12px; z-index: 250; cursor: pointer; border: 1px solid #ff66ff; color: #ffccff; font-weight: bold; transition: all 0.2s ease; pointer-events: auto; }
+        .hide-ui-btn:hover { background: #ff33aa; color: black; border-color: white; box-shadow: 0 0 15px #ff33aa; }
+        .hidden-ui { opacity: 0; pointer-events: none; }
+        .feedback-message { position: fixed; bottom: 30%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #ff66ff; padding: 8px 16px; border-radius: 8px; font-family: monospace; font-size: 14px; font-weight: bold; z-index: 300; pointer-events: none; animation: fadeOut 0.8s forwards; white-space: nowrap; border: 1px solid #ff66ff; backdrop-filter: blur(5px); }
+        @keyframes fadeOut { 0% { opacity: 1; transform: translateX(-50%) translateY(0); } 70% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+        .audio-controls { position: fixed; bottom: 90px; right: 20px; background: rgba(0,0,0,0.6); padding: 8px 12px; border-radius: 8px; font-size: 9px; z-index: 200; backdrop-filter: blur(4px); pointer-events: auto; cursor: pointer; font-family: monospace; border: 1px solid #ff66ff; }
+        .audio-controls:hover { background: #ff33aa; color: black; }
+        .bpm-display { position: fixed; top: 100px; right: 15px; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px; font-size: 9px; font-family: monospace; z-index: 200; pointer-events: none; }
+        .export-dialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); border: 2px solid #ff66ff; border-radius: 12px; padding: 20px; z-index: 400; display: none; flex-direction: column; gap: 10px; min-width: 300px; backdrop-filter: blur(10px); }
+        .export-dialog button { background: #ff33aa; border: none; padding: 8px; color: white; font-family: monospace; cursor: pointer; border-radius: 4px; }
+        .export-dialog button:hover { background: #ff66ff; }
+        .file-input-label { background: #333; padding: 8px; text-align: center; border-radius: 4px; cursor: pointer; border: 1px solid #ff66ff; }
+    </style>
+</head>
+<body>
+    <div class="ui-panel info-panel" id="infoPanel"><p>🌀 NX GLITCH ENGINE PRO 🌀</p><p>🎵 AUDIO REACTIVE | EXPORT 📹 | PNG PARTICLES</p></div>
+    <div class="ui-panel controls" id="controlsPanel">
+        <h3>🎛️ CONTROLES VJ PRO</h3>
+        <p><span>1-5</span> Modos visuales &nbsp;&nbsp;<span>Q-R</span> Colores</p>
+        <p><span>A</span> DELAY &nbsp;<span>S</span> ECHO &nbsp;<span>D</span> STROBO &nbsp;<span>F</span> GLITCH</p>
+        <p><span>Z X C V</span> Partículas/Distorsión/Olas/TWIST</p>
+        <div class="section-title">🎨 FIGURAS:</div>
+        <p><span>G H J U I</span> Toroide/Esfera/Cubo/Pirámide/Rombo &nbsp;<span>K</span> Partículas &nbsp;<span>B</span> Wire</p>
+        <div class="section-title">🔥 AUDIO REACTIVE:</div>
+        <p><span>P</span> Micrófono &nbsp;&nbsp;<span>O</span> Reactividad (Bajo/Medios/Agudos)</p>
+        <p><span>N</span> Shader &nbsp;<span>M</span> Modo Shader &nbsp;<span>[]</span> Velocidad Shader</p>
+        <p><span>↑ ↓</span> Velocidad &nbsp;<span>← →</span> Distorsión &nbsp;<span>+/-</span> Intensidad</p>
+        <p><span>T</span> Capturar PNG &nbsp;&nbsp;<span>Y</span> Grabar WEBM</p>
+        <p><span style="background:#ff33aa; padding:2px 6px;">Ñ / L</span> → Menú EXPORT</p>
+        <p><span>TAB</span> Ocultar UI</p>
+    </div>
+    <div class="ui-panel fps-counter" id="fpsDisplay">FPS: --</div>
+    <div class="ui-panel mode-badge" id="geometryBadge">🌀 TOROIDE | SHADER: OFF | AUDIO: OFF</div>
+    <div class="audio-controls" id="audioBtn">🎤 ACTIVAR MICRÓFONO (P)</div>
+    <div class="bpm-display" id="bpmDisplay">🎵 REACT: OFF</div>
+    <button class="ui-panel hide-ui-btn" id="hideUiBtn">🎨 ESCONDER UI (TAB)</button>
+    <div class="export-dialog" id="exportDialog"><h3 style="margin:0 0 10px 0;">📹 MENÚ EXPORT</h3><button id="capturePngBtn">📸 CAPTURAR PNG</button><button id="startRecordBtn">🎬 INICIAR GRABACIÓN WEBM</button><button id="stopRecordBtn" style="background:#ff4444;">⏹️ DETENER GRABACIÓN</button><div class="file-input-label" id="uploadParticleLabel">📁 SUBIR PNG COMO PARTÍCULA</div><input type="file" id="particleUpload" accept="image/png" style="display:none;"><button id="closeDialogBtn">❌ CERRAR</button><div style="font-size:9px; margin-top:8px;">Las partículas se renderizan en 3D flotante</div></div>
+
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/" } }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { AfterimagePass } from 'three/addons/postprocessing/AfterimagePass.js';
+        import { GlitchPass } from 'three/addons/postprocessing/GlitchPass.js';
+        import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+        
+        // ============================================
+        // SISTEMA DE VALIDACIÓN NX PRO
+        // ============================================
+        let __NX_TOKEN__ = null;
+        let __NX_BLOQUEO_ACTIVO__ = false;
+        let __NX_ANIMATION_ID__ = null;
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokenFromURL = urlParams.get('token');
+        const tokenFromWindow = window.__NX_TOKEN__;
+        __NX_TOKEN__ = tokenFromURL || tokenFromWindow || null;
+        
+        function mostrarBloqueo(mensaje) {
+            if (__NX_BLOQUEO_ACTIVO__) return;
+            __NX_BLOQUEO_ACTIVO__ = true;
+            
+            if (__NX_ANIMATION_ID__) {
+                cancelAnimationFrame(__NX_ANIMATION_ID__);
+                __NX_ANIMATION_ID__ = null;
+            }
+            
+            const blocker = document.createElement('div');
+            blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.96);z-index:99999;display:flex;justify-content:center;align-items:center;font-family:monospace;text-align:center;backdrop-filter:blur(10px);';
+            blocker.innerHTML = `<div style="background:#1a1a1a;padding:40px;border:3px solid #ff4444;max-width:500px;"><h1 style="color:#ff4444;">⛔ ACCESO DENEGADO</h1><h2 style="color:white;">${mensaje}</h2><div style="margin-top:30px;"><a href="https://www.najarrox.xyz" style="background:#8b5cf6;color:black;padding:12px 24px;text-decoration:none;font-weight:bold;">🛒 COMPRAR AHORA</a><a href="/demo/kaleido" style="background:transparent;color:#8b5cf6;padding:12px 24px;text-decoration:none;margin-left:10px;border:1px solid #8b5cf6;">🎬 PROBAR DEMO</a></div></div>`;
+            document.body.appendChild(blocker);
+        }
+        
+        if (!__NX_TOKEN__) {
+            let tiempoRestante = 120;
+            let overlayCreado = false;
+            
+            const contador = document.createElement('div');
+            contador.style.cssText = 'position:fixed;bottom:20px;right:20px;background:rgba(0,0,0,0.8);color:#ffaa44;font-family:monospace;padding:8px 16px;z-index:10000;font-size:14px;font-weight:bold;border-right:3px solid #ffaa44;pointer-events:none;';
+            contador.innerHTML = `⏱️ DEMO: 2:00`;
+            document.body.appendChild(contador);
+            
+            const intervaloDemo = setInterval(() => {
+                if (__NX_BLOQUEO_ACTIVO__) return;
+                tiempoRestante--;
+                const mins = Math.floor(tiempoRestante / 60);
+                const segs = (tiempoRestante % 60).toString().padStart(2, '0');
+                contador.innerHTML = `⏱️ DEMO: ${mins}:${segs}`;
+                
+                if (tiempoRestante <= 30 && !overlayCreado) {
+                    overlayCreado = true;
+                    const warning = document.createElement('div');
+                    warning.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.9);color:#ff6600;font-family:monospace;padding:10px 20px;z-index:10000;font-size:14px;border:2px solid #ff6600;animation:pulse 1s infinite;';
+                    warning.innerHTML = '⚠️ DEMO TERMINA EN 30 SEGUNDOS - Compra en najarrox.xyz ⚠️';
+                    document.body.appendChild(warning);
+                    const style = document.createElement('style');
+                    style.textContent = '@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }';
+                    document.head.appendChild(style);
+                }
+                
+                if (tiempoRestante <= 0) {
+                    clearInterval(intervaloDemo);
+                    mostrarBloqueo('DEMO FINALIZADA\nCompra la versión completa en\nwww.najarrox.xyz');
+                }
+            }, 1000);
+            
+            window.__NX_DEMO_INTERVAL__ = intervaloDemo;
+        } else {
+            async function validarSuscripcion() {
+                if (__NX_BLOQUEO_ACTIVO__) return;
+                try {
+                    const response = await fetch(`/verificar-suscripcion?token=${__NX_TOKEN__}`);
+                    const data = await response.json();
+                    
+                    if (data.activa) {
+                        console.log('✅ Suscripción NX PRO activa');
+                        if (!document.getElementById('nx-pro-badge')) {
+                            const proBadge = document.createElement('div');
+                            proBadge.id = 'nx-pro-badge';
+                            proBadge.style.cssText = 'position:fixed;bottom:20px;left:20px;background:#00c853;color:black;font-family:monospace;padding:6px 12px;z-index:9999;font-size:11px;font-weight:bold;border-radius:20px;pointer-events:none;';
+                            proBadge.innerHTML = '⭐ NX PRO ACTIVO';
+                            document.body.appendChild(proBadge);
+                        }
+                        setTimeout(validarSuscripcion, 300000);
+                    } else {
+                        mostrarBloqueo('TU SUSCRIPCIÓN HA EXPIRADO\nRenueva en najarrox.xyz para seguir usando NX PRO');
+                    }
+                } catch (error) {
+                    console.error('Error validando suscripción:', error);
+                    setTimeout(validarSuscripcion, 30000);
+                }
+            }
+            validarSuscripcion();
+        }
+        
+        // ============================================
+        // CÓDIGO PRINCIPAL DEL VISUALIZADOR GLITCH
+        // ============================================
+        const psychedelicShader = {
+            uniforms: { tDiffuse: { value: null }, time: { value: 0 }, intensity: { value: 1.0 }, speed: { value: 1.0 }, mode: { value: 0 } },
+            vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_PointSize=1.0; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+            fragmentShader: `
+                uniform sampler2D tDiffuse; uniform float time; uniform float intensity; uniform float speed; uniform int mode;
+                varying vec2 vUv;
+                void main() {
+                    vec2 uv = vUv; float t = time * speed; vec4 color = texture2D(tDiffuse, uv);
+                    if (mode == 0) {
+                        float shiftR = sin(t * 2.0) * 0.04 * intensity;
+                        float shiftG = cos(t * 2.3) * 0.04 * intensity;
+                        float shiftB = sin(t * 2.7) * 0.04 * intensity;
+                        float r = texture2D(tDiffuse, uv + vec2(shiftR, shiftR * 0.5)).r;
+                        float g = texture2D(tDiffuse, uv + vec2(shiftG * 0.5, shiftG)).g;
+                        float b = texture2D(tDiffuse, uv + vec2(shiftB, shiftB * 0.8)).b;
+                        color = vec4(r, g, b, 1.0);
+                        float pulse = 0.5 + 0.5 * sin(t * 6.0);
+                        color.rgb += vec3(pulse * 0.25, pulse * 0.15, pulse * 0.35);
+                    } else if (mode == 1) {
+                        float waveX = sin(uv.y * 25.0 + t * 12.0) * 0.04 * intensity;
+                        float waveY = cos(uv.x * 25.0 + t * 10.0) * 0.04 * intensity;
+                        vec2 distortedUv = uv + vec2(waveX, waveY);
+                        color = texture2D(tDiffuse, distortedUv);
+                        float rainbow = sin(uv.x * 40.0 + t * 8.0) * cos(uv.y * 40.0 - t * 6.0);
+                        color.rgb += vec3(rainbow * 0.35, rainbow * 0.25, rainbow * 0.45);
+                    } else if (mode == 2) {
+                        vec2 mirrorUv = uv;
+                        float tileX = fract(uv.x * 5.0 + t * 3.0);
+                        float tileY = fract(uv.y * 5.0 + t * 2.5);
+                        if (tileX > 0.5) mirrorUv.x = 1.0 - mirrorUv.x;
+                        if (tileY > 0.5) mirrorUv.y = 1.0 - mirrorUv.y;
+                        color = texture2D(tDiffuse, mirrorUv);
+                        float scanline = sin(uv.y * 500.0 + t * 30.0) * 0.2;
+                        color.rgb += vec3(scanline, scanline * 0.6, scanline * 0.8);
+                    } else {
+                        vec2 centered = uv * 2.0 - 1.0;
+                        float radius = length(centered);
+                        float angle = atan(centered.y, centered.x);
+                        float tunnel = sin(radius * 20.0 - t * 15.0) * cos(angle * 10.0 + t * 8.0);
+                        vec2 tunnelUv = uv + vec2(tunnel * 0.08, tunnel * 0.08);
+                        color = texture2D(tDiffuse, tunnelUv);
+                        color.rgb += vec3(tunnel * 0.5, tunnel * 0.4, tunnel * 0.6);
+                        float vignette = 1.0 - radius * 0.6;
+                        color.rgb *= (vignette + 0.2);
+                    }
+                    color.rgb = pow(color.rgb, vec3(0.85));
+                    gl_FragColor = color;
+                }
+            `
+        };
+        
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+        scene.fog = new THREE.FogExp2(0x000000, 0.006);
+        
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 1.5, 8);
+        camera.lookAt(0, 0, 0);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance", preserveDrawingBuffer: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+        
+        const renderScenePass = new RenderPass(scene, camera);
+        const composer = new EffectComposer(renderer);
+        composer.addPass(renderScenePass);
+        
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.4, 0.85);
+        composer.addPass(bloomPass);
+        
+        const delayPass = new AfterimagePass(0.92);
+        const echoPass = new AfterimagePass(0.85);
+        const glitchPass = new GlitchPass();
+        glitchPass.goWild = false;
+        
+        const shaderPass = new ShaderPass(psychedelicShader);
+        let shaderActive = false, shaderMode = 0, shaderSpeed = 1.0;
+        const shaderModes = ["RGB", "WAVE", "MIRROR", "TUNNEL"];
+        
+        let activeDelay = false, activeEcho = false, activeGlitch = false, strobing = false, freezeMode = false;
+        let currentVisualMode = 1, colorMode = 'rgb', globalSpeed = 1.0, distortionAmp = 0.8, effectIntensity = 1.0;
+        let wireframeMode = false, activeFigure = 'knot', particlesEnabled = true, twistActive = false;
+        let time = 0, shaderTime = 0;
+        let uiVisible = true, feedbackEnabled = true;
+        
+        let audioContext = null, source = null, analyser = null, mediaStream = null;
+        let audioActive = false;
+        let audioReactivityMode = 0;
+        let audioData = new Uint8Array(128);
+        
+        const knotGeo = new THREE.TorusKnotGeometry(1.2, 0.32, 200, 32, 3, 4);
+        const knotMat = new THREE.MeshStandardMaterial({ color: 0xff33ff, emissive: 0x331133, roughness: 0.3, metalness: 0.7, emissiveIntensity: 0.9 });
+        const knot = new THREE.Mesh(knotGeo, knotMat);
+        scene.add(knot);
+        
+        const sphereGeo = new THREE.SphereGeometry(0.9, 64, 64);
+        const sphereMat = new THREE.MeshPhongMaterial({ color: 0x44aaff, wireframe: false, transparent: true, opacity: 0.45, emissive: 0x224466 });
+        const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+        scene.add(sphere);
+        
+        const boxGeo = new THREE.BoxGeometry(1.6, 1.6, 1.6);
+        const boxMat = new THREE.MeshStandardMaterial({ color: 0xff44aa, emissive: 0x441133 });
+        const cube = new THREE.Mesh(boxGeo, boxMat);
+        scene.add(cube);
+        
+        const pyramidGeo = new THREE.ConeGeometry(1.0, 1.6, 4);
+        const pyramidMat = new THREE.MeshStandardMaterial({ color: 0xff8844, emissive: 0x442200 });
+        const pyramid = new THREE.Mesh(pyramidGeo, pyramidMat);
+        pyramid.rotation.y = Math.PI / 4;
+        scene.add(pyramid);
+        
+        const rhombusGeo = new THREE.OctahedronGeometry(1.0);
+        const rhombusMat = new THREE.MeshStandardMaterial({ color: 0x66ffcc, emissive: 0x226666 });
+        const rhombus = new THREE.Mesh(rhombusGeo, rhombusMat);
+        scene.add(rhombus);
+        
+        const particleCount = 3500;
+        const particlesGeo = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colorsPart = new Float32Array(particleCount * 3);
+        for (let i = 0; i < particleCount; i++) {
+            const rad = 2.5 + Math.random() * 3.8;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            positions[i*3] = rad * Math.sin(phi) * Math.cos(theta);
+            positions[i*3+1] = rad * Math.sin(phi) * Math.sin(theta);
+            positions[i*3+2] = rad * Math.cos(phi);
+            colorsPart[i*3] = Math.random();
+            colorsPart[i*3+1] = Math.random();
+            colorsPart[i*3+2] = Math.random();
+        }
+        particlesGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particlesGeo.setAttribute('color', new THREE.BufferAttribute(colorsPart, 3));
+        const particleMat = new THREE.PointsMaterial({ size: 0.045, vertexColors: true, blending: THREE.AdditiveBlending });
+        const particles = new THREE.Points(particlesGeo, particleMat);
+        scene.add(particles);
+        
+        const dustCount = 5500;
+        const dustGeo = new THREE.BufferGeometry();
+        const dustPos = new Float32Array(dustCount * 3);
+        for (let i = 0; i < dustCount; i++) {
+            dustPos[i*3] = (Math.random() - 0.5) * 17;
+            dustPos[i*3+1] = (Math.random() - 0.5) * 11;
+            dustPos[i*3+2] = (Math.random() - 0.5) * 15 - 4;
+        }
+        dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+        const dustMatObj = new THREE.PointsMaterial({ color: 0xffaa88, size: 0.018, transparent: true, blending: THREE.AdditiveBlending });
+        const dust = new THREE.Points(dustGeo, dustMatObj);
+        scene.add(dust);
+        
+        let customParticleSystem = null;
+        
+        const ambient = new THREE.AmbientLight(0x222222);
+        scene.add(ambient);
+        const mainLight = new THREE.DirectionalLight(0xffffff, 1);
+        mainLight.position.set(2, 5, 3);
+        scene.add(mainLight);
+        const backLight = new THREE.PointLight(0xff44ff, 0.8);
+        backLight.position.set(-2, 1, -4);
+        scene.add(backLight);
+        const colorLight = new THREE.PointLight(0x33ffaa, 0.6);
+        colorLight.position.set(1, 2, 2);
+        scene.add(colorLight);
+        
+        const gridHelper = new THREE.GridHelper(12, 24, 0xff33ff, 0x33ffff);
+        gridHelper.position.y = -1.8;
+        gridHelper.material.transparent = true;
+        gridHelper.material.opacity = 0.25;
+        scene.add(gridHelper);
+        
+        async function initAudio() {
+            if (audioActive) {
+                if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+                if (audioContext) await audioContext.close();
+                audioActive = false;
+                document.getElementById('audioBtn').innerHTML = '🎤 ACTIVAR MICRÓFONO (P)';
+                document.getElementById('bpmDisplay').innerHTML = '🎵 REACT: OFF';
+                updateBadgeAudio();
+                showFeedback('🎤 AUDIO DESACTIVADO');
+                return;
+            }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                source = audioContext.createMediaStreamSource(stream);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                source.connect(analyser);
+                audioContext.resume();
+                mediaStream = stream;
+                audioActive = true;
+                document.getElementById('audioBtn').innerHTML = '🔴 MIC ACTIVO (P)';
+                document.getElementById('bpmDisplay').innerHTML = '🎵 REACT: BAJO';
+                showFeedback('🎤 MICRÓFONO ACTIVADO');
+                updateBadgeAudio();
+            } catch(e) { showFeedback('❌ Error: Permiso denegado', true); }
+        }
+        
+        function updateBadgeAudio() {
+            let modeText = audioActive ? (audioReactivityMode === 0 ? 'BAJO' : audioReactivityMode === 1 ? 'MEDIOS' : 'AGUDOS') : 'OFF';
+            document.getElementById('bpmDisplay').innerHTML = `🎵 REACT: ${modeText}`;
+            document.getElementById('geometryBadge').innerHTML = `🌀 ${activeFigure==='knot'?'TOROIDE':activeFigure==='sphere'?'ESFERA':activeFigure==='cube'?'CUBO':activeFigure==='pyramid'?'PIRÁMIDE':'ROMBO'} | SHADER:${shaderActive?shaderModes[shaderMode]:'OFF'} | AUDIO:${audioActive?'ON':'OFF'}`;
+        }
+        
+        function getAudioIntensity() {
+            if (!audioActive || !analyser) return 0.5;
+            analyser.getByteFrequencyData(audioData);
+            let sum = 0;
+            let start = 0, end = 128;
+            if (audioReactivityMode === 0) { start = 0; end = 30; }
+            else if (audioReactivityMode === 1) { start = 30; end = 80; }
+            else { start = 80; end = 128; }
+            for (let i = start; i < end; i++) sum += audioData[i];
+            const avg = sum / (end - start) / 255;
+            return Math.min(1.0, avg * 1.5);
+        }
+        
+        function capturePNG() { const canvas = renderer.domElement; const link = document.createElement('a'); link.download = `nx-glitch-${Date.now()}.png`; link.href = canvas.toDataURL('image/png'); link.click(); showFeedback('📸 PNG guardado'); }
+        
+        let mediaRecorder = null, recordedChunks = [];
+        function startRecording() { const canvas = renderer.domElement; const stream = canvas.captureStream(30); mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' }); recordedChunks = []; mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); }; mediaRecorder.onstop = () => { const blob = new Blob(recordedChunks, { type: 'video/webm' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `nx-glitch-${Date.now()}.webm`; a.click(); URL.revokeObjectURL(url); showFeedback('💾 Video guardado'); }; mediaRecorder.start(); showFeedback('🎬 Grabando...'); }
+        function stopRecording() { if (mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.stop(); showFeedback('⏹️ Grabación detenida'); } }
+        
+        function loadCustomParticle(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const texture = new THREE.CanvasTexture(img);
+                    if (customParticleSystem) scene.remove(customParticleSystem);
+                    const customCount = 2000;
+                    const customGeo = new THREE.BufferGeometry();
+                    const customPos = new Float32Array(customCount * 3);
+                    for (let i = 0; i < customCount; i++) {
+                        customPos[i*3] = (Math.random() - 0.5) * 10;
+                        customPos[i*3+1] = (Math.random() - 0.5) * 8;
+                        customPos[i*3+2] = (Math.random() - 0.5) * 12;
+                    }
+                    customGeo.setAttribute('position', new THREE.BufferAttribute(customPos, 3));
+                    const customMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, map: texture, transparent: true, blending: THREE.AdditiveBlending });
+                    customParticleSystem = new THREE.Points(customGeo, customMat);
+                    scene.add(customParticleSystem);
+                    showFeedback('✨ PNG cargado como partículas personalizadas');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function showFeedback(text, isErr = false) { if (!feedbackEnabled) return; const div = document.createElement('div'); div.className = 'feedback-message'; div.textContent = text; div.style.color = isErr ? '#ff8888' : '#88ff88'; document.body.appendChild(div); setTimeout(() => div.remove(), 800); }
+        
+        function updateVisibility() {
+            knot.visible = activeFigure === 'knot';
+            sphere.visible = activeFigure === 'sphere';
+            cube.visible = activeFigure === 'cube';
+            pyramid.visible = activeFigure === 'pyramid';
+            rhombus.visible = activeFigure === 'rhombus';
+            particles.visible = particlesEnabled;
+            dust.visible = particlesEnabled;
+            knotMat.wireframe = (activeFigure === 'knot') && wireframeMode;
+            sphereMat.wireframe = (activeFigure === 'sphere') && wireframeMode;
+            boxMat.wireframe = (activeFigure === 'cube') && wireframeMode;
+            pyramidMat.wireframe = (activeFigure === 'pyramid') && wireframeMode;
+            rhombusMat.wireframe = (activeFigure === 'rhombus') && wireframeMode;
+            let figName = { knot:'TOROIDE', sphere:'ESFERA', cube:'CUBO', pyramid:'PIRÁMIDE', rhombus:'ROMBO' }[activeFigure];
+            document.getElementById('geometryBadge').innerHTML = `🌀 ${figName} | SHADER:${shaderActive?shaderModes[shaderMode]:'OFF'} | AUDIO:${audioActive?'ON':'OFF'}`;
+        }
+        
+        function setActiveFigure(f) { activeFigure = f; resetTransformations(); updateVisibility(); }
+        function resetTransformations() { [knot, sphere, cube, pyramid, rhombus, particles, dust].forEach(o => { o.scale.set(1,1,1); o.position.set(0,0,0); o.rotation.set(0,0,0); }); pyramid.rotation.y = Math.PI/4; }
+        
+        function toggleShader() { shaderActive = !shaderActive; if (shaderActive) { shaderPass.renderToScreen = true; if(composer.passes[composer.passes.length-1] !== shaderPass) composer.addPass(shaderPass); showFeedback(`✨ SHADER: ${shaderModes[shaderMode]}`); } else { composer.removePass(shaderPass); showFeedback(`⏹️ SHADER OFF`); } updateVisibility(); }
+        function nextShaderMode() { shaderMode = (shaderMode+1)%4; shaderPass.uniforms.mode.value = shaderMode; showFeedback(`🎨 ${shaderModes[shaderMode]}`); updateVisibility(); }
+        function changeShaderSpeed(d) { shaderSpeed = Math.max(0.2, Math.min(3.0, shaderSpeed+d)); shaderPass.uniforms.speed.value = shaderSpeed; showFeedback(`⚡ SHADER SPD: ${shaderSpeed.toFixed(2)}`); }
+        
+        function toggleDelay() { if(!activeDelay){ composer.addPass(delayPass); activeDelay=true; showFeedback("🌀 DELAY ON"); } else { composer.removePass(delayPass); activeDelay=false; showFeedback("⏹️ DELAY OFF"); } }
+        function toggleEcho() { if(!activeEcho){ composer.addPass(echoPass); activeEcho=true; showFeedback("🎶 ECHO ON"); } else { composer.removePass(echoPass); activeEcho=false; showFeedback("⏹️ ECHO OFF"); } }
+        function toggleGlitch() { if(!activeGlitch){ composer.addPass(glitchPass); activeGlitch=true; showFeedback("📺 GLITCH ON"); } else { composer.removePass(glitchPass); activeGlitch=false; showFeedback("⏹️ GLITCH OFF"); } }
+        function toggleTwist() { twistActive = !twistActive; showFeedback(twistActive ? "🌀 TWIST ON" : "⏹️ TWIST OFF"); }
+        
+        function resetAll() {
+            if(activeGlitch) toggleGlitch(); if(activeDelay) toggleDelay(); if(activeEcho) toggleEcho();
+            if(shaderActive) toggleShader(); if(audioActive) initAudio();
+            strobing=false; twistActive=false; freezeMode=false; globalSpeed=1.0; distortionAmp=0.8; effectIntensity=1.0;
+            shaderSpeed=1.0; if(shaderPass) shaderPass.uniforms.speed.value=1.0;
+            colorMode='rgb'; currentVisualMode=1; wireframeMode=false; activeFigure='knot'; particlesEnabled=true;
+            setWireframeMode(false); resetTransformations(); updateVisibility(); bloomPass.strength=0.9;
+            camera.position.set(0,1.5,8); particleMat.size=0.045;
+            showFeedback("✨ RESET COMPLETO ✨");
+        }
+        
+        function setWireframeMode(e) { wireframeMode = e; updateVisibility(); }
+        function toggleParticles() { particlesEnabled = !particlesEnabled; updateVisibility(); }
+        
+        const dialog = document.getElementById('exportDialog');
+        document.getElementById('capturePngBtn').onclick = () => { capturePNG(); dialog.style.display = 'none'; };
+        document.getElementById('startRecordBtn').onclick = () => { startRecording(); dialog.style.display = 'none'; };
+        document.getElementById('stopRecordBtn').onclick = () => { stopRecording(); dialog.style.display = 'none'; };
+        document.getElementById('closeDialogBtn').onclick = () => { dialog.style.display = 'none'; };
+        document.getElementById('uploadParticleLabel').onclick = () => { document.getElementById('particleUpload').click(); };
+        document.getElementById('particleUpload').onchange = (e) => { if(e.target.files[0]) loadCustomParticle(e.target.files[0]); dialog.style.display = 'none'; };
+        
+        function openExportDialog() { dialog.style.display = 'flex'; }
+        
+        const hideBtn = document.getElementById('hideUiBtn');
+        function toggleUI() { uiVisible = !uiVisible; feedbackEnabled = uiVisible; document.querySelectorAll('.ui-panel').forEach(el => el.classList.toggle('hidden-ui', !uiVisible)); showFeedback(uiVisible ? "UI VISIBLE" : "UI OCULTA"); }
+        hideBtn.addEventListener('click', toggleUI);
+        
+        window.addEventListener('keydown', (e) => {
+            const key = e.key;
+            if(key === 'Tab') { e.preventDefault(); toggleUI(); return; }
+            if(key === 'ñ' || key === 'Ñ' || key === 'l' || key === 'L') { e.preventDefault(); openExportDialog(); return; }
+            if(key === 'n' || key === 'N') { toggleShader(); return; }
+            if(key === 'm' || key === 'M') { nextShaderMode(); return; }
+            if(key === 'p' || key === 'P') { initAudio(); updateBadgeAudio(); updateVisibility(); return; }
+            if(key === 'o' || key === 'O') { audioReactivityMode = (audioReactivityMode+1)%3; updateBadgeAudio(); showFeedback(`🎵 REACT: ${audioReactivityMode===0?'BAJO':audioReactivityMode===1?'MEDIOS':'AGUDOS'}`); return; }
+            if(key === '[') { changeShaderSpeed(-0.1); return; }
+            if(key === ']') { changeShaderSpeed(0.1); return; }
+            if(key === 't' || key === 'T') { capturePNG(); return; }
+            if(key === 'y' || key === 'Y') { if(!mediaRecorder || mediaRecorder.state !== 'recording') startRecording(); else stopRecording(); return; }
+            if(key === 'g') setActiveFigure('knot');
+            if(key === 'h') setActiveFigure('sphere');
+            if(key === 'j') setActiveFigure('cube');
+            if(key === 'u') setActiveFigure('pyramid');
+            if(key === 'i') setActiveFigure('rhombus');
+            if(key === 'k') toggleParticles();
+            if(key === 'b') setWireframeMode(!wireframeMode);
+            if(key === '1') currentVisualMode=1;
+            if(key === '2') currentVisualMode=2;
+            if(key === '3') currentVisualMode=3;
+            if(key === '4') currentVisualMode=4;
+            if(key === '5') currentVisualMode=5;
+            if(key === 'q') colorMode='red';
+            if(key === 'w') colorMode='green';
+            if(key === 'e') colorMode='blue';
+            if(key === 'r') colorMode='magenta';
+            if(key === 'a') toggleDelay();
+            if(key === 's') toggleEcho();
+            if(key === 'd') { strobing=!strobing; showFeedback(strobing?"⚡ STROBO ON":"⏹️ STROBO OFF"); }
+            if(key === 'f') toggleGlitch();
+            if(key === 'z') { particleMat.size = particleMat.size===0.045?0.085:0.045; showFeedback(`✨ Partículas ${particleMat.size===0.045?'small':'big'}`); }
+            if(key === 'x') { distortionAmp = Math.min(3.0, distortionAmp+0.25); showFeedback(`📐 DIST+ → ${distortionAmp.toFixed(2)}`); }
+            if(key === 'c') { showFeedback(`🌊 WAVES TOGGLE`); }
+            if(key === 'v') toggleTwist();
+            if(key === 'ArrowUp') { globalSpeed = Math.min(2.5, globalSpeed+0.1); showFeedback(`⚡ SPD: ${globalSpeed.toFixed(2)}`); }
+            if(key === 'ArrowDown') { globalSpeed = Math.max(0.2, globalSpeed-0.1); showFeedback(`🐢 SPD: ${globalSpeed.toFixed(2)}`); }
+            if(key === 'ArrowLeft') { distortionAmp = Math.max(0.0, distortionAmp-0.25); showFeedback(`📉 DIST- → ${distortionAmp.toFixed(2)}`); }
+            if(key === 'ArrowRight') { distortionAmp = Math.min(3.0, distortionAmp+0.25); showFeedback(`📈 DIST+ → ${distortionAmp.toFixed(2)}`); }
+            if(key === '+' || key === '=') { effectIntensity = Math.min(2.0, effectIntensity+0.1); if(shaderActive) shaderPass.uniforms.intensity.value = effectIntensity; showFeedback(`💪 INT: ${effectIntensity.toFixed(2)}`); }
+            if(key === '-' || key === '_') { effectIntensity = Math.max(0.2, effectIntensity-0.1); if(shaderActive) shaderPass.uniforms.intensity.value = effectIntensity; showFeedback(`🔻 INT: ${effectIntensity.toFixed(2)}`); }
+            if(key === ' ') { freezeMode = !freezeMode; showFeedback(freezeMode?"⏸️ FREEZE":"▶️ UNFREEZE"); }
+            if(key === 'r') resetAll();
+            if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','+','-','=','_','Tab','[',']','ñ','Ñ','l','L','n','N'].includes(key)) e.preventDefault();
+        });
+        
+        function updateColors(t) {
+            let r=0.6+0.4*Math.sin(t*0.7), g=0.5+0.5*Math.sin(t*0.9+2), b=0.7+0.3*Math.sin(t*1.1+4);
+            if(colorMode==='red'){ g=0.2; b=0.2; r=1.3; }
+            if(colorMode==='green'){ r=0.2; b=0.2; g=1.3; }
+            if(colorMode==='blue'){ r=0.2; g=0.2; b=1.3; }
+            if(colorMode==='magenta'){ r=1.3; b=1.3; g=0.3; }
+            knotMat.emissiveIntensity = (0.7+Math.sin(t*2.3)*0.5)*effectIntensity;
+            knotMat.color.setRGB(r,g,b); cube.material.color.setRGB(r*0.8,g*0.5,b); sphereMat.color.setRGB(r,g,b);
+            pyramidMat.color.setRGB(r*0.9,g*0.7,b*0.5); rhombusMat.color.setRGB(r*0.6,g*0.9,b*0.8);
+            colorLight.color.setHSL(0.55+Math.sin(t)*0.15,1,0.5);
+            backLight.intensity = 0.6+Math.sin(t*1.8)*0.5;
+            bloomPass.strength = 0.7+effectIntensity*0.5;
+            if(activeGlitch) glitchPass.curF = 0.3+effectIntensity*0.6;
+            if(shaderPass) { shaderPass.uniforms.time.value = shaderTime; shaderPass.uniforms.intensity.value = effectIntensity; }
+        }
+        
+        function applyVisualMode(t, delta) {
+            const audioIntensity = getAudioIntensity();
+            const speedMod = audioActive ? (0.5 + audioIntensity) : 1.0;
+            const effSpeed = globalSpeed * speedMod;
+            
+            if(currentVisualMode===1){
+                if(activeFigure==='knot'){ knot.rotation.x+=0.008*effSpeed; knot.rotation.y+=0.012*effSpeed; knot.rotation.z+=0.005*effSpeed; }
+                if(activeFigure==='cube'){ cube.rotation.x=Math.sin(t*0.7)*0.5; cube.rotation.y=t*0.5; }
+                if(activeFigure==='sphere'){ sphere.rotation.x+=0.004*effSpeed; sphere.rotation.z+=0.006*effSpeed; }
+                if(activeFigure==='pyramid'){ pyramid.rotation.y+=0.01*effSpeed; pyramid.rotation.x=Math.sin(t*0.5)*0.3; }
+                if(activeFigure==='rhombus'){ rhombus.rotation.x+=0.008*effSpeed; rhombus.rotation.y+=0.012*effSpeed; }
+                particles.rotation.y=t*0.2;
+            } else if(currentVisualMode===2){
+                if(activeFigure==='knot'){ const gs=1+Math.sin(t*18)*0.15*effectIntensity; knot.scale.set(gs,gs,gs); knot.rotation.x+=0.02; knot.rotation.z+=0.03; }
+                if(activeFigure==='cube'){ cube.scale.set(1+Math.sin(t*23)*0.12,1+Math.cos(t*19)*0.12,1); }
+                if(activeFigure==='sphere'){ sphere.scale.setScalar(1+Math.sin(t*27)*0.08); }
+                if(activeFigure==='pyramid'){ const ps=1+Math.sin(t*20)*0.1; pyramid.scale.set(ps,ps,ps); }
+                if(activeFigure==='rhombus'){ const rs=1+Math.sin(t*22)*0.12; rhombus.scale.set(rs,rs,rs); }
+            } else if(currentVisualMode===3){
+                if(activeFigure==='knot'){ knot.position.x=Math.sin(t*1.8)*0.4; knot.position.y=Math.cos(t*2.2)*0.3; }
+                if(activeFigure==='cube'){ cube.position.x=Math.sin(t*2.5+1)*0.5; cube.position.z=Math.cos(t*1.9)*0.5; }
+                if(activeFigure==='sphere'){ sphere.position.y=Math.sin(t*1.4)*0.2; }
+                if(activeFigure==='pyramid'){ pyramid.position.y=Math.sin(t*1.6)*0.25; }
+                if(activeFigure==='rhombus'){ rhombus.position.x=Math.sin(t*1.7)*0.35; rhombus.position.y=Math.cos(t*2.1)*0.25; }
+                particles.rotation.x=t*0.3;
+            } else if(currentVisualMode===4){
+                const scaleRadial=1+Math.sin(t*5)*0.2;
+                particles.scale.set(scaleRadial,scaleRadial,scaleRadial);
+                dust.scale.set(scaleRadial*0.8,scaleRadial*0.8,scaleRadial*0.8);
+                if(activeFigure==='knot'){ knot.rotation.x+=0.025; knot.rotation.y+=0.035; }
+                if(activeFigure==='cube') cube.rotation.z+=0.04;
+                if(activeFigure==='pyramid') pyramid.rotation.z+=0.03;
+            } else if(currentVisualMode===5){
+                if(activeFigure==='sphere') sphereMat.wireframe = (Math.sin(t*12)>0)||wireframeMode;
+                knotMat.emissiveIntensity = 1.2+Math.sin(t*15)*0.8;
+                if(activeFigure==='knot'){ knot.rotation.x+=0.015; knot.rotation.y-=0.02; }
+                if(activeFigure==='rhombus') rhombus.rotation.z+=0.025;
+            }
+            
+            if(twistActive){
+                if(activeFigure==='knot'){ knot.rotation.z+=0.12; knot.rotation.x+=0.08; const st=1+Math.sin(t*18)*0.15; knot.scale.set(st,st,st); }
+                if(activeFigure==='cube'){ cube.rotation.x+=0.15; cube.rotation.z+=0.12; }
+                if(activeFigure==='sphere') sphere.rotation.y+=0.1;
+                if(activeFigure==='pyramid'){ pyramid.rotation.x+=0.1; pyramid.rotation.z+=0.1; }
+                if(activeFigure==='rhombus'){ rhombus.rotation.x+=0.12; rhombus.rotation.z+=0.12; }
+            }
+            
+            if(strobing){
+                const vf=Math.sin(t*25)>0;
+                knot.visible=(activeFigure==='knot')&&vf; sphere.visible=(activeFigure==='sphere')&&vf;
+                cube.visible=(activeFigure==='cube')&&vf; pyramid.visible=(activeFigure==='pyramid')&&vf;
+                rhombus.visible=(activeFigure==='rhombus')&&vf; particles.visible=particlesEnabled&&vf; dust.visible=particlesEnabled&&vf;
+            } else updateVisibility();
+            
+            const distortX = Math.sin(t*1.2)*distortionAmp*0.25;
+            const distortY = Math.cos(t*1.5)*distortionAmp*0.25;
+            camera.position.x += (distortX - camera.position.x)*0.1;
+            camera.position.y += (distortY - camera.position.y)*0.1;
+            camera.lookAt(0,0,0);
+        }
+        
+        function updateParticles(t) {
+            particles.rotation.z = t*0.15;
+            dust.rotation.y = t*0.12;
+            dust.rotation.x = Math.sin(t*0.4)*0.3;
+            particleMat.color.setHSL(0.6+Math.sin(t)*0.2,1,0.6);
+            dustMatObj.color.setHSL(0.1+Math.cos(t*0.7)*0.2,1,0.55);
+            if(customParticleSystem) customParticleSystem.rotation.y = t*0.1;
+        }
+        
+        let lastTime = performance.now(), frameCount = 0;
+        function animate() {
+            if (__NX_BLOQUEO_ACTIVO__) return;
+            const now = performance.now();
+            let delta = Math.min(0.033, (now-lastTime)/1000);
+            lastTime = now;
+            if(!freezeMode){ time += delta*globalSpeed; shaderTime += delta*shaderSpeed; }
+            updateColors(time);
+            applyVisualMode(time, delta);
+            updateParticles(time);
+            composer.render();
+            frameCount++;
+            if(now-lastTime>1000){ document.getElementById('fpsDisplay').innerHTML = `FPS: ${frameCount}`; frameCount=0; lastTime=now; }
+            __NX_ANIMATION_ID__ = requestAnimationFrame(animate);
+        }
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth/window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        updateVisibility();
+        animate();
+        
+        window.addEventListener('beforeunload', () => {
+            if (window.__NX_DEMO_INTERVAL__) clearInterval(window.__NX_DEMO_INTERVAL__);
+            if (__NX_ANIMATION_ID__) cancelAnimationFrame(__NX_ANIMATION_ID__);
+        });
+    </script>
+</body>
+</html>

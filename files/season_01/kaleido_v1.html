@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>NX KALEIDO • PSYTRONIC // GLOW VHS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; overflow: hidden; font-family: 'Share Tech Mono', monospace; }
+        canvas { display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .hotspot-trigger { position: fixed; top: 0; right: 0; width: 30%; height: 100%; z-index: 50; background: transparent; cursor: pointer; pointer-events: auto; }
+        .hard-console { position: fixed; bottom: 24px; left: 24px; right: 24px; background: rgba(8,8,12,0.94); backdrop-filter: blur(20px); border-radius: 28px; border: 1px solid rgba(0,255,255,0.5); padding: 18px 20px; z-index: 200; transition: transform 0.3s, opacity 0.2s; font-family: 'Orbitron', monospace; pointer-events: auto; max-height: 58vh; overflow-y: auto; }
+        .panel-grid { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; }
+        .cyber-card { background: rgba(0,0,0,0.7); border-left: 4px solid #0ff; border-radius: 20px; padding: 12px 16px; flex: 1 1 170px; backdrop-filter: blur(4px); }
+        .cyber-card h4 { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: #0ff; text-transform: uppercase; margin: 0 0 12px 0; border-bottom: 2px dotted #0ff; display: inline-block; font-family: 'Orbitron', monospace; text-shadow: 0 0 5px #0ff; }
+        .ctrl-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        label { font-size: 9px; font-weight: bold; color: #ccf; font-family: monospace; letter-spacing: 1px; }
+        input[type="range"] { flex: 1; height: 4px; -webkit-appearance: none; background: #222; border-radius: 4px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: #0ff; border-radius: 0px; cursor: pointer; box-shadow: 0 0 8px cyan; border: 1px solid #fff; }
+        button, .btn-cyber { background: #0a0a12; border: 1px solid #0ff; color: #0ff; font-family: 'Orbitron', monospace; font-size: 9px; font-weight: bold; padding: 6px 12px; border-radius: 40px; cursor: pointer; transition: 0.07s linear; text-shadow: 0 0 2px cyan; letter-spacing: 1px; }
+        button:active { background: #0ff; color: #000; transform: scale(0.96); box-shadow: 0 0 14px cyan; }
+        .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
+        .active-fx { background: #0ff; color: #000; box-shadow: 0 0 10px cyan; }
+        .status-led { font-size: 8px; background: #000000aa; padding: 3px 8px; border-radius: 30px; border-left: 3px solid #0f0; font-weight: bold; }
+        .ui-hidden .hard-console { opacity: 0; transform: translateY(60px); pointer-events: none; }
+        .toast-msg { position: fixed; bottom: 50%; left: 50%; transform: translate(-50%, -40%); background: #000000dd; backdrop-filter: blur(20px); border: 2px solid #ff00cc; padding: 8px 20px; font-family: 'Orbitron', monospace; font-weight: bold; color: #ff88ff; z-index: 400; border-radius: 60px; animation: glitchFadeOut 0.8s forwards; pointer-events: none; font-size: 12px; white-space: nowrap; }
+        @keyframes glitchFadeOut { 0% { opacity: 0; transform: translate(-50%, -40%) scale(0.9); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -70%) scale(1.1); } }
+        @media (max-width: 780px) { .hard-console { padding: 12px; left: 12px; right: 12px; bottom: 12px; max-height: 60vh;} .cyber-card { padding: 8px 10px; min-width: 140px;} }
+    </style>
+</head>
+<body>
+    <div class="hotspot-trigger" id="hotspotTrigger"></div>
+    <div class="hard-console" id="hardConsole">
+        <div class="panel-grid">
+            <div class="cyber-card"><h4>🌀 WARP ENGINE</h4><div class="ctrl-row"><label>ORIGIN X</label><input type="range" id="warpX" min="-5" max="5" step="0.05" value="0"></div><div class="ctrl-row"><label>ORIGIN Y</label><input type="range" id="warpY" min="-4" max="4" step="0.05" value="0"></div><div class="ctrl-row"><label>FLOW SPEED</label><input type="range" id="flowSpeed" min="0" max="3.5" step="0.02" value="1.6"></div><div class="ctrl-row"><label>SIZE</label><input type="range" id="partSize" min="0.05" max="0.8" step="0.005" value="0.18"></div><div class="ctrl-row"><label>PARTICLE COUNT</label><input type="range" id="particleCountSlider" min="500" max="35000" step="500" value="15000"></div><div class="ctrl-row"><button id="togglePartsBtn">✨ TOGGLE</button></div></div>
+            <div class="cyber-card"><h4>🎨 CHROMATIC ABYSS</h4><div class="ctrl-row"><label>MAIN HUE</label><input type="range" id="masterHue" min="0" max="360" step="1" value="280"></div><div class="ctrl-row"><label>SATURATION</label><input type="range" id="masterSat" min="0" max="2.0" step="0.01" value="1.2"></div><div class="ctrl-row"><label>BRIGHTNESS</label><input type="range" id="masterLight" min="0.2" max="2.0" step="0.02" value="1.0"></div><div class="ctrl-row"><button id="monoModeBtn">⚫ MONO</button><button id="coloramaBtn">🌈 COLORAMA</button><div class="status-led" id="colorModeLed">FULL RGB</div></div></div>
+            <div class="cyber-card"><h4>🔮 KALEIDO + GRID</h4><div class="ctrl-row"><div class="btn-group"><button id="kaleidoOffBtn" class="active-fx">OFF</button><button id="kaleido2Btn">2 LADOS</button><button id="kaleido4Btn">4 LADOS</button><button id="kaleido8Btn">8 LADOS</button></div></div><div class="ctrl-row"><button id="gridBtn" style="background:#0a0a12;">🔲 GRID FX</button><button id="gridKaleidoReset" style="background:#0a0a12;">⚡ RESET FX</button></div><div class="ctrl-row"><label>KALEIDO SPEED</label><input type="range" id="kaleidoSpeed" min="0" max="2.0" step="0.02" value="0.6"></div></div>
+            <div class="cyber-card"><h4>📺 GLOW VHS</h4><div class="ctrl-row"><label>GLOW BOOST</label><input type="range" id="glowIntensity" min="0.5" max="2.2" step="0.01" value="1.2"></div><div class="ctrl-row"><label>SCANLINES</label><input type="range" id="scanIntense" min="0" max="1.2" step="0.01" value="0.5"></div><div class="ctrl-row"><label>RGB SPLIT</label><input type="range" id="rgbSplitAmt" min="0" max="0.08" step="0.0005" value="0.018"></div><div class="ctrl-row"><label>VHS NOISE</label><input type="range" id="noiseVol" min="0" max="0.9" step="0.01" value="0.35"></div><div class="ctrl-row"><label>GLITCH</label><input type="range" id="glitchChaos" min="0" max="1.2" step="0.01" value="0.4"></div><div class="ctrl-row"><button id="glitchBurstBtn">💢 BURST</button><button id="resetVhsBtn">⚡ RESET VHS</button></div></div>
+            <div class="cyber-card"><h4>🎛️ PSYTRANCE REACT</h4><div class="ctrl-row"><button id="audioMicCyber">🎤 MIC</button><select id="audioBandSelect"><option value="0">BASS</option><option value="1">MID</option><option value="2">HIGH</option></select></div><div class="ctrl-row"><label>REACT INTENSE</label><input type="range" id="audioAmp" min="0" max="2.5" step="0.02" value="1.6"></div><div class="status-led" id="audioStatusLed">⛔ OFF</div></div>
+            <div class="cyber-card"><h4>📀 CAPTURE</h4><div class="ctrl-row"><button id="pngCaptureBtn">📸 PNG</button><button id="recordStartBtn">🎬 REC</button><button id="recordStopBtn">⏹️ STOP</button></div><div class="ctrl-row"><button id="uiHideBtn">🎭 HIDE</button><button id="fullResetBtn">🔁 RESET</button></div></div>
+        </div>
+    </div>
+
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/" } }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        
+        // ============================================
+        // SISTEMA DE VALIDACIÓN NX PRO
+        // ============================================
+        let __NX_TOKEN__ = null;
+        let __NX_SUSCRIPCION_ACTIVA__ = false;
+        let __NX_BLOQUEO_ACTIVO__ = false;
+        let __NX_ANIMATION_ID__ = null;
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokenFromURL = urlParams.get('token');
+        const tokenFromWindow = window.__NX_TOKEN__;
+        __NX_TOKEN__ = tokenFromURL || tokenFromWindow || null;
+        
+        function mostrarBloqueo(mensaje) {
+            if (__NX_BLOQUEO_ACTIVO__) return;
+            __NX_BLOQUEO_ACTIVO__ = true;
+            
+            if (__NX_ANIMATION_ID__) {
+                cancelAnimationFrame(__NX_ANIMATION_ID__);
+                __NX_ANIMATION_ID__ = null;
+            }
+            
+            const blocker = document.createElement('div');
+            blocker.id = 'nx-blocker';
+            blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.96);z-index:99999;display:flex;justify-content:center;align-items:center;font-family:monospace;text-align:center;backdrop-filter:blur(10px);';
+            blocker.innerHTML = `<div style="background:#1a1a1a;padding:40px;border:3px solid #ff4444;max-width:500px;"><h1 style="color:#ff4444;">⛔ ACCESO DENEGADO</h1><h2 style="color:white;">${mensaje}</h2><div style="margin-top:30px;"><a href="https://www.najarrox.xyz" style="background:#8b5cf6;color:black;padding:12px 24px;text-decoration:none;font-weight:bold;">🛒 COMPRAR AHORA</a><a href="/demo/kaleido" style="background:transparent;color:#8b5cf6;padding:12px 24px;text-decoration:none;margin-left:10px;border:1px solid #8b5cf6;">🎬 PROBAR DEMO</a></div></div>`;
+            document.body.appendChild(blocker);
+        }
+        
+        if (!__NX_TOKEN__) {
+            let tiempoRestante = 120;
+            let overlayCreado = false;
+            
+            const contador = document.createElement('div');
+            contador.style.cssText = 'position:fixed;bottom:20px;right:20px;background:rgba(0,0,0,0.8);color:#ffaa44;font-family:monospace;padding:8px 16px;z-index:10000;font-size:14px;font-weight:bold;border-right:3px solid #ffaa44;pointer-events:none;';
+            contador.innerHTML = `⏱️ DEMO: 2:00`;
+            document.body.appendChild(contador);
+            
+            const intervaloDemo = setInterval(() => {
+                if (__NX_BLOQUEO_ACTIVO__) return;
+                tiempoRestante--;
+                const mins = Math.floor(tiempoRestante / 60);
+                const segs = (tiempoRestante % 60).toString().padStart(2, '0');
+                contador.innerHTML = `⏱️ DEMO: ${mins}:${segs}`;
+                
+                if (tiempoRestante <= 30 && !overlayCreado) {
+                    overlayCreado = true;
+                    const warning = document.createElement('div');
+                    warning.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.9);color:#ff6600;font-family:monospace;padding:10px 20px;z-index:10000;font-size:14px;border:2px solid #ff6600;animation:pulse 1s infinite;';
+                    warning.innerHTML = '⚠️ DEMO TERMINA EN 30 SEGUNDOS - Compra en najarrox.xyz ⚠️';
+                    document.body.appendChild(warning);
+                    const style = document.createElement('style');
+                    style.textContent = '@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }';
+                    document.head.appendChild(style);
+                }
+                
+                if (tiempoRestante <= 0) {
+                    clearInterval(intervaloDemo);
+                    mostrarBloqueo('DEMO FINALIZADA\nCompra la versión completa en\nwww.najarrox.xyz');
+                }
+            }, 1000);
+            
+            window.__NX_DEMO_INTERVAL__ = intervaloDemo;
+        } else {
+            async function validarSuscripcion() {
+                if (__NX_BLOQUEO_ACTIVO__) return;
+                try {
+                    const response = await fetch(`/verificar-suscripcion?token=${__NX_TOKEN__}`);
+                    const data = await response.json();
+                    
+                    if (data.activa) {
+                        __NX_SUSCRIPCION_ACTIVA__ = true;
+                        console.log('✅ Suscripción NX PRO activa');
+                        
+                        if (!document.getElementById('nx-pro-badge')) {
+                            const proBadge = document.createElement('div');
+                            proBadge.id = 'nx-pro-badge';
+                            proBadge.style.cssText = 'position:fixed;bottom:20px;left:20px;background:#00c853;color:black;font-family:monospace;padding:6px 12px;z-index:9999;font-size:11px;font-weight:bold;border-radius:20px;pointer-events:none;';
+                            proBadge.innerHTML = '⭐ NX PRO ACTIVO';
+                            document.body.appendChild(proBadge);
+                        }
+                        
+                        setTimeout(validarSuscripcion, 300000);
+                    } else {
+                        mostrarBloqueo('TU SUSCRIPCIÓN HA EXPIRADO\nRenueva en najarrox.xyz para seguir usando NX PRO');
+                    }
+                } catch (error) {
+                    console.error('Error validando suscripción:', error);
+                    setTimeout(validarSuscripcion, 30000);
+                }
+            }
+            validarSuscripcion();
+        }
+        
+        // ============================================
+        // CÓDIGO PRINCIPAL DEL VISUALIZADOR
+        // ============================================
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+        scene.fog = new THREE.FogExp2(0x000000, 0.008);
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 5.8);
+        camera.lookAt(0, 0, 0);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+        
+        const renderPass = new RenderPass(scene, camera);
+        const composer = new EffectComposer(renderer);
+        composer.addPass(renderPass);
+        
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.6, 0.85);
+        composer.addPass(bloomPass);
+        
+        const fxUniforms = {
+            tDiffuse: { value: null },
+            time: { value: 0 },
+            scanIntensity: { value: 0.5 },
+            rgbSplit: { value: 0.018 },
+            noiseAmount: { value: 0.35 },
+            glitchPower: { value: 0.4 },
+            audioGlitch: { value: 0.0 },
+            glowBoost: { value: 1.2 },
+            kaleidoMode: { value: 0 },
+            gridMode: { value: 0 },
+            kaleidoRotate: { value: 0.0 },
+            kaleidoSpeed: { value: 0.6 }
+        };
+        
+        const fragmentFX = `
+            uniform sampler2D tDiffuse;
+            uniform float time;
+            uniform float scanIntensity;
+            uniform float rgbSplit;
+            uniform float noiseAmount;
+            uniform float glitchPower;
+            uniform float audioGlitch;
+            uniform float glowBoost;
+            uniform int kaleidoMode;
+            uniform int gridMode;
+            uniform float kaleidoRotate;
+            uniform float kaleidoSpeed;
+            varying vec2 vUv;
+            
+            float rand(vec2 n) { return fract(sin(dot(n, vec2(12.9898, 78.233))) * 43758.5453); }
+            
+            vec2 kaleido(vec2 uv, int segments) {
+                float angle = atan(uv.y, uv.x);
+                float radius = length(uv);
+                float segmentAngle = 6.28318 / float(segments);
+                float newAngle = mod(angle + kaleidoRotate, segmentAngle);
+                if (newAngle > segmentAngle * 0.5) newAngle = segmentAngle - newAngle;
+                return vec2(cos(newAngle) * radius, sin(newAngle) * radius);
+            }
+            
+            vec2 gridWarp(vec2 uv, float intensity) {
+                vec2 grid = fract(uv * 8.0);
+                float edgeX = min(grid.x, 1.0 - grid.x);
+                float edgeY = min(grid.y, 1.0 - grid.y);
+                float line = min(edgeX, edgeY);
+                float glow = 1.0 - smoothstep(0.0, 0.15, line);
+                return uv + (vec2(glow) * 0.03 * intensity);
+            }
+            
+            void main() {
+                vec2 uv = vUv;
+                float totalGlitch = clamp(glitchPower + audioGlitch, 0.0, 1.2);
+                
+                vec2 centeredUv = uv * 2.0 - 1.0;
+                vec2 kaleidoUv = centeredUv;
+                if (kaleidoMode == 2) kaleidoUv = kaleido(centeredUv, 2);
+                else if (kaleidoMode == 4) kaleidoUv = kaleido(centeredUv, 4);
+                else if (kaleidoMode == 8) kaleidoUv = kaleido(centeredUv, 8);
+                vec2 finalUv = (kaleidoUv * 0.5) + 0.5;
+                finalUv = clamp(finalUv, 0.01, 0.99);
+                
+                if (gridMode == 1) {
+                    finalUv = gridWarp(finalUv, 0.8);
+                }
+                
+                if (totalGlitch > 0.1 && fract(time * 30.0) > 0.92) {
+                    float blockY = floor(finalUv.y * 18.0 + sin(time * 50.0) * 1.5) / 18.0;
+                    finalUv.x += sin(blockY * 60.0 + time * 150.0) * 0.04 * totalGlitch;
+                }
+                
+                float shiftR = (sin(time * 90.0) * 0.01 + rgbSplit) * (1.0 + totalGlitch);
+                float shiftG = (cos(time * 88.0 + 2.0) * 0.01 + rgbSplit) * (1.0 + totalGlitch * 0.8);
+                float shiftB = (sin(time * 95.0 + 4.0) * 0.01 + rgbSplit) * (1.0 + totalGlitch);
+                
+                vec2 uvR = finalUv + vec2(shiftR, 0.0);
+                vec2 uvG = finalUv + vec2(-shiftG * 0.8, 0.0);
+                vec2 uvB = finalUv + vec2(shiftB * 0.5, 0.0);
+                
+                float r = texture2D(tDiffuse, uvR).r;
+                float g = texture2D(tDiffuse, uvG).g;
+                float b = texture2D(tDiffuse, uvB).b;
+                vec3 color = vec3(r, g, b);
+                
+                float scanPos = finalUv.y * 650.0;
+                float scanline = sin(scanPos + time * 25.0) * 0.12 * scanIntensity;
+                float scanline2 = cos(scanPos * 1.7 + time * 18.0) * 0.08 * scanIntensity;
+                color += vec3(scanline + scanline2) * 0.8;
+                
+                float noiseVal = rand(finalUv + floor(time * 40.0)) * noiseAmount;
+                color += vec3(noiseVal * 0.6, noiseVal * 0.3, noiseVal * 0.9) * 0.8;
+                
+                vec2 centered = finalUv * 2.0 - 1.0;
+                float vignette = 1.0 - length(centered) * 0.25;
+                color *= (vignette + 0.2);
+                
+                color = pow(color, vec3(0.92));
+                color *= (0.8 + glowBoost * 0.5);
+                float gray = (color.r + color.g + color.b) / 3.0;
+                color = mix(vec3(gray), color, 1.2);
+                
+                if (gridMode == 1) {
+                    vec2 gridPos = fract(finalUv * 12.0);
+                    float lineX = smoothstep(0.0, 0.05, min(gridPos.x, 1.0 - gridPos.x));
+                    float lineY = smoothstep(0.0, 0.05, min(gridPos.y, 1.0 - gridPos.y));
+                    float gridIntensity = (1.0 - min(lineX, lineY)) * 0.8;
+                    color += vec3(gridIntensity * 0.6, gridIntensity * 0.8, gridIntensity * 1.0);
+                }
+                
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+        
+        const fxPass = new ShaderPass({ 
+            uniforms: fxUniforms, 
+            vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`, 
+            fragmentShader: fragmentFX 
+        });
+        fxPass.renderToScreen = true;
+        composer.addPass(fxPass);
+        
+        let particleSys = null;
+        let originalPos = [];
+        let flowRate = 1.6;
+        
+        function rebuildParticleStorm(count) {
+            if (particleSys) scene.remove(particleSys);
+            const geom = new THREE.BufferGeometry();
+            const posArray = new Float32Array(count * 3);
+            originalPos = [];
+            for (let i = 0; i < count; i++) {
+                let radius = 1.8 + Math.random() * 5.5;
+                let theta = Math.random() * Math.PI * 2;
+                let phi = Math.acos(2 * Math.random() - 1);
+                let x = radius * Math.sin(phi) * Math.cos(theta) + (Math.random() - 0.5) * 1.4;
+                let y = radius * Math.sin(phi) * Math.sin(theta) * 0.8 + (Math.random() - 0.5) * 1.2;
+                let z = radius * Math.cos(phi) * 1.3 + (Math.random() - 0.5) * 2.0;
+                posArray[i*3] = x;
+                posArray[i*3+1] = y;
+                posArray[i*3+2] = z;
+                originalPos.push(new THREE.Vector3(x, y, z));
+            }
+            geom.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const mat = new THREE.PointsMaterial({ size: 0.18, color: 0xff44ff, blending: THREE.AdditiveBlending });
+            particleSys = new THREE.Points(geom, mat);
+            scene.add(particleSys);
+        }
+        
+        rebuildParticleStorm(15000);
+        
+        let timeAnim = 0;
+        
+        function updateParticlesFlow() {
+            if (!particleSys || __NX_BLOQUEO_ACTIVO__) return;
+            const positions = particleSys.geometry.attributes.position.array;
+            const warpX = parseFloat(document.getElementById('warpX')?.value || 0);
+            const warpY = parseFloat(document.getElementById('warpY')?.value || 0);
+            const flow = flowRate;
+            const count = particleSys.geometry.attributes.position.count;
+            for (let i = 0; i < count; i++) {
+                const orig = originalPos[i];
+                let dx = orig.x - warpX;
+                let dy = orig.y - warpY;
+                let angle = Math.atan2(dy, dx);
+                let rad = Math.sqrt(dx*dx+dy*dy);
+                let newRad = rad + flow * 0.07 * Math.sin(timeAnim * 2.5 + rad * 2.2);
+                let newX = warpX + Math.cos(angle + timeAnim * 0.9 * flow) * newRad;
+                let newY = warpY + Math.sin(angle + timeAnim * 0.9 * flow) * newRad;
+                let newZ = orig.z + Math.sin(timeAnim * 2.0 + orig.z * 1.5) * 0.1 * flow;
+                positions[i*3] = newX;
+                positions[i*3+1] = newY;
+                positions[i*3+2] = newZ;
+            }
+            particleSys.geometry.attributes.position.needsUpdate = true;
+        }
+        
+        function animate() {
+            if (__NX_BLOQUEO_ACTIVO__) return;
+            timeAnim += 0.016;
+            updateParticlesFlow();
+            
+            fxUniforms.time.value = timeAnim;
+            const kSpeed = parseFloat(document.getElementById('kaleidoSpeed')?.value || 0.6);
+            fxUniforms.kaleidoRotate.value += 0.016 * kSpeed * 1.5;
+            
+            composer.render();
+            __NX_ANIMATION_ID__ = requestAnimationFrame(animate);
+        }
+        
+        __NX_ANIMATION_ID__ = requestAnimationFrame(animate);
+        
+        document.getElementById('flowSpeed')?.addEventListener('input', (e) => { flowRate = parseFloat(e.target.value); });
+        document.getElementById('partSize')?.addEventListener('input', (e) => { if(particleSys) particleSys.material.size = parseFloat(e.target.value); });
+        document.getElementById('particleCountSlider')?.addEventListener('input', (e) => { rebuildParticleStorm(parseInt(e.target.value)); });
+        document.getElementById('glowIntensity')?.addEventListener('input', (e) => { fxUniforms.glowBoost.value = parseFloat(e.target.value); bloomPass.strength = 0.8 + parseFloat(e.target.value) * 0.5; });
+        document.getElementById('scanIntense')?.addEventListener('input', (e) => { fxUniforms.scanIntensity.value = parseFloat(e.target.value); });
+        document.getElementById('rgbSplitAmt')?.addEventListener('input', (e) => { fxUniforms.rgbSplit.value = parseFloat(e.target.value); });
+        document.getElementById('noiseVol')?.addEventListener('input', (e) => { fxUniforms.noiseAmount.value = parseFloat(e.target.value); });
+        document.getElementById('glitchChaos')?.addEventListener('input', (e) => { fxUniforms.glitchPower.value = parseFloat(e.target.value); });
+        
+        function setKaleidoMode(mode) {
+            fxUniforms.kaleidoMode.value = mode;
+            document.getElementById('kaleidoOffBtn')?.classList.remove('active-fx');
+            document.getElementById('kaleido2Btn')?.classList.remove('active-fx');
+            document.getElementById('kaleido4Btn')?.classList.remove('active-fx');
+            document.getElementById('kaleido8Btn')?.classList.remove('active-fx');
+            if (mode === 0) document.getElementById('kaleidoOffBtn')?.classList.add('active-fx');
+            if (mode === 2) document.getElementById('kaleido2Btn')?.classList.add('active-fx');
+            if (mode === 4) document.getElementById('kaleido4Btn')?.classList.add('active-fx');
+            if (mode === 8) document.getElementById('kaleido8Btn')?.classList.add('active-fx');
+        }
+        
+        document.getElementById('kaleidoOffBtn')?.addEventListener('click', () => setKaleidoMode(0));
+        document.getElementById('kaleido2Btn')?.addEventListener('click', () => setKaleidoMode(2));
+        document.getElementById('kaleido4Btn')?.addEventListener('click', () => setKaleidoMode(4));
+        document.getElementById('kaleido8Btn')?.addEventListener('click', () => setKaleidoMode(8));
+        
+        let gridActive = false;
+        document.getElementById('gridBtn')?.addEventListener('click', () => {
+            gridActive = !gridActive;
+            fxUniforms.gridMode.value = gridActive ? 1 : 0;
+            document.getElementById('gridBtn').style.background = gridActive ? '#0ff' : '#0a0a12';
+            document.getElementById('gridBtn').style.color = gridActive ? '#000' : '#0ff';
+        });
+        
+        let audioActive = false, audioCtx = null, analyser = null, mediaStream = null, audioBuffer = new Uint8Array(128);
+        let audioBandVal = 0, audioAmpGlobal = 1.6;
+        
+        function getAudioIntensity() {
+            if (!audioActive || !analyser) return 0.3;
+            analyser.getByteFrequencyData(audioBuffer);
+            let start=0, end=40;
+            if (audioBandVal===1) { start=40; end=85; }
+            if (audioBandVal===2) { start=85; end=128; }
+            let sum=0;
+            for (let i=start;i<end;i++) sum += audioBuffer[i];
+            let avg = sum / (end-start) / 255;
+            return Math.min(1.6, avg * 1.8) * audioAmpGlobal;
+        }
+        
+        async function toggleAudioSystem() {
+            if (audioActive) {
+                if (mediaStream) mediaStream.getTracks().forEach(t=>t.stop());
+                if (audioCtx) await audioCtx.close();
+                audioActive=false;
+                document.getElementById('audioStatusLed').innerHTML = '⛔ OFF';
+                document.getElementById('audioMicCyber').innerHTML = '🎤 MIC';
+                return;
+            }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioCtx.createMediaStreamSource(stream);
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 256;
+                source.connect(analyser);
+                audioCtx.resume();
+                mediaStream = stream;
+                audioActive = true;
+                document.getElementById('audioStatusLed').innerHTML = '🎧 ACTIVE';
+                document.getElementById('audioMicCyber').innerHTML = '🔴 ON';
+            } catch(e) { console.log('Audio error'); }
+        }
+        
+        document.getElementById('audioMicCyber')?.addEventListener('click', toggleAudioSystem);
+        document.getElementById('audioBandSelect')?.addEventListener('change', (e) => { audioBandVal = parseInt(e.target.value); });
+        document.getElementById('audioAmp')?.addEventListener('input', (e) => { audioAmpGlobal = parseFloat(e.target.value); });
+        
+        function showToast(m) { let d = document.createElement('div'); d.className = 'toast-msg'; d.innerText = m; document.body.appendChild(d); setTimeout(()=>d.remove(), 900); }
+        
+        document.getElementById('hotspotTrigger')?.addEventListener('click', () => document.body.classList.toggle('ui-hidden'));
+        document.getElementById('uiHideBtn')?.addEventListener('click', () => document.body.classList.toggle('ui-hidden'));
+        document.getElementById('fullResetBtn')?.addEventListener('click', () => location.reload());
+        document.getElementById('pngCaptureBtn')?.addEventListener('click', () => { const a = document.createElement('a'); a.href = renderer.domElement.toDataURL(); a.download = `nx_kaleido_${Date.now()}.png`; a.click(); showToast('📸 PNG'); });
+        
+        // Actualizar audio en cada frame
+        setInterval(() => {
+            if (audioActive && !__NX_BLOQUEO_ACTIVO__) {
+                const audioVal = getAudioIntensity();
+                fxUniforms.audioGlitch.value = audioVal * 0.7;
+                bloomPass.strength = 0.9 + audioVal * 0.8;
+            }
+        }, 100);
+        
+        showToast('⚡ NX KALEIDO • TOUCH RIGHT EDGE ⚡');
+        
+        window.addEventListener('beforeunload', () => {
+            if (window.__NX_DEMO_INTERVAL__) clearInterval(window.__NX_DEMO_INTERVAL__);
+            if (__NX_ANIMATION_ID__) cancelAnimationFrame(__NX_ANIMATION_ID__);
+        });
+    </script>
+</body>
+</html>
