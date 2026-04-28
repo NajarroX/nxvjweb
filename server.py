@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# server.py - NX PRO VAULT (Diseño Cyberpunk Profesional)
+# server.py - NX PRO VAULT (Diseño Elegante Akaru-Inspired)
 
 from flask import Flask, request, jsonify, send_file, abort
 import os
@@ -24,18 +24,18 @@ app = Flask(__name__)
 
 PRODUCTOS = {
     "prod_bundle_vj": {
-        "nombre": "NX BUNDLE • 3 Visualizadores en Tiempo Real",
+        "nombre": "NX BUNDLE",
         "archivo": "bundle",
         "precio": 15.00,
         "tipo": "bundle",
-        "descripcion": "Incluye: KALEIDO + GRID | ASCII WEBCAM FLAME | VJ GLITCH ENGINE"
+        "descripcion": "Tres visualizadores en tiempo real. Audio-reactivos. 60 FPS."
     },
     "sub_pro_mensual": {
-        "nombre": "SUSCRIPCIÓN NX PRO",
+        "nombre": "NX PRO",
         "archivo": "subscription",
         "precio": 7.00,
         "tipo": "suscripcion",
-        "descripcion": "Acceso a todos los visuales + 3 nuevos cada mes"
+        "descripcion": "Acceso a todo el catálogo. Contenido nuevo cada mes."
     }
 }
 
@@ -110,75 +110,61 @@ def crear_zip_bundle():
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>NX ENGINES - Manual de Usuario</title>
+            <title>NX ENGINES • Manual</title>
             <style>
-                @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
                 * { margin: 0; padding: 0; box-sizing: border-box; }
                 body {
-                    font-family: 'Space Grotesk', sans-serif;
-                    background: #0a0a0a;
-                    color: #e0e0e0;
-                    line-height: 1.6;
+                    font-family: 'Inter', sans-serif;
+                    background: #ffffff;
+                    color: #1a1a1a;
+                    line-height: 1.5;
                 }
-                .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
-                .hero { text-align: center; margin-bottom: 50px; }
-                .hero h1 { font-size: 3rem; font-weight: 700; background: linear-gradient(135deg, #8b5cf6, #00c853); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-                .hero p { color: #888; font-size: 1.1rem; }
-                .card { background: #111; border-radius: 16px; padding: 30px; margin-bottom: 30px; border: 1px solid #222; }
-                .card h2 { color: #8b5cf6; margin-bottom: 20px; font-size: 1.5rem; }
-                .card h3 { color: #00c853; margin: 20px 0 10px; font-size: 1.2rem; }
-                .key { background: #1a1a1a; padding: 4px 10px; border-radius: 6px; font-family: monospace; color: #ffaa44; border: 1px solid #333; }
-                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                td, th { padding: 12px; border-bottom: 1px solid #222; text-align: left; }
-                .footer { text-align: center; margin-top: 50px; padding-top: 30px; border-top: 1px solid #222; color: #555; font-size: 0.8rem; }
+                .container { max-width: 720px; margin: 0 auto; padding: 60px 24px; }
+                h1 { font-size: 2.5rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 16px; }
+                h2 { font-size: 1.25rem; font-weight: 500; margin: 32px 0 16px; letter-spacing: -0.01em; }
+                p { color: #555; margin-bottom: 16px; }
+                .divider { width: 40px; height: 1px; background: #e0e0e0; margin: 32px 0; }
+                .card { border: 1px solid #eaeaea; border-radius: 12px; padding: 24px; margin: 24px 0; background: #fafafa; }
+                .key { font-family: monospace; background: #f0f0f0; padding: 2px 8px; border-radius: 6px; font-size: 0.85rem; }
+                table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+                td, th { padding: 10px 0; border-bottom: 1px solid #eee; text-align: left; }
+                .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #eee; color: #999; font-size: 0.75rem; text-align: center; }
             </style>
         </head>
         <body>
             <div class="container">
-                <div class="hero">
-                    <h1>NX ENGINES</h1>
-                    <p>Manual de Usuario · Visuales en Tiempo Real</p>
-                </div>
+                <h1>NX ENGINES</h1>
+                <p>Manual de usuario — Visuales en tiempo real</p>
+                <div class="divider"></div>
+                
                 <div class="card">
-                    <h2>🎬 Bienvenido</h2>
-                    <p>Gracias por adquirir el bundle NX ENGINES. Este manual te guiará para sacar el máximo provecho de tus visualizadores.</p>
+                    <p><strong>Gracias por adquirir NX ENGINES.</strong> Este manual te ayudará a aprovechar al máximo cada visualizador.</p>
                 </div>
-                <div class="card">
-                    <h2>📦 Contenido del Bundle</h2>
-                    <ul>
-                        <li><strong>🌀 NX KALEIDO ENGINE</strong> - Efectos kaleidoscopio + grid VHS + glow</li>
-                        <li><strong>🔥 NX ASCII ENGINE</strong> - ASCII art + webcam mix + partículas de fuego</li>
-                        <li><strong>🎛️ NX GLITCH ENGINE</strong> - 5 figuras 3D + shaders + glitch/delay/echo</li>
-                    </ul>
-                </div>
-                <div class="card">
-                    <h2>🚀 Inicio Rápido</h2>
-                    <ol>
-                        <li>Abre cualquier archivo <strong>.html</strong> en tu navegador (Chrome, Firefox, Edge)</li>
-                        <li>Permite el acceso al <strong>micrófono</strong> cuando el navegador lo solicite</li>
-                        <li>Conecta tu música (por altavoces o línea de audio)</li>
-                        <li>¡Disfruta de los visuales sincronizados con el audio!</li>
-                    </ol>
-                </div>
-                <div class="card">
-                    <h2>🎛️ Controles Generales</h2>
-                    <table>
-                        <tr><th>Tecla</th><th>Función</th></tr>
-                        <tr><td><span class="key">TAB</span></td><td>Ocultar/Mostrar interfaz</td></tr>
-                        <tr><td><span class="key">P</span></td><td>Activar/Desactivar micrófono</td></tr>
-                        <tr><td><span class="key">O</span></td><td>Cambiar banda de audio</td></tr>
-                        <tr><td><span class="key">+ / -</span></td><td>Ajustar intensidad</td></tr>
-                        <tr><td><span class="key">T</span></td><td>Capturar pantalla (PNG)</td></tr>
-                        <tr><td><span class="key">Y</span></td><td>Grabar video (WEBM)</td></tr>
-                    </table>
-                </div>
-                <div class="card">
-                    <h2>💬 Soporte</h2>
-                    <p>📧 <strong>soporte@najarrox.xyz</strong></p>
-                    <p>🌐 <strong>www.najarrox.xyz</strong></p>
-                </div>
+                
+                <h2>Contenido del bundle</h2>
+                <p><strong>NX KALEIDO ENGINE</strong> — Efectos kaleidoscopio, grid VHS y glow.</p>
+                <p><strong>NX ASCII ENGINE</strong> — ASCII art, mezcla con webcam y fuego 3D.</p>
+                <p><strong>NX GLITCH ENGINE</strong> — Figuras 3D, shaders, glitch, delay y echo.</p>
+                
+                <h2>Inicio rápido</h2>
+                <p>Abre cualquier archivo .html en tu navegador (Chrome, Firefox, Edge). Permite el acceso al micrófono. Conecta tu música y los visuales reaccionarán en tiempo real.</p>
+                
+                <h2>Controles generales</h2>
+                <table>
+                    <tr><td><span class="key">TAB</span></td><td>Ocultar o mostrar interfaz</td></tr>
+                    <tr><td><span class="key">P</span></td><td>Activar o desactivar micrófono</td></tr>
+                    <tr><td><span class="key">O</span></td><td>Cambiar banda de audio (bajo, medios, agudos)</td></tr>
+                    <tr><td><span class="key">+ / -</span></td><td>Ajustar intensidad de efectos</td></tr>
+                    <tr><td><span class="key">T</span></td><td>Capturar pantalla (PNG)</td></tr>
+                    <tr><td><span class="key">Y</span></td><td>Grabar video (WEBM)</td></tr>
+                </table>
+                
+                <h2>Soporte</h2>
+                <p>¿Dudas? Escríbenos a <strong>soporte@najarrox.xyz</strong></p>
+                
                 <div class="footer">
-                    <p>© 2026 NAJARRO X STUDIO · Todos los derechos reservados</p>
+                    <p>NAJARRO X STUDIO · Panamá · 2026</p>
                 </div>
             </div>
         </body>
@@ -188,19 +174,19 @@ def crear_zip_bundle():
         zf.writestr("00_MANUAL_NX_ENGINES.html", manual_html)
         
         readme = """========================================
-   NAJARRO X STUDIO - NX ENGINES
+   NAJARRO X STUDIO · NX ENGINES
 ========================================
 
-🎬 ¡GRACIAS POR TU COMPRA!
+Gracias por tu compra.
 
-Este bundle incluye 3 visualizadores en tiempo real.
+Este bundle incluye tres visualizadores en tiempo real.
 
-📖 MANUAL: Abre "00_MANUAL_NX_ENGINES.html" para instrucciones.
+Abre "00_MANUAL_NX_ENGINES.html" para instrucciones.
 
-Para soporte: soporte@najarrox.xyz
+Soporte: soporte@najarrox.xyz
 Web: www.najarrox.xyz
 
-© 2026 NAJARRO X STUDIO
+© NAJARRO X STUDIO
 """
         zf.writestr("README.txt", readme)
     
@@ -276,31 +262,17 @@ def webhook_recurrente():
             html_email = f"""
             <!DOCTYPE html>
             <html>
-            <head>
-                <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-                    body {{ font-family: 'Space Grotesk', sans-serif; background: #0a0a0a; padding: 20px; }}
-                    .container {{ max-width: 600px; margin: 0 auto; background: #111; border: 1px solid #222; border-radius: 16px; padding: 40px; }}
-                    h1 {{ background: linear-gradient(135deg, #8b5cf6, #00c853); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.8rem; }}
-                    .box {{ background: #0a0a0a; padding: 20px; border-radius: 12px; margin: 20px 0; }}
-                    .btn {{ display: inline-block; background: #8b5cf6; color: black; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; }}
-                    .footer {{ font-size: 11px; color: #555; margin-top: 30px; }}
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h1>🎬 ¡Gracias por tu compra, {nombre}!</h1>
-                    <p><strong>{producto['nombre']}</strong></p>
-                    <p>{producto['descripcion']}</p>
-                    <div class="box">
-                        <p>🔗 <strong>TU ENLACE DE DESCARGA:</strong></p>
-                        <a href="{link_descarga}" style="color:#8b5cf6;">{link_descarga}</a>
-                        <p style="margin-top:15px;">🔐 <strong>CONTRASEÑA:</strong> {contrasena}</p>
+            <head><meta charset="UTF-8"></head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif; background: #ffffff; padding: 32px;">
+                <div style="max-width: 520px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 16px; padding: 40px;">
+                    <h1 style="font-size: 1.5rem; font-weight: 500; margin-bottom: 16px;">Gracias, {nombre}</h1>
+                    <p style="color: #555;">Tu bundle <strong>{producto['nombre']}</strong> está listo para descargar.</p>
+                    <div style="background: #fafafa; padding: 20px; border-radius: 12px; margin: 24px 0;">
+                        <p style="margin-bottom: 12px;"><strong>Enlace de descarga</strong></p>
+                        <a href="{link_descarga}" style="color: #000; word-break: break-all;">{link_descarga}</a>
+                        <p style="margin-top: 16px;"><strong>Contraseña</strong><br><span style="font-family: monospace;">{contrasena}</span></p>
                     </div>
-                    <a href="{link_descarga}" class="btn">📦 DESCARGAR BUNDLE</a>
-                    <div class="footer">
-                        <p>Enlace válido por 7 días · NAJARRO X STUDIO</p>
-                    </div>
+                    <p style="font-size: 0.75rem; color: #999;">Este enlace expira en 7 días.</p>
                 </div>
             </body>
             </html>
@@ -332,32 +304,22 @@ def webhook_recurrente():
             html_email = f"""
             <!DOCTYPE html>
             <html>
-            <head>
-                <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-                    body {{ font-family: 'Space Grotesk', sans-serif; background: #0a0a0a; padding: 20px; }}
-                    .container {{ max-width: 600px; margin: 0 auto; background: #111; border: 1px solid #222; border-radius: 16px; padding: 40px; }}
-                    h1 {{ background: linear-gradient(135deg, #8b5cf6, #00c853); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
-                    .box {{ background: #0a0a0a; padding: 20px; border-radius: 12px; margin: 20px 0; }}
-                    .btn {{ display: inline-block; background: #8b5cf6; color: black; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; }}
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h1>🎬 ¡Bienvenido a NX PRO, {nombre}!</h1>
-                    <p>Tu suscripción está activa.</p>
-                    <div class="box">
-                        <p>🔗 <strong>TU VAULT PERSONAL:</strong></p>
-                        <a href="{link_vault}" style="color:#8b5cf6;">{link_vault}</a>
+            <head><meta charset="UTF-8"></head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif; background: #ffffff; padding: 32px;">
+                <div style="max-width: 520px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 16px; padding: 40px;">
+                    <h1 style="font-size: 1.5rem; font-weight: 500;">Bienvenido a NX PRO</h1>
+                    <p style="color: #555;">Tu suscripción está activa, {nombre}.</p>
+                    <div style="background: #fafafa; padding: 20px; border-radius: 12px; margin: 24px 0;">
+                        <p><strong>Tu vault personal</strong></p>
+                        <a href="{link_vault}" style="color: #000;">{link_vault}</a>
                     </div>
-                    <a href="{link_vault}" class="btn">🎨 ENTRAR AL VAULT</a>
-                    <p style="margin-top:20px; font-size:11px; color:#555;">Guarda este enlace · Se renueva automáticamente</p>
+                    <p style="font-size: 0.75rem; color: #999;">Guarda este enlace. Se renueva automáticamente.</p>
                 </div>
             </body>
             </html>
             """
             
-            enviar_email_simple(email, nombre, "NX PRO - Tu suscripción está activa", html_email)
+            enviar_email_simple(email, nombre, "NX PRO — Tu suscripción está activa", html_email)
             logger.info(f"✅ Suscripción activada para {email}")
             return jsonify({"status": "ok", "token": token_sub}), 200
         
@@ -421,7 +383,7 @@ def verificar_suscripcion_endpoint():
     })
 
 # ============================================
-# VAULT CON DISEÑO PROFESIONAL
+# VAULT — DISEÑO ELEGANTE BLANCO/NEGRO
 # ============================================
 
 @app.route('/vault')
@@ -431,24 +393,12 @@ def vault_suscriptor():
         return '''
         <!DOCTYPE html>
         <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Acceso Pro • Najarro X</title>
-            <style>
-                @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                body { background: #0a0a0a; font-family: 'Space Grotesk', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-                .card { background: #111; border-radius: 24px; padding: 50px; text-align: center; border: 1px solid #222; max-width: 500px; }
-                h1 { font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, #8b5cf6, #00c853); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-                .btn { background: #8b5cf6; color: black; padding: 12px 30px; text-decoration: none; border-radius: 40px; font-weight: 600; display: inline-block; margin-top: 20px; }
-                p { color: #888; margin-top: 15px; }
-            </style>
-        </head>
-        <body>
-            <div class="card">
-                <h1>🔐 ACCESO PRO</h1>
-                <p>Este contenido es exclusivo para suscriptores de NX PRO.</p>
-                <a href="https://www.najarrox.xyz" class="btn">SUSCRIBIRME</a>
+        <head><meta charset="UTF-8"><title>Acceso</title></head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif; background: #fff; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+            <div style="text-align: center; padding: 32px;">
+                <h1 style="font-weight: 400; font-size: 1.75rem;">Acceso restringido</h1>
+                <p style="color: #666;">Este contenido es exclusivo para suscriptores.</p>
+                <a href="https://www.najarrox.xyz" style="color: #000; border: 1px solid #e0e0e0; padding: 10px 24px; text-decoration: none; display: inline-block; margin-top: 24px;">Suscribirse</a>
             </div>
         </body>
         </html>
@@ -461,288 +411,264 @@ def vault_suscriptor():
     seasons = obtener_temporadas()
     fecha_expiracion = datetime.fromtimestamp(suscripcion["expira"]).strftime('%d/%m/%Y')
     
-    # Verificar si existe la imagen del logo
-    logo_path = "/files/images/logo.png"
-    logo_html = f'<img src="{logo_path}" alt="Najarro X" style="height: 50px; width: auto;">' if os.path.exists("files/images/logo.png") else '<h1 style="font-size: 1.5rem;">NX PRO VAULT</h1>'
-    
     html = f'''
     <!DOCTYPE html>
     <html lang="es">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>NX PRO VAULT • {suscripcion["nombre"]}</title>
+        <title>NX PRO VAULT</title>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap');
             
-            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            * {{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }}
             
             body {{
-                background: #0a0a0a;
-                font-family: 'Space Grotesk', sans-serif;
-                color: #fff;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                background: #ffffff;
+                color: #1a1a1a;
+                line-height: 1.5;
             }}
             
-            /* HEADER CYBERPUNK */
+            /* Header elegante */
             .header {{
-                background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);
-                border-bottom: 1px solid #222;
-                padding: 20px 30px;
+                border-bottom: 1px solid #eaeaea;
+                padding: 28px 32px;
+                background: #ffffff;
                 position: sticky;
                 top: 0;
-                z-index: 100;
-                backdrop-filter: blur(10px);
+                z-index: 10;
             }}
             
-            .header-container {{
-                max-width: 1400px;
+            .header-inner {{
+                max-width: 1280px;
                 margin: 0 auto;
                 display: flex;
-                    justify-content: space-between;
-                align-items: center;
+                justify-content: space-between;
+                align-items: baseline;
                 flex-wrap: wrap;
                 gap: 20px;
             }}
             
-            .logo-area {{
-                display: flex;
-                align-items: center;
-                gap: 15px;
-            }}
-            
             .logo-area h1 {{
-                font-family: 'Space Grotesk', monospace;
-                font-weight: 700;
-                font-size: 1.5rem;
-                letter-spacing: -0.02em;
-                background: linear-gradient(135deg, #fff 0%, #8b5cf6 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
+                font-size: 1.1rem;
+                font-weight: 500;
+                letter-spacing: -0.01em;
+                color: #1a1a1a;
             }}
             
             .logo-area p {{
-                font-size: 0.75rem;
-                color: #888;
-                letter-spacing: 2px;
+                font-size: 0.7rem;
+                color: #999;
+                margin-top: 4px;
+                letter-spacing: 0.3px;
             }}
             
-            .user-info {{
+            .user-area {{
                 text-align: right;
             }}
             
-            .user-info .name {{
-                font-weight: 600;
-                color: #8b5cf6;
+            .user-name {{
+                font-weight: 500;
+                font-size: 0.9rem;
             }}
             
-            .user-info .expiry {{
+            .user-expiry {{
                 font-size: 0.7rem;
-                color: #00c853;
+                color: #00a86b;
+                margin-top: 2px;
             }}
             
             .badge {{
-                background: rgba(0, 200, 83, 0.15);
-                border: 1px solid #00c853;
-                color: #00c853;
-                padding: 4px 12px;
-                border-radius: 40px;
-                font-size: 0.7rem;
-                font-weight: 500;
+                display: inline-block;
+                background: #f0f0f0;
+                padding: 2px 12px;
+                border-radius: 20px;
+                font-size: 0.65rem;
+                font-weight: 400;
+                margin-top: 6px;
+                color: #555;
             }}
             
-            /* MAIN CONTENT */
+            /* Contenedor principal */
             .container {{
-                max-width: 1400px;
+                max-width: 1280px;
                 margin: 0 auto;
-                padding: 40px 30px;
+                padding: 56px 32px;
             }}
             
-            /* STATS CARDS */
+            /* Stats */
             .stats-grid {{
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 20px;
-                margin-bottom: 50px;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1px;
+                background: #eaeaea;
+                border-radius: 16px;
+                overflow: hidden;
+                margin-bottom: 80px;
             }}
             
             .stat-card {{
-                background: #111;
-                border: 1px solid #222;
-                border-radius: 16px;
-                padding: 20px;
-                transition: all 0.3s ease;
+                background: #fff;
+                padding: 32px 24px;
+                text-align: center;
             }}
             
-            .stat-card:hover {{
-                border-color: #8b5cf6;
-                transform: translateY(-2px);
-            }}
-            
-            .stat-value {{
-                font-size: 2rem;
-                font-weight: 700;
-                color: #8b5cf6;
+            .stat-number {{
+                font-size: 2.2rem;
+                font-weight: 500;
+                letter-spacing: -0.02em;
+                color: #1a1a1a;
             }}
             
             .stat-label {{
-                font-size: 0.75rem;
-                color: #666;
+                font-size: 0.7rem;
                 text-transform: uppercase;
                 letter-spacing: 1px;
+                color: #999;
                 margin-top: 8px;
             }}
             
-            /* SEASONS */
+            /* Temporadas */
             .season {{
-                margin-bottom: 60px;
+                margin-bottom: 72px;
             }}
             
             .season-title {{
-                font-size: 1.8rem;
-                font-weight: 600;
-                margin-bottom: 25px;
-                display: inline-block;
-                background: linear-gradient(135deg, #fff, #8b5cf6);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                border-left: 4px solid #8b5cf6;
-                padding-left: 20px;
+                font-size: 1.5rem;
+                font-weight: 400;
+                letter-spacing: -0.01em;
+                margin-bottom: 40px;
+                padding-bottom: 12px;
+                border-bottom: 1px solid #eaeaea;
             }}
             
-            /* GRID DE VISUALES */
+            /* Grid de visuales */
             .visual-grid {{
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-                gap: 25px;
+                gap: 32px;
             }}
             
             .visual-card {{
-                background: #111;
-                border: 1px solid #222;
+                border: 1px solid #eaeaea;
                 border-radius: 20px;
-                overflow: hidden;
+                background: #ffffff;
+                transition: all 0.2s ease;
                 cursor: pointer;
-                transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+                overflow: hidden;
             }}
             
             .visual-card:hover {{
-                transform: translateY(-8px);
-                border-color: #8b5cf6;
-                box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15);
+                transform: translateY(-4px);
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04);
+                border-color: #d0d0d0;
             }}
             
             .visual-preview {{
                 height: 200px;
-                background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+                background: #fafafa;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 64px;
-                position: relative;
-            }}
-            
-            .visual-preview::after {{
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 100%);
-                pointer-events: none;
+                font-size: 3rem;
+                font-weight: 400;
+                color: #ccc;
+                border-bottom: 1px solid #eaeaea;
             }}
             
             .visual-info {{
-                padding: 20px;
+                padding: 24px;
             }}
             
             .visual-info h3 {{
-                font-size: 1.2rem;
-                font-weight: 600;
-                color: #fff;
+                font-size: 1.1rem;
+                font-weight: 500;
                 margin-bottom: 8px;
+                letter-spacing: -0.01em;
             }}
             
             .visual-info p {{
                 font-size: 0.8rem;
                 color: #888;
-                margin-bottom: 15px;
-                font-family: 'Space Grotesk', sans-serif;
+                margin-bottom: 20px;
             }}
             
             .btn-open {{
-                background: transparent;
-                border: 1.5px solid #8b5cf6;
-                color: #8b5cf6;
+                background: none;
+                border: 1px solid #1a1a1a;
                 padding: 8px 20px;
                 border-radius: 40px;
-                font-size: 0.75rem;
-                font-weight: 600;
+                font-size: 0.7rem;
+                font-weight: 500;
                 cursor: pointer;
-                transition: all 0.2s ease;
-                font-family: 'Space Grotesk', sans-serif;
+                font-family: inherit;
+                transition: all 0.15s ease;
+                color: #1a1a1a;
             }}
             
             .btn-open:hover {{
-                background: #8b5cf6;
-                color: #000;
+                background: #1a1a1a;
+                color: #fff;
             }}
             
-            /* FOOTER */
+            /* Footer */
             .footer {{
+                border-top: 1px solid #eaeaea;
+                padding: 40px 32px;
                 text-align: center;
-                padding: 40px 30px;
-                border-top: 1px solid #222;
-                margin-top: 40px;
-            }}
-            
-            .footer p {{
-                color: #555;
                 font-size: 0.7rem;
-                letter-spacing: 1px;
+                color: #999;
             }}
             
             .footer a {{
-                color: #8b5cf6;
+                color: #1a1a1a;
                 text-decoration: none;
             }}
             
+            .footer a:hover {{
+                text-decoration: underline;
+            }}
+            
             @media (max-width: 768px) {{
-                .header-container {{
+                .header-inner {{
                     flex-direction: column;
-                    text-align: center;
+                    align-items: flex-start;
                 }}
-                .user-info {{
-                    text-align: center;
+                .user-area {{
+                    text-align: left;
+                }}
+                .stats-grid {{
+                    grid-template-columns: 1fr;
+                    gap: 1px;
+                }}
+                .container {{
+                    padding: 32px 20px;
                 }}
                 .season-title {{
-                    font-size: 1.3rem;
+                    font-size: 1.2rem;
                 }}
                 .visual-grid {{
                     grid-template-columns: 1fr;
-                }}
-                .container {{
-                    padding: 20px;
                 }}
             }}
         </style>
     </head>
     <body>
         <div class="header">
-            <div class="header-container">
+            <div class="header-inner">
                 <div class="logo-area">
-                    {logo_html}
-                    <div>
-                        <h1>NAJARRO X VJ LIVE</h1>
-                        <p>REAL-TIME VISUAL ENGINE</p>
-                    </div>
+                    <h1>NAJARRO X · VJ LIVE</h1>
+                    <p>Real‑time visual engines</p>
                 </div>
-                <div class="user-info">
-                    <div class="name">{suscripcion["nombre"]}</div>
-                    <div class="expiry">Activo hasta {fecha_expiracion}</div>
-                    <div class="badge" style="margin-top: 8px;">✅ PRO ACTIVO</div>
+                <div class="user-area">
+                    <div class="user-name">{suscripcion["nombre"]}</div>
+                    <div class="user-expiry">Activo hasta {fecha_expiracion}</div>
+                    <div class="badge">Suscripción activa</div>
                 </div>
             </div>
         </div>
@@ -750,16 +676,16 @@ def vault_suscriptor():
         <div class="container">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-value">{sum(len(s["visuales"]) for s in seasons)}</div>
-                    <div class="stat-label">VISUALES DISPONIBLES</div>
+                    <div class="stat-number">{sum(len(s["visuales"]) for s in seasons)}</div>
+                    <div class="stat-label">visuales disponibles</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value">{len(seasons)}</div>
-                    <div class="stat-label">TEMPORADAS</div>
+                    <div class="stat-number">{len(seasons)}</div>
+                    <div class="stat-label">temporadas</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value">+3</div>
-                    <div class="stat-label">NUEVOS / MES</div>
+                    <div class="stat-number">+3</div>
+                    <div class="stat-label">nuevos / mes</div>
                 </div>
             </div>
     '''
@@ -767,19 +693,19 @@ def vault_suscriptor():
     for season in seasons:
         html += f'''
             <div class="season">
-                <div class="season-title">📀 {season["nombre"]}</div>
+                <div class="season-title">{season["nombre"]}</div>
                 <div class="visual-grid">
         '''
         for visual in season["visuales"]:
-            emoji = "🌀" if "kaleido" in visual["archivo"].lower() else "🔥" if "ascii" in visual["archivo"].lower() else "🎛️" if "glitch" in visual["archivo"].lower() else "✨"
+            letter = "K" if "kaleido" in visual["archivo"].lower() else "A" if "ascii" in visual["archivo"].lower() else "G" if "glitch" in visual["archivo"].lower() else "V"
             visual_url = f"{visual['ruta']}?token={token}"
             html += f'''
                     <div class="visual-card" onclick="window.open('{visual_url}', '_blank')">
-                        <div class="visual-preview">{emoji}</div>
+                        <div class="visual-preview">{letter}</div>
                         <div class="visual-info">
                             <h3>{visual["nombre"]}</h3>
-                            <p>Visual en tiempo real • Audio-reactivo • 60FPS</p>
-                            <button class="btn-open">🎬 ABRIR VISUALIZADOR</button>
+                            <p>Audio‑reactivo · 60 fps</p>
+                            <button class="btn-open">Abrir</button>
                         </div>
                     </div>
             '''
@@ -790,8 +716,8 @@ def vault_suscriptor():
     
     html += '''
             <div class="footer">
-                <p>🔒 VISUALES EXCLUSIVOS PARA SUSCRIPTORES NX PRO</p>
-                <p>© 2026 <a href="https://www.najarrox.xyz">NAJARRO X STUDIO</a> · PANAMÁ · soporte@najarrox.xyz</p>
+                <p><a href="https://www.najarrox.xyz">najarrox.xyz</a> — soporte@najarrox.xyz</p>
+                <p style="margin-top: 12px;">© Najarro X Studio</p>
             </div>
         </div>
     </body>
@@ -825,8 +751,8 @@ def servir_visual(season, filename):
     
     if not modo_suscriptor:
         demo_script = '''
-        <div id="nx-demo-badge" style="position:fixed;bottom:20px;right:20px;background:rgba(0,0,0,0.95);color:#ffaa44;font-family:'Space Grotesk',monospace;padding:12px 20px;z-index:9999;font-size:14px;font-weight:600;border-right:3px solid #ffaa44;border-radius:12px 0 0 12px;backdrop-filter:blur(12px);pointer-events:none;letter-spacing:1px;">
-            🎬 DEMO | 2:00
+        <div id="nx-demo-badge" style="position:fixed;bottom:24px;right:24px;background:#ffffff;color:#1a1a1a;font-family:'Inter',-apple-system,sans-serif;padding:10px 20px;z-index:9999;font-size:13px;font-weight:500;border:1px solid #e0e0e0;border-radius:40px;backdrop-filter:blur(8px);box-shadow:0 2px 8px rgba(0,0,0,0.02);pointer-events:none;">
+            Demo · 2:00
         </div>
         <script>
             (function() {
@@ -841,15 +767,14 @@ def servir_visual(season, filename):
                     
                     const blocker = document.createElement('div');
                     blocker.id = 'nx-blocker';
-                    blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.98);z-index:100000;display:flex;justify-content:center;align-items:center;font-family:\'Space Grotesk\',sans-serif;text-align:center;backdrop-filter:blur(10px);';
+                    blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#ffffff;z-index:100000;display:flex;align-items:center;justify-content:center;font-family:\'Inter\',-apple-system,sans-serif;text-align:center;';
                     blocker.innerHTML = `
-                        <div style="background:#111;padding:50px;border:2px solid #ff4444;border-radius:24px;max-width:500px;">
-                            <div style="font-size:64px;">⏰</div>
-                            <h1 style="color:#ff4444;font-size:2rem;margin:20px 0;">DEMO EXPIRADA</h1>
-                            <p style="color:#ccc;margin-bottom:30px;">El tiempo de prueba de 2 minutos ha terminado.</p>
-                            <p style="color:#8b5cf6;margin-bottom:20px;">Adquiere el bundle completo por solo $15</p>
-                            <a href="https://nxvjweb.onrender.com/" style="background:#8b5cf6;color:black;padding:14px 28px;text-decoration:none;font-weight:700;border-radius:40px;display:inline-block;">🛒 COMPRAR AHORA</a>
-                            <p style="margin-top:30px;font-size:11px;color:#555;">www.najarrox.xyz</p>
+                        <div style="max-width:400px;padding:40px;">
+                            <div style="width:40px;height:1px;background:#e0e0e0;margin:0 auto 32px;"></div>
+                            <h1 style="font-weight:400;font-size:1.5rem;margin-bottom:16px;">Demo finalizada</h1>
+                            <p style="color:#666;margin-bottom:32px;">El tiempo de prueba ha terminado.</p>
+                            <a href="https://nxvjweb.onrender.com/" style="background:#1a1a1a;color:#fff;padding:10px 28px;text-decoration:none;border-radius:40px;display:inline-block;">Adquirir bundle</a>
+                            <div style="width:40px;height:1px;background:#e0e0e0;margin:32px auto 0;"></div>
                         </div>
                     `;
                     document.body.appendChild(blocker);
@@ -860,11 +785,10 @@ def servir_visual(season, filename):
                     tiempo--;
                     var mins = Math.floor(tiempo/60);
                     var segs = (tiempo%60).toString().padStart(2,'0');
-                    if(badge) badge.innerHTML = '🎬 DEMO | ' + mins + ':' + segs;
+                    if(badge) badge.innerHTML = 'Demo · ' + mins + ':' + segs;
                     
                     if(tiempo <= 10 && tiempo > 0) {
-                        badge.style.borderRightColor = '#ff4444';
-                        badge.style.backgroundColor = 'rgba(0,0,0,0.98)';
+                        badge.style.borderColor = '#ccc';
                     }
                     
                     if(tiempo <= 0) {
@@ -889,8 +813,8 @@ def demo_kaleido():
         contenido = f.read()
     
     demo_script = '''
-    <div id="nx-demo-badge" style="position:fixed;bottom:20px;right:20px;background:rgba(0,0,0,0.95);color:#ffaa44;font-family:'Space Grotesk',monospace;padding:12px 20px;z-index:9999;font-size:14px;font-weight:600;border-right:3px solid #ffaa44;border-radius:12px 0 0 12px;backdrop-filter:blur(12px);pointer-events:none;letter-spacing:1px;">
-        🎬 DEMO | 2:00
+    <div id="nx-demo-badge" style="position:fixed;bottom:24px;right:24px;background:#ffffff;color:#1a1a1a;font-family:'Inter',-apple-system,sans-serif;padding:10px 20px;z-index:9999;font-size:13px;font-weight:500;border:1px solid #e0e0e0;border-radius:40px;backdrop-filter:blur(8px);box-shadow:0 2px 8px rgba(0,0,0,0.02);pointer-events:none;">
+        Demo · 2:00
     </div>
     <script>
         (function() {
@@ -905,15 +829,14 @@ def demo_kaleido():
                 
                 const blocker = document.createElement('div');
                 blocker.id = 'nx-blocker';
-                blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.98);z-index:100000;display:flex;justify-content:center;align-items:center;font-family:\'Space Grotesk\',sans-serif;text-align:center;backdrop-filter:blur(10px);';
+                blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#ffffff;z-index:100000;display:flex;align-items:center;justify-content:center;font-family:\'Inter\',-apple-system,sans-serif;text-align:center;';
                 blocker.innerHTML = `
-                    <div style="background:#111;padding:50px;border:2px solid #ff4444;border-radius:24px;max-width:500px;">
-                        <div style="font-size:64px;">⏰</div>
-                        <h1 style="color:#ff4444;font-size:2rem;margin:20px 0;">DEMO EXPIRADA</h1>
-                        <p style="color:#ccc;margin-bottom:30px;">El tiempo de prueba de 2 minutos ha terminado.</p>
-                        <p style="color:#8b5cf6;margin-bottom:20px;">Adquiere el bundle completo por solo $15</p>
-                        <a href="https://nxvjweb.onrender.com/" style="background:#8b5cf6;color:black;padding:14px 28px;text-decoration:none;font-weight:700;border-radius:40px;display:inline-block;">🛒 COMPRAR AHORA</a>
-                        <p style="margin-top:30px;font-size:11px;color:#555;">www.najarrox.xyz</p>
+                    <div style="max-width:400px;padding:40px;">
+                        <div style="width:40px;height:1px;background:#e0e0e0;margin:0 auto 32px;"></div>
+                        <h1 style="font-weight:400;font-size:1.5rem;margin-bottom:16px;">Demo finalizada</h1>
+                        <p style="color:#666;margin-bottom:32px;">El tiempo de prueba ha terminado.</p>
+                        <a href="https://nxvjweb.onrender.com/" style="background:#1a1a1a;color:#fff;padding:10px 28px;text-decoration:none;border-radius:40px;display:inline-block;">Adquirir bundle</a>
+                        <div style="width:40px;height:1px;background:#e0e0e0;margin:32px auto 0;"></div>
                     </div>
                 `;
                 document.body.appendChild(blocker);
@@ -924,11 +847,10 @@ def demo_kaleido():
                 tiempo--;
                 var mins = Math.floor(tiempo/60);
                 var segs = (tiempo%60).toString().padStart(2,'0');
-                if(badge) badge.innerHTML = '🎬 DEMO | ' + mins + ':' + segs;
+                if(badge) badge.innerHTML = 'Demo · ' + mins + ':' + segs;
                 
                 if(tiempo <= 10 && tiempo > 0) {
-                    badge.style.borderRightColor = '#ff4444';
-                    badge.style.backgroundColor = 'rgba(0,0,0,0.98)';
+                    badge.style.borderColor = '#ccc';
                 }
                 
                 if(tiempo <= 0) {
@@ -945,14 +867,13 @@ def demo_kaleido():
 
 @app.route('/files/images/<path:filename>')
 def servir_imagen(filename):
-    """Sirve imágenes desde la carpeta files/images/"""
     ruta = os.path.join("files", "images", filename)
     if not os.path.exists(ruta):
-        return "Imagen no encontrada", 404
-    return send_file(ruta, mimetype='image/png')
+        return "", 404
+    return send_file(ruta)
 
 # ============================================
-# PÁGINA PRINCIPAL
+# PÁGINA PRINCIPAL — AKARU INSPIRED
 # ============================================
 
 @app.route('/')
@@ -960,190 +881,216 @@ def home():
     seasons = obtener_temporadas()
     total_visuales = sum(len(s["visuales"]) for s in seasons)
     
-    logo_html = '<img src="/files/images/logo.png" alt="Najarro X" style="height: 48px; width: auto;">' if os.path.exists("files/images/logo.png") else '<h1 style="font-size: 1.8rem;">NX</h1>'
-    
     return f'''
     <!DOCTYPE html>
     <html lang="es">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>NAJARRO X • VJ LIVE ENGINES</title>
+        <title>Najarro X — VJ Live Engines</title>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap');
             
-            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            * {{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }}
             
             body {{
-                background: #0a0a0a;
-                font-family: 'Space Grotesk', sans-serif;
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 40px 20px;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                background: #ffffff;
+                color: #1a1a1a;
+                line-height: 1.5;
             }}
             
-            .container {{
-                max-width: 1200px;
+            /* Navegación */
+            .nav {{
+                padding: 28px 32px;
+                border-bottom: 1px solid #eaeaea;
+                max-width: 1280px;
                 margin: 0 auto;
+                width: 100%;
             }}
             
-            /* HERO SECTION */
+            .nav-inner {{
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                flex-wrap: wrap;
+                gap: 20px;
+            }}
+            
+            .nav-brand {{
+                font-size: 0.9rem;
+                font-weight: 500;
+                letter-spacing: -0.01em;
+            }}
+            
+            .nav-brand span {{
+                color: #999;
+                font-weight: 400;
+            }}
+            
+            .nav-links a {{
+                color: #1a1a1a;
+                text-decoration: none;
+                font-size: 0.8rem;
+                margin-left: 28px;
+                transition: opacity 0.2s;
+            }}
+            
+            .nav-links a:hover {{
+                opacity: 0.6;
+            }}
+            
+            /* Hero */
             .hero {{
+                max-width: 800px;
+                margin: 80px auto 120px;
+                padding: 0 32px;
                 text-align: center;
-                margin-bottom: 60px;
-            }}
-            
-            .logo {{
-                margin-bottom: 20px;
             }}
             
             .hero h1 {{
-                font-size: 3.5rem;
-                font-weight: 700;
+                font-size: 3.2rem;
+                font-weight: 500;
                 letter-spacing: -0.02em;
-                background: linear-gradient(135deg, #fff 0%, #8b5cf6 40%, #00c853 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                margin-bottom: 15px;
+                line-height: 1.2;
+                margin-bottom: 24px;
             }}
             
             .hero p {{
-                font-size: 1.1rem;
-                color: #888;
-                max-width: 600px;
+                font-size: 1rem;
+                color: #666;
+                max-width: 560px;
                 margin: 0 auto;
             }}
             
-            .badge {{
+            .divider {{
+                width: 40px;
+                height: 1px;
+                background: #e0e0e0;
+                margin: 32px auto 0;
+            }}
+            
+            /* Grid de productos */
+            .products {{
+                max-width: 1000px;
+                margin: 0 auto;
+                padding: 0 32px 80px;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 48px;
+            }}
+            
+            .product-card {{
+                border: 1px solid #eaeaea;
+                border-radius: 24px;
+                padding: 40px;
+                transition: all 0.2s ease;
+                background: #ffffff;
+            }}
+            
+            .product-card:hover {{
+                transform: translateY(-4px);
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04);
+                border-color: #d0d0d0;
+            }}
+            
+            .product-card h2 {{
+                font-size: 1.5rem;
+                font-weight: 500;
+                letter-spacing: -0.01em;
+                margin-bottom: 12px;
+            }}
+            
+            .product-price {{
+                font-size: 1.8rem;
+                font-weight: 500;
+                margin: 20px 0 8px;
+            }}
+            
+            .product-price small {{
+                font-size: 0.8rem;
+                font-weight: 400;
+                color: #888;
+            }}
+            
+            .product-desc {{
+                font-size: 0.8rem;
+                color: #888;
+                margin-bottom: 28px;
+                line-height: 1.4;
+            }}
+            
+            .product-link {{
                 display: inline-block;
-                background: rgba(139, 92, 246, 0.15);
-                border: 1px solid #8b5cf6;
-                color: #8b5cf6;
-                padding: 6px 16px;
+                background: #1a1a1a;
+                color: #fff;
+                padding: 8px 24px;
                 border-radius: 40px;
+                text-decoration: none;
                 font-size: 0.75rem;
                 font-weight: 500;
-                margin-top: 20px;
+                transition: background 0.2s;
+                margin-right: 12px;
             }}
             
-            /* CARDS */
-            .cards-grid {{
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-                gap: 30px;
-                margin-bottom: 50px;
-            }}
-            
-            .card {{
-                background: #111;
-                border: 1px solid #222;
-                border-radius: 24px;
-                padding: 40px 30px;
-                text-align: center;
-                transition: all 0.3s ease;
-            }}
-            
-            .card:hover {{
-                transform: translateY(-5px);
-                border-color: #8b5cf6;
-                box-shadow: 0 20px 40px rgba(139, 92, 246, 0.1);
-            }}
-            
-            .card-icon {{
-                font-size: 48px;
-                margin-bottom: 20px;
-            }}
-            
-            .card h2 {{
-                font-size: 1.5rem;
-                font-weight: 600;
-                margin-bottom: 10px;
-                color: #fff;
-            }}
-            
-            .card .price {{
-                font-size: 2rem;
-                font-weight: 700;
-                color: #00c853;
-                margin: 15px 0;
-            }}
-            
-            .card .description {{
-                color: #888;
-                font-size: 0.85rem;
-                margin-bottom: 25px;
-            }}
-            
-            .btn-primary {{
-                display: inline-block;
-                background: #8b5cf6;
-                color: #000;
-                padding: 12px 28px;
-                border-radius: 40px;
-                text-decoration: none;
-                font-weight: 600;
-                font-size: 0.85rem;
-                transition: all 0.2s ease;
-                margin: 5px;
-            }}
-            
-            .btn-primary:hover {{
-                background: #a078f8;
-                transform: scale(1.02);
-            }}
-            
-            .btn-secondary {{
-                display: inline-block;
+            .product-link-secondary {{
                 background: transparent;
-                border: 1.5px solid #8b5cf6;
-                color: #8b5cf6;
-                padding: 12px 28px;
-                border-radius: 40px;
-                text-decoration: none;
-                font-weight: 600;
-                font-size: 0.85rem;
-                transition: all 0.2s ease;
-                margin: 5px;
+                color: #1a1a1a;
+                border: 1px solid #e0e0e0;
             }}
             
-            .btn-secondary:hover {{
-                background: rgba(139, 92, 246, 0.1);
+            .product-link-secondary:hover {{
+                background: #f5f5f5;
             }}
             
+            .product-link:hover {{
+                background: #333;
+            }}
+            
+            /* Features */
             .features {{
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 60px 32px;
+                border-top: 1px solid #eaeaea;
                 display: flex;
                 justify-content: center;
-                gap: 30px;
+                gap: 48px;
                 flex-wrap: wrap;
-                margin-top: 30px;
             }}
             
-            .feature {{
+            .feature-item {{
                 text-align: center;
-                font-size: 0.8rem;
-                color: #666;
             }}
             
-            .feature span {{
-                display: block;
-                font-size: 1.2rem;
-                margin-bottom: 5px;
+            .feature-number {{
+                font-size: 1.5rem;
+                font-weight: 500;
+                margin-bottom: 4px;
             }}
             
-            .footer {{
-                text-align: center;
-                margin-top: 60px;
-                padding-top: 30px;
-                border-top: 1px solid #222;
-                color: #555;
+            .feature-label {{
                 font-size: 0.7rem;
+                color: #999;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }}
+            
+            /* Footer */
+            .footer {{
+                border-top: 1px solid #eaeaea;
+                padding: 40px 32px;
+                text-align: center;
+                font-size: 0.7rem;
+                color: #999;
             }}
             
             .footer a {{
-                color: #8b5cf6;
+                color: #1a1a1a;
                 text-decoration: none;
             }}
             
@@ -1151,51 +1098,73 @@ def home():
                 .hero h1 {{
                     font-size: 2rem;
                 }}
-                .cards-grid {{
+                .products {{
                     grid-template-columns: 1fr;
+                    gap: 24px;
+                }}
+                .nav-links a {{
+                    margin-left: 0;
+                    margin-right: 20px;
+                }}
+                .product-card {{
+                    padding: 28px;
                 }}
             }}
         </style>
     </head>
     <body>
-        <div class="container">
-            <div class="hero">
-                <div class="logo">{logo_html}</div>
-                <h1>NAJARRO X<br>VJ LIVE ENGINES</h1>
-                <p>Visuales en tiempo real · Audio-reactivos · 60FPS</p>
-                <div class="badge">⚡ REAL-TIME VISUAL SYNTHESIS ⚡</div>
-            </div>
-            
-            <div class="cards-grid">
-                <div class="card">
-                    <div class="card-icon">🎬</div>
-                    <h2>NX BUNDLE</h2>
-                    <div class="price">$15 <span style="font-size: 0.9rem;">USD</span></div>
-                    <p class="description">3 visualizadores profesionales</p>
-                    <a href="/demo/kaleido" class="btn-secondary">🎨 PROBAR DEMO</a>
-                    <a href="#" class="btn-primary" onclick="alert('Próximamente en Recurrente')">🛒 COMPRAR</a>
-                </div>
-                
-                <div class="card">
-                    <div class="card-icon">⭐</div>
-                    <h2>NX PRO</h2>
-                    <div class="price">$7 <span style="font-size: 0.9rem;">/mes</span></div>
-                    <p class="description">Acceso ilimitado + contenido mensual</p>
-                    <a href="https://recurrente.com/p/sub_pro_mensual" class="btn-primary">🎯 SUSCRIBIRME</a>
+        <div class="nav">
+            <div class="nav-inner">
+                <div class="nav-brand">NAJARRO X <span>VJ LIVE</span></div>
+                <div class="nav-links">
+                    <a href="https://www.najarrox.xyz">estudio</a>
+                    <a href="/demo/kaleido">demo</a>
+                    <a href="mailto:soporte@najarrox.xyz">soporte</a>
                 </div>
             </div>
-            
-            <div class="features">
-                <div class="feature"><span>🌀</span> Audio-reactivo</div>
-                <div class="feature"><span>🎨</span> 3 visualizadores</div>
-                <div class="feature"><span>📈</span> +3 nuevos/mes</div>
-                <div class="feature"><span>⚡</span> 60 FPS</div>
+        </div>
+        
+        <div class="hero">
+            <h1>Visuales en tiempo real.<br>Audio‑reactivos.</h1>
+            <p>Tres motores generativos que sincronizan imagen y sonido. Ejecuta desde cualquier navegador, sin instalación.</p>
+            <div class="divider"></div>
+        </div>
+        
+        <div class="products">
+            <div class="product-card">
+                <h2>NX Bundle</h2>
+                <div class="product-price">15 <small>USD</small></div>
+                <div class="product-desc">Incluye los tres visualizadores: Kaleido, ASCII y Glitch. Formato HTML listo para usar.</div>
+                <a href="/demo/kaleido" class="product-link product-link-secondary">Probar demo</a>
+                <a href="#" class="product-link" onclick="alert('Próximamente en Recurrente')">Comprar</a>
             </div>
             
-            <div class="footer">
-                <p>© 2026 <a href="https://www.najarrox.xyz">NAJARRO X STUDIO</a> · Panamá · <a href="mailto:soporte@najarrox.xyz">soporte@najarrox.xyz</a></p>
-                <p style="margin-top: 8px;">🔒 Descargas protegidas · Tokens únicos por compra</p>
+            <div class="product-card">
+                <h2>NX Pro</h2>
+                <div class="product-price">7 <small>USD/mes</small></div>
+                <div class="product-desc">Acceso a todo el catálogo. Contenido nuevo cada mes. Cancela cuando quieras.</div>
+                <a href="https://recurrente.com/p/sub_pro_mensual" class="product-link">Suscribirse</a>
             </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature-item">
+                <div class="feature-number">{total_visuales}</div>
+                <div class="feature-label">visuales</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-number">60</div>
+                <div class="feature-label">fps</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-number">+3</div>
+                <div class="feature-label">nuevos/mes</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><a href="https://www.najarrox.xyz">najarrox.xyz</a> — <a href="mailto:soporte@najarrox.xyz">soporte@najarrox.xyz</a></p>
+            <p style="margin-top: 12px;">© Najarro X Studio · Panamá</p>
         </div>
     </body>
     </html>
@@ -1208,7 +1177,6 @@ def status():
         "temporadas": len(obtener_temporadas()),
         "suscriptores_activos": len(suscripciones_activas),
         "descargas_unicas": len(descargas_autorizadas),
-        "precio_bundle": 15.00,
         "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     })
 
@@ -1222,6 +1190,6 @@ def health():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
-    logger.info(f"🌐 NX PRO VAULT iniciado en puerto {port}")
-    logger.info(f"💰 Bundle: $15.00 | Suscripción: $7/mes")
+    logger.info(f"🌐 Servidor iniciado en puerto {port}")
+    logger.info(f"💰 Bundle: $15 | Suscripción: $7/mes")
     app.run(host='0.0.0.0', port=port, debug=False)
