@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-# server.py - NX PRO VAULT (Diseño Elegante con Tektur + Bloqueo configurable)
-# Versión: Precios y features +30% más grandes
+# server.py - NX PRO VAULT (Diseño con precios y features GIGANTES)
 
 from flask import Flask, request, jsonify, send_file, abort
 import os
@@ -157,11 +156,11 @@ def crear_zip_bundle():
                 <h2>Controles generales</h2>
                 <table>
                     <tr><td><span class="key">TAB</span></td><td>Ocultar o mostrar interfaz</td>
-                    <tr><td><span class="key">P</span></td><td>Activar o desactivar micrófono</td></tr>
-                    <tr><td><span class="key">O</span></td><td>Cambiar banda de audio (bajo, medios, agudos)</td></tr>
-                    <tr><td><span class="key">+ / -</span></td><td>Ajustar intensidad de efectos</td></tr>
-                    <tr><td><span class="key">T</span></td><td>Capturar pantalla (PNG)</td></tr>
-                    <tr><td><span class="key">Y</span></td><td>Grabar video (WEBM)</td></tr>
+                    <tr><td><span class="key">P</span></td><td>Activar o desactivar micrófono</td>
+                    <tr><td><span class="key">O</span></td><td>Cambiar banda de audio (bajo, medios, agudos)</td>
+                    <tr><td><span class="key">+ / -</span></td><td>Ajustar intensidad de efectos</td>
+                    <tr><td><span class="key">T</span></td><td>Capturar pantalla (PNG)</td>
+                    <tr><td><span class="key">Y</span></td><td>Grabar video (WEBM)</td>
                 </table>
                 
                 <h2>Soporte</h2>
@@ -387,7 +386,7 @@ def verificar_suscripcion_endpoint():
     })
 
 # ============================================
-# VAULT — DISEÑO CON TEKTUR BOLD
+# VAULT — CON STATS MÁS GRANDES
 # ============================================
 
 @app.route('/vault')
@@ -654,6 +653,9 @@ def vault_suscriptor():
                 .visual-grid {{
                     grid-template-columns: 1fr;
                 }}
+                .stat-number {{
+                    font-size: 1.8rem;
+                }}
             }}
         </style>
     </head>
@@ -880,7 +882,7 @@ def servir_imagen(filename):
     return send_file(ruta)
 
 # ============================================
-# PÁGINA PRINCIPAL — H1 MÁS GRANDE Y BOLD + PRECIOS GRANDES
+# PÁGINA PRINCIPAL — PRECIOS Y FEATURES GIGANTES
 # ============================================
 
 @app.route('/')
@@ -1015,14 +1017,16 @@ def home():
             
             .product-price {{
                 font-family: 'Tektur', monospace;
-                font-size: 2rem;
-                font-weight: 700;
-                margin: 16px 0 6px;
+                font-size: 3.5rem;
+                font-weight: 800;
+                margin: 20px 0 8px;
+                letter-spacing: -0.02em;
+                line-height: 1;
             }}
             
             .product-price small {{
-                font-size: 0.85rem;
-                font-weight: 400;
+                font-size: 1.1rem;
+                font-weight: 500;
                 color: #888;
             }}
             
@@ -1077,16 +1081,18 @@ def home():
             
             .feature-number {{
                 font-family: 'Tektur', monospace;
-                font-size: 1.7rem;
-                font-weight: 700;
-                margin-bottom: 6px;
+                font-size: 3rem;
+                font-weight: 800;
+                margin-bottom: 8px;
+                letter-spacing: -0.02em;
+                line-height: 1;
             }}
             
             .feature-label {{
-                font-size: 0.75rem;
+                font-size: 0.9rem;
                 color: #999;
                 text-transform: uppercase;
-                letter-spacing: 1px;
+                letter-spacing: 1.5px;
             }}
             
             .footer {{
@@ -1125,7 +1131,16 @@ def home():
                     padding: 40px 20px;
                 }}
                 .product-price {{
-                    font-size: 1.6rem;
+                    font-size: 2.2rem;
+                }}
+                .product-price small {{
+                    font-size: 0.9rem;
+                }}
+                .feature-number {{
+                    font-size: 2rem;
+                }}
+                .feature-label {{
+                    font-size: 0.75rem;
                 }}
             }}
         </style>
