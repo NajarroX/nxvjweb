@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# server.py - NX PRO VAULT (Versión simplificada - No modifica visualizadores)
+# server.py - NX PRO VAULT (Versión con bloqueo de demo y bundle único)
 
 from flask import Flask, request, jsonify, send_file, abort
 import os
@@ -19,39 +19,23 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # ============================================
-# CONFIGURACIÓN DE PRODUCTOS
+# CONFIGURACIÓN - BUNDLE ÚNICO
 # ============================================
 
 PRODUCTOS = {
-    "prod_kaleido_v1": {
-        "nombre": "KALEIDO + GRID • GLOW VHS",
-        "archivo": "season_01/kaleido.html",
-        "precio": 9.99,
-        "tipo": "unico"
-    },
-    "prod_ascii_v1": {
-        "nombre": "ASCII MATRIX • WEBCAM • ORGANIC FLAME",
-        "archivo": "season_01/ascii.html",
-        "precio": 12.99,
-        "tipo": "unico"
-    },
-    "prod_glitch_v1": {
-        "nombre": "VJ GLITCH ENGINE • AUDIO REACTIVE",
-        "archivo": "season_01/glitch.html",
-        "precio": 14.99,
-        "tipo": "unico"
-    },
     "prod_bundle_vj": {
-        "nombre": "BUNDLE: Los 3 Visualizadores",
+        "nombre": "NX BUNDLE • 3 Visualizadores en Tiempo Real",
         "archivo": "bundle",
-        "precio": 29.99,
-        "tipo": "bundle"
+        "precio": 15.00,
+        "tipo": "bundle",
+        "descripcion": "Incluye: KALEIDO + GRID | ASCII WEBCAM FLAME | VJ GLITCH ENGINE"
     },
     "sub_pro_mensual": {
         "nombre": "SUSCRIPCIÓN NX PRO",
         "archivo": "subscription",
         "precio": 7.00,
-        "tipo": "suscripcion"
+        "tipo": "suscripcion",
+        "descripcion": "Acceso a todos los visuales + 3 nuevos cada mes"
     }
 }
 
@@ -110,9 +94,11 @@ def obtener_temporadas():
     return sorted(seasons, key=lambda x: x["numero"]) if seasons else []
 
 def crear_zip_bundle():
-    """Crea un ZIP con los 3 visualizadores"""
+    """Crea un ZIP con los 3 visualizadores + manual PDF"""
     memory_file = BytesIO()
+    
     with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
+        # Agregar los 3 visualizadores
         archivos = [
             ("files/season_01/kaleido.html", "01_NX_KALEIDO_ENGINE.html"),
             ("files/season_01/ascii.html", "02_NX_ASCII_ENGINE.html"),
@@ -122,19 +108,160 @@ def crear_zip_bundle():
             if os.path.exists(origen):
                 zf.write(origen, destino)
         
+        # ========================================
+        # MANUAL PDF (generado dinámicamente)
+        # ========================================
+        manual_html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>NX ENGINES - Manual de Usuario</title>
+            <style>
+                body {
+                    font-family: 'Courier New', monospace;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 40px;
+                    background: #0a0a0a;
+                    color: #e0e0e0;
+                    line-height: 1.6;
+                }
+                h1 { color: #8b5cf6; border-bottom: 2px solid #8b5cf6; padding-bottom: 10px; }
+                h2 { color: #ffaa44; margin-top: 30px; }
+                .card {
+                    background: #1a1a1a;
+                    border-left: 4px solid #8b5cf6;
+                    padding: 20px;
+                    margin: 20px 0;
+                }
+                .key {
+                    background: #2a2a2a;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-family: monospace;
+                    color: #ffaa44;
+                }
+                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                td, th { padding: 8px; border-bottom: 1px solid #333; text-align: left; }
+                .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #666; }
+            </style>
+        </head>
+        <body>
+            <h1>🎬 NX ENGINES - MANUAL DE USUARIO</h1>
+            <p>¡Gracias por adquirir el bundle NX ENGINES!</p>
+            
+            <div class="card">
+                <h2>📦 ¿QUÉ INCLUYE?</h2>
+                <p>3 visualizadores en tiempo real para VJ, DJs y creadores de contenido:</p>
+                <ul>
+                    <li><strong>🌀 NX KALEIDO ENGINE</strong> - Efectos kaleidoscopio + grid VHS + glow</li>
+                    <li><strong>🔥 NX ASCII ENGINE</strong> - ASCII art + webcam mix + partículas de fuego</li>
+                    <li><strong>🎛️ NX GLITCH ENGINE</strong> - 5 figuras 3D + shaders + glitch/delay/echo</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h2>🚀 CÓMO USAR</h2>
+                <p>1. Abre cualquier archivo <strong>.html</strong> en tu navegador (Chrome, Firefox, Edge)</p>
+                <p>2. Permite el acceso al <strong>micrófono</strong> cuando el navegador lo solicite</p>
+                <p>3. Conecta tu música (por altavoces o línea de audio)</p>
+                <p>4. ¡Disfruta de los visuales sincronizados con el audio!</p>
+            </div>
+            
+            <div class="card">
+                <h2>🎛️ CONTROLES GENERALES</h2>
+                <table>
+                    <tr><th>Tecla</th><th>Función</th></tr>
+                    <tr><td><span class="key">TAB</span></td><td>Ocultar/Mostrar interfaz</td></tr>
+                    <tr><td><span class="key">P</span></td><td>Activar/Desactivar micrófono</td></tr>
+                    <tr><td><span class="key">O</span></td><td>Cambiar banda de audio (Bajo/Medios/Agudos)</td></tr>
+                    <tr><td><span class="key">+ / -</span></td><td>Ajustar intensidad de efectos</td></tr>
+                    <tr><td><span class="key">T</span></td><td>Capturar pantalla (PNG)</td></tr>
+                    <tr><td><span class="key">Y</span></td><td>Grabar video (WEBM)</td></tr>
+                </table>
+            </div>
+            
+            <div class="card">
+                <h2>🌀 NX KALEIDO ENGINE</h2>
+                <p><strong>Controles específicos:</strong></p>
+                <ul>
+                    <li><span class="key">1-2-4-8</span> - Modos de kaleidoscopio</li>
+                    <li><span class="key">Grid FX</span> - Activa/Desactiva el efecto de rejilla</li>
+                    <li><span class="key">ORIGIN X/Y</span> - Mueve el centro del warp</li>
+                    <li><span class="key">FLOW SPEED</span> - Velocidad del flujo de partículas</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h2>🔥 NX ASCII ENGINE</h2>
+                <p><strong>Controles específicos:</strong></p>
+                <ul>
+                    <li><span class="key">WEBCAM ON/OFF</span> - Activa/Desactiva la cámara</li>
+                    <li><span class="key">WEBCAM MIX</span> - Mezcla entre visual 3D y cámara</li>
+                    <li><span class="key">CHARSET</span> - Cambia el set de caracteres ASCII</li>
+                    <li><span class="key">FLAME INTENSE</span> - Intensidad del efecto de fuego</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h2>🎛️ NX GLITCH ENGINE</h2>
+                <p><strong>Controles específicos:</strong></p>
+                <ul>
+                    <li><span class="key">G H J U I</span> - Cambia figura 3D (Toroide/Esfera/Cubo/Pirámide/Rombo)</li>
+                    <li><span class="key">A S D F</span> - Activa efectos (Delay/Echo/Strobo/Glitch)</li>
+                    <li><span class="key">N M</span> - Activa y cambia modo shader</li>
+                    <li><span class="key">[ ]</span> - Velocidad del shader</li>
+                    <li><span class="key">1-5</span> - Modos de animación visual</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h2>❓ SOLUCIÓN DE PROBLEMAS</h2>
+                <p><strong>¿El micrófono no funciona?</strong> Asegúrate de dar permiso en el navegador y que no esté siendo usado por otra app.</p>
+                <p><strong>¿El visualizador va lento?</strong> Reduce la cantidad de partículas o cierra otras pestañas.</p>
+                <p><strong>¿No se ve la cámara?</strong> Verifica que la webcam esté conectada y los permisos concedidos.</p>
+            </div>
+            
+            <div class="card">
+                <h2>📧 SOPORTE</h2>
+                <p>¿Preguntas o problemas? Escríbenos a: <strong>soporte@najarrox.xyz</strong></p>
+                <p>Web: <strong>www.najarrox.xyz</strong></p>
+            </div>
+            
+            <div class="footer">
+                <p>© 2026 NAJARRO X STUDIO · Panamá</p>
+                <p>Todos los derechos reservados · Prohibida la redistribución no autorizada</p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Agregar manual como PDF (realmente es HTML, pero se guarda como .html)
+        zf.writestr("00_MANUAL_NX_ENGINES.html", manual_html)
+        
+        # README adicional
         readme = """========================================
    NAJARRO X STUDIO - NX ENGINES
 ========================================
 
-🎬 ¡Gracias por tu compra!
+🎬 ¡GRACIAS POR TU COMPRA!
 
-Este bundle incluye 3 visualizadores en tiempo real.
+Este bundle incluye 3 visualizadores en tiempo real:
 
-Visita najarrox.xyz para más información.
+1. 01_NX_KALEIDO_ENGINE.html
+2. 02_NX_ASCII_ENGINE.html
+3. 03_NX_GLITCH_ENGINE.html
+
+📖 MANUAL: Abre "00_MANUAL_NX_ENGINES.html" para instrucciones completas.
+
+Para soporte: soporte@najarrox.xyz
+Web: www.najarrox.xyz
 
 © 2026 NAJARRO X STUDIO
 """
-        zf.writestr("README_NX_ENGINES.txt", readme)
+        zf.writestr("README.txt", readme)
+    
     memory_file.seek(0)
     return memory_file
 
@@ -179,7 +306,7 @@ def webhook_recurrente():
         event_type = data.get('event_type')
         logger.info(f"📨 Evento: {event_type}")
         
-        # Pago único exitoso
+        # Pago único exitoso (ahora solo el bundle de $15)
         if event_type == 'payment_intent.succeeded':
             producto_id = data.get('product', {}).get('id')
             email = data.get('customer', {}).get('email')
@@ -213,11 +340,13 @@ def webhook_recurrente():
                 <div style="max-width: 600px; margin: 0 auto; background: #1a1a1a; border: 2px solid #8b5cf6; padding: 30px;">
                     <h1 style="color: #8b5cf6;">🎬 ¡Gracias por tu compra, {nombre}!</h1>
                     <p><strong>{producto['nombre']}</strong></p>
+                    <p>{producto['descripcion']}</p>
                     <div style="background: #0a0a0a; color: white; padding: 20px; margin: 20px 0;">
                         <p>🔗 <strong>TU ENLACE DE DESCARGA:</strong></p>
                         <a href="{link_descarga}" style="color: #8b5cf6;">{link_descarga}</a>
                         <p style="margin-top: 15px;">🔐 <strong>CONTRASEÑA:</strong> {contrasena}</p>
                     </div>
+                    <p>El archivo ZIP incluye los 3 visualizadores + manual de usuario.</p>
                     <p>Este enlace expira en 7 días.</p>
                     <p>NAJARRO X STUDIO</p>
                 </div>
@@ -238,7 +367,7 @@ def webhook_recurrente():
                 return jsonify({"status": "error"}), 400
             
             token_sub = secrets.token_urlsafe(32)
-            fecha_expiracion = datetime.now().timestamp() + 30 * 24 * 3600  # 30 días
+            fecha_expiracion = datetime.now().timestamp() + 30 * 24 * 3600
             
             suscripciones_activas[token_sub] = {
                 "email": email,
@@ -260,7 +389,8 @@ def webhook_recurrente():
                         <p>🔗 <strong>TU VAULT PERSONAL:</strong></p>
                         <a href="{link_vault}" style="color: #8b5cf6;">{link_vault}</a>
                     </div>
-                    <p>Guarda este enlace. Se renueva automáticamente cada mes.</p>
+                    <p>Acceso a todos los visuales + nuevos contenidos cada mes.</p>
+                    <p>Guarda este enlace. Se renueva automáticamente.</p>
                 </div>
             </body>
             </html>
@@ -292,7 +422,7 @@ def webhook_recurrente():
 
 @app.route('/descargar/<token>')
 def descargar_archivo(token):
-    """Descarga de productos comprados (pago único)"""
+    """Descarga del bundle completo (ZIP con 3 visuales + manual)"""
     email = None
     datos = None
     for mail, d in descargas_autorizadas.items():
@@ -313,26 +443,12 @@ def descargar_archivo(token):
     if not producto:
         return "Producto no encontrado", 404
     
-    # Bundle
-    if producto_id == "prod_bundle_vj":
-        return send_file(
-            crear_zip_bundle(), 
-            as_attachment=True, 
-            download_name=f"NX_BUNDLE_{datetime.now().strftime('%Y%m%d')}.zip", 
-            mimetype="application/zip"
-        )
-    
-    # Producto individual
-    ruta_archivo = os.path.join("files", producto["archivo"])
-    if not os.path.exists(ruta_archivo):
-        logger.error(f"Archivo no encontrado: {ruta_archivo}")
-        return "Archivo no encontrado", 404
-    
+    # Siempre entregamos el ZIP del bundle
     return send_file(
-        ruta_archivo, 
+        crear_zip_bundle(), 
         as_attachment=True, 
-        download_name=f"NX_{producto_id}.html", 
-        mimetype="text/html"
+        download_name=f"NX_BUNDLE_{datetime.now().strftime('%Y%m%d')}.zip", 
+        mimetype="application/zip"
     )
 
 @app.route('/verificar-suscripcion')
@@ -477,7 +593,7 @@ def vault_suscriptor():
     return html
 
 # ============================================
-# SERVIDOR DE VISUALES (con overlay simple)
+# SERVIDOR DE VISUALES (con bloqueo de demo)
 # ============================================
 
 @app.route('/visual/<season>/<filename>')
@@ -485,7 +601,6 @@ def servir_visual(season, filename):
     """Sirve los visualizadores con verificación de suscripción"""
     token = request.args.get('token')
     
-    # Verificar token si existe
     if token:
         suscripcion = verificar_suscripcion(token)
         if not suscripcion:
@@ -501,34 +616,67 @@ def servir_visual(season, filename):
     with open(ruta, 'r', encoding='utf-8') as f:
         contenido = f.read()
     
-    # SOLO para modo DEMO (sin token), agregamos un overlay simple que NO interfiere
+    # Para modo DEMO: agregamos script que BLOQUEA la pantalla al expirar
     if not modo_suscriptor:
         demo_script = '''
-        <div id="nx-demo-badge" style="position:fixed;bottom:20px;right:20px;background:rgba(0,0,0,0.85);color:#ffaa44;font-family:monospace;padding:10px 16px;z-index:9999;font-size:13px;font-weight:bold;border-right:3px solid #ffaa44;border-radius:8px 0 0 8px;backdrop-filter:blur(8px);pointer-events:none;">
-            🎬 DEMO | najarrox.xyz
+        <div id="nx-demo-badge" style="position:fixed;bottom:20px;right:20px;background:rgba(0,0,0,0.9);color:#ffaa44;font-family:monospace;padding:10px 16px;z-index:9999;font-size:13px;font-weight:bold;border-right:3px solid #ffaa44;border-radius:8px 0 0 8px;backdrop-filter:blur(8px);pointer-events:none;">
+            🎬 DEMO | 2:00
         </div>
         <script>
             (function() {
                 let tiempo = 120;
+                let bloqueado = false;
                 const badge = document.getElementById('nx-demo-badge');
                 if(!badge) return;
                 
+                function bloquearPantalla() {
+                    if(bloqueado) return;
+                    bloqueado = true;
+                    
+                    // Detener animaciones si es posible
+                    if(typeof cancelAnimationFrame !== 'undefined') {
+                        // Intento de detener el loop de animación
+                        if(window.__NX_ANIMATION_ID__) cancelAnimationFrame(window.__NX_ANIMATION_ID__);
+                    }
+                    
+                    const blocker = document.createElement('div');
+                    blocker.id = 'nx-blocker';
+                    blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.98);z-index:100000;display:flex;justify-content:center;align-items:center;font-family:monospace;text-align:center;backdrop-filter:blur(10px);';
+                    blocker.innerHTML = `
+                        <div style="background:#1a1a1a;padding:50px;border:3px solid #ff4444;max-width:500px;">
+                            <h1 style="color:#ff4444;font-size:48px;">⏰ DEMO EXPIRADA</h1>
+                            <p style="color:white;margin:20px 0;">El tiempo de prueba de 2 minutos ha terminado.</p>
+                            <p style="color:#ffaa44;">Adquiere el bundle completo por solo $15</p>
+                            <div style="margin-top:30px;">
+                                <a href="https://nxvjweb.onrender.com/" style="background:#8b5cf6;color:black;padding:12px 24px;text-decoration:none;font-weight:bold;display:inline-block;">🛒 COMPRAR AHORA</a>
+                            </div>
+                            <p style="margin-top:20px;font-size:12px;color:#666;">www.najarrox.xyz</p>
+                        </div>
+                    `;
+                    document.body.appendChild(blocker);
+                }
+                
                 const interval = setInterval(function() {
+                    if(bloqueado) return;
                     tiempo--;
                     var mins = Math.floor(tiempo/60);
                     var segs = (tiempo%60).toString().padStart(2,'0');
-                    if(badge) badge.innerHTML = '⏱️ DEMO: ' + mins + ':' + segs + ' | najarrox.xyz';
+                    if(badge) badge.innerHTML = '🎬 DEMO | ' + mins + ':' + segs;
+                    
+                    if(tiempo <= 10 && tiempo > 0) {
+                        badge.style.borderRightColor = '#ff4444';
+                        badge.style.backgroundColor = 'rgba(0,0,0,0.95)';
+                        badge.style.color = '#ff8888';
+                    }
+                    
                     if(tiempo <= 0) {
                         clearInterval(interval);
-                        if(badge) badge.innerHTML = '⏰ DEMO EXPIRADA | Compra en najarrox.xyz';
-                        badge.style.borderRightColor = '#ff4444';
-                        badge.style.color = '#ff8888';
+                        bloquearPantalla();
                     }
                 }, 1000);
             })();
         </script>
         '''
-        # Insertar antes de </body>
         contenido = contenido.replace('</body>', demo_script + '</body>')
     
     return contenido, 200, {'Content-Type': 'text/html'}
@@ -539,7 +687,7 @@ def servir_visual(season, filename):
 
 @app.route('/demo/kaleido')
 def demo_kaleido():
-    """Demo pública del visualizador Kaleido (con overlay de tiempo limitado)"""
+    """Demo pública del visualizador Kaleido (con bloqueo al expirar)"""
     ruta = os.path.join("files", "season_01", "kaleido.html")
     if not os.path.exists(ruta):
         return "Demo no disponible", 404
@@ -547,27 +695,59 @@ def demo_kaleido():
     with open(ruta, 'r', encoding='utf-8') as f:
         contenido = f.read()
     
-    # Mismo overlay simple para la demo
     demo_script = '''
-    <div id="nx-demo-badge" style="position:fixed;bottom:20px;right:20px;background:rgba(0,0,0,0.85);color:#ffaa44;font-family:monospace;padding:10px 16px;z-index:9999;font-size:13px;font-weight:bold;border-right:3px solid #ffaa44;border-radius:8px 0 0 8px;backdrop-filter:blur(8px);pointer-events:none;">
-        🎬 DEMO | najarrox.xyz
+    <div id="nx-demo-badge" style="position:fixed;bottom:20px;right:20px;background:rgba(0,0,0,0.9);color:#ffaa44;font-family:monospace;padding:10px 16px;z-index:9999;font-size:13px;font-weight:bold;border-right:3px solid #ffaa44;border-radius:8px 0 0 8px;backdrop-filter:blur(8px);pointer-events:none;">
+        🎬 DEMO | 2:00
     </div>
     <script>
         (function() {
             let tiempo = 120;
+            let bloqueado = false;
             const badge = document.getElementById('nx-demo-badge');
             if(!badge) return;
             
+            function bloquearPantalla() {
+                if(bloqueado) return;
+                bloqueado = true;
+                
+                // Detener animaciones si es posible
+                if(typeof cancelAnimationFrame !== 'undefined') {
+                    if(window.__NX_ANIMATION_ID__) cancelAnimationFrame(window.__NX_ANIMATION_ID__);
+                }
+                
+                const blocker = document.createElement('div');
+                blocker.id = 'nx-blocker';
+                blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.98);z-index:100000;display:flex;justify-content:center;align-items:center;font-family:monospace;text-align:center;backdrop-filter:blur(10px);';
+                blocker.innerHTML = `
+                    <div style="background:#1a1a1a;padding:50px;border:3px solid #ff4444;max-width:500px;">
+                        <h1 style="color:#ff4444;font-size:48px;">⏰ DEMO EXPIRADA</h1>
+                        <p style="color:white;margin:20px 0;">El tiempo de prueba de 2 minutos ha terminado.</p>
+                        <p style="color:#ffaa44;">Adquiere el bundle completo por solo $15</p>
+                        <div style="margin-top:30px;">
+                            <a href="https://nxvjweb.onrender.com/" style="background:#8b5cf6;color:black;padding:12px 24px;text-decoration:none;font-weight:bold;display:inline-block;">🛒 COMPRAR AHORA</a>
+                        </div>
+                        <p style="margin-top:20px;font-size:12px;color:#666;">www.najarrox.xyz</p>
+                    </div>
+                `;
+                document.body.appendChild(blocker);
+            }
+            
             const interval = setInterval(function() {
+                if(bloqueado) return;
                 tiempo--;
                 var mins = Math.floor(tiempo/60);
                 var segs = (tiempo%60).toString().padStart(2,'0');
-                if(badge) badge.innerHTML = '⏱️ DEMO: ' + mins + ':' + segs + ' | najarrox.xyz';
+                if(badge) badge.innerHTML = '🎬 DEMO | ' + mins + ':' + segs;
+                
+                if(tiempo <= 10 && tiempo > 0) {
+                    badge.style.borderRightColor = '#ff4444';
+                    badge.style.backgroundColor = 'rgba(0,0,0,0.95)';
+                    badge.style.color = '#ff8888';
+                }
+                
                 if(tiempo <= 0) {
                     clearInterval(interval);
-                    if(badge) badge.innerHTML = '⏰ DEMO EXPIRADA | Compra en najarrox.xyz';
-                    badge.style.borderRightColor = '#ff4444';
-                    badge.style.color = '#ff8888';
+                    bloquearPantalla();
                 }
             }, 1000);
         })();
@@ -605,6 +785,8 @@ def home():
             .precio {{ font-size: 1.5rem; color: #00c853; margin: 10px 0; }}
             .demo {{ color: #ffaa44; text-decoration: none; font-size: 12px; }}
             .btn-comprar {{ display: inline-block; background: #8b5cf6; color: black; padding: 10px 20px; text-decoration: none; font-weight: bold; margin-top: 10px; border-radius: 5px; }}
+            .btn-comprar:hover {{ background: #a078f8; }}
+            .small {{ font-size: 11px; color: #888; margin-top: 10px; }}
             footer {{ margin-top: 40px; text-align: center; color: #555; font-size: 11px; }}
         </style>
     </head>
@@ -618,20 +800,26 @@ def home():
             
             <div class="productos">
                 <div class="producto">
-                    <h3>🌀 KALEIDO + GRID</h3>
-                    <div class="precio">$9.99 USD</div>
-                    <a href="/demo/kaleido" class="demo">🎬 Probar Demo</a>
+                    <h3>🎬 NX BUNDLE</h3>
+                    <p>Todos los visualizadores en un pack</p>
+                    <div class="precio">$15.00 USD</div>
+                    <a href="/demo/kaleido" class="demo">🎬 Probar Demo Gratis</a>
+                    <a href="#" class="btn-comprar" onclick="alert('Próximamente disponible en Recurrente')">🛒 COMPRAR BUNDLE</a>
+                    <div class="small">Incluye: KALEIDO • ASCII • GLITCH</div>
                 </div>
                 <div class="producto">
-                    <h3>🎛️ NX PRO</h3>
+                    <h3>⭐ NX PRO</h3>
+                    <p>Suscripción mensual</p>
                     <div class="precio">$7/mes</div>
                     <a href="https://recurrente.com/p/sub_pro_mensual" class="btn-comprar">🎯 SUSCRIBIRME</a>
+                    <div class="small">Acceso a todos + nuevos visuales cada mes</div>
                 </div>
             </div>
             
             <div class="card" style="margin-top:20px;">
-                <p>🎨 <a href="https://www.najarrox.xyz" style="color:#8b5cf6;">najarrox.xyz</a> | 🔒 Descargas protegidas</p>
+                <p>🎨 <a href="https://www.najarrox.xyz" style="color:#8b5cf6;">najarrox.xyz</a> | 🔒 Descarga protegida</p>
                 <p>📊 Estado: Online | Visuales disponibles: {total_visuales}</p>
+                <p style="font-size:11px; margin-top:10px;">⬅️ Toca el borde derecho para ocultar/mostrar UI</p>
             </div>
             
             <footer>NAJARRO X STUDIO · Panamá 2026</footer>
@@ -647,6 +835,7 @@ def status():
         "temporadas": len(obtener_temporadas()),
         "suscriptores_activos": len(suscripciones_activas),
         "descargas_unicas": len(descargas_autorizadas),
+        "precio_bundle": 15.00,
         "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     })
 
@@ -661,4 +850,5 @@ def health():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
     logger.info(f"🌐 NX PRO VAULT iniciado en puerto {port}")
+    logger.info(f"💰 Bundle: $15.00 | Suscripción: $7/mes")
     app.run(host='0.0.0.0', port=port, debug=False)
