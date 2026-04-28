@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>PSYTRONIC // KALEIDO + GRID • GLOW VHS • 60FPS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: 'Share Tech Mono', 'Courier New', 'Orbitron', monospace;
+        }
+
+        canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .hotspot-trigger {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 30%;
+            height: 100%;
+            z-index: 50;
+            background: transparent;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        .hard-console {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            right: 24px;
+            background: rgba(8, 8, 12, 0.94);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            box-shadow: 0 25px 45px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 3px rgba(0,255,255,0.15);
+            padding: 18px 20px;
+            z-index: 200;
+            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.2s;
+            font-family: 'Orbitron', 'Share Tech Mono', monospace;
+            pointer-events: auto;
+            max-height: 58vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .hard-console::-webkit-scrollbar {
+            width: 5px;
+            background: #111;
+        }
+        .hard-console::-webkit-scrollbar-thumb {
+            background: #0ff;
+            border-radius: 10px;
+            box-shadow: inset 0 0 3px #0ff;
+        }
+
+        .panel-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: space-between;
+        }
+
+        .cyber-card {
+            background: rgba(0, 0, 0, 0.7);
+            border-left: 4px solid #0ff;
+            border-radius: 20px;
+            padding: 12px 16px;
+            flex: 1 1 170px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(0,255,255,0.2);
+        }
+
+        .cyber-card h4 {
+            font-size: 12px;
+            letter-spacing: 2px;
+            font-weight: 700;
+            color: #0ff;
+            text-transform: uppercase;
+            margin: 0 0 12px 0;
+            border-bottom: 2px dotted #0ff;
+            display: inline-block;
+            font-family: 'Orbitron', monospace;
+            text-shadow: 0 0 5px #0ff;
+        }
+
+        .ctrl-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        label {
+            font-size: 9px;
+            font-weight: bold;
+            color: #ccf;
+            font-family: 'Share Tech Mono', monospace;
+            letter-spacing: 1px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 4px;
+            -webkit-appearance: none;
+            background: #222;
+            border-radius: 4px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #0ff;
+            border-radius: 0px;
+            cursor: pointer;
+            box-shadow: 0 0 8px cyan;
+            border: 1px solid #fff;
+        }
+
+        button, .btn-cyber {
+            background: #0a0a12;
+            border: 1px solid #0ff;
+            color: #0ff;
+            font-family: 'Orbitron', monospace;
+            font-size: 9px;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.07s linear;
+            text-shadow: 0 0 2px cyan;
+            letter-spacing: 1px;
+        }
+        button:active {
+            background: #0ff;
+            color: #000;
+            transform: scale(0.96);
+            box-shadow: 0 0 14px cyan;
+        }
+        .btn-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .active-fx {
+            background: #0ff;
+            color: #000;
+            box-shadow: 0 0 10px cyan;
+        }
+
+        select {
+            background: #111;
+            border: 1px solid #f0f;
+            color: #f0f;
+            font-family: monospace;
+            font-size: 9px;
+            padding: 5px 8px;
+            border-radius: 20px;
+        }
+
+        .status-led {
+            font-size: 8px;
+            background: #000000aa;
+            padding: 3px 8px;
+            border-radius: 30px;
+            border-left: 3px solid #0f0;
+            font-weight: bold;
+        }
+
+        .ui-hidden .hard-console {
+            opacity: 0;
+            transform: translateY(60px);
+            pointer-events: none;
+        }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 50%;
+            left: 50%;
+            transform: translate(-50%, -40%);
+            background: #000000dd;
+            backdrop-filter: blur(20px);
+            border: 2px solid #ff00cc;
+            padding: 8px 20px;
+            font-family: 'Orbitron', monospace;
+            font-weight: bold;
+            color: #ff88ff;
+            z-index: 400;
+            border-radius: 60px;
+            animation: glitchFadeOut 0.8s forwards;
+            pointer-events: none;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        @keyframes glitchFadeOut {
+            0% { opacity: 0; transform: translate(-50%, -40%) scale(0.9); letter-spacing: 1px;}
+            20% { opacity: 1; letter-spacing: 3px;}
+            100% { opacity: 0; transform: translate(-50%, -70%) scale(1.1);}
+        }
+
+        @media (max-width: 780px) {
+            .hard-console { padding: 12px; left: 12px; right: 12px; bottom: 12px; max-height: 60vh;}
+            .cyber-card { padding: 8px 10px; min-width: 140px;}
+            button { padding: 4px 8px; font-size: 8px;}
+            .hotspot-trigger { width: 35%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hotspot-trigger" id="hotspotTrigger"></div>
+
+    <div class="hard-console" id="hardConsole">
+        <div class="panel-grid">
+            <div class="cyber-card">
+                <h4>🌀 WARP ENGINE</h4>
+                <div class="ctrl-row"><label>ORIGIN X</label><input type="range" id="warpX" min="-5" max="5" step="0.05" value="0"></div>
+                <div class="ctrl-row"><label>ORIGIN Y</label><input type="range" id="warpY" min="-4" max="4" step="0.05" value="0"></div>
+                <div class="ctrl-row"><label>FLOW SPEED</label><input type="range" id="flowSpeed" min="0" max="3.5" step="0.02" value="1.6"></div>
+                <div class="ctrl-row"><label>SIZE</label><input type="range" id="partSize" min="0.05" max="0.8" step="0.005" value="0.18"></div>
+                <div class="ctrl-row"><label>PARTICLE COUNT</label><input type="range" id="particleCountSlider" min="500" max="35000" step="500" value="15000"></div>
+                <div class="ctrl-row"><button id="togglePartsBtn">✨ TOGGLE</button><button id="uploadPngSprite">📁 PNG SPRITE</button><input type="file" id="pngUploadFile" accept="image/png" style="display:none"></div>
+            </div>
+            <div class="cyber-card">
+                <h4>🎨 CHROMATIC ABYSS</h4>
+                <div class="ctrl-row"><label>MAIN HUE</label><input type="range" id="masterHue" min="0" max="360" step="1" value="280"></div>
+                <div class="ctrl-row"><label>SATURATION</label><input type="range" id="masterSat" min="0" max="2.0" step="0.01" value="1.2"></div>
+                <div class="ctrl-row"><label>BRIGHTNESS</label><input type="range" id="masterLight" min="0.2" max="2.0" step="0.02" value="1.0"></div>
+                <div class="ctrl-row"><button id="monoModeBtn">⚫ MONO</button><button id="coloramaBtn">🌈 COLORAMA</button><div class="status-led" id="colorModeLed">FULL RGB</div></div>
+            </div>
+            <div class="cyber-card">
+                <h4>🔮 KALEIDO + GRID</h4>
+                <div class="ctrl-row"><div class="btn-group"><button id="kaleidoOffBtn" class="active-fx">OFF</button><button id="kaleido2Btn">2 LADOS</button><button id="kaleido4Btn">4 LADOS</button><button id="kaleido8Btn">8 LADOS</button></div></div>
+                <div class="ctrl-row"><button id="gridBtn" style="background:#0a0a12;">🔲 GRID FX</button><button id="gridKaleidoReset" style="background:#0a0a12;">⚡ RESET FX</button></div>
+                <div class="ctrl-row"><label>KALEIDO SPEED</label><input type="range" id="kaleidoSpeed" min="0" max="2.0" step="0.02" value="0.6"></div>
+            </div>
+            <div class="cyber-card">
+                <h4>📺 GLOW VHS</h4>
+                <div class="ctrl-row"><label>GLOW BOOST</label><input type="range" id="glowIntensity" min="0.5" max="2.2" step="0.01" value="1.2"></div>
+                <div class="ctrl-row"><label>SCANLINES</label><input type="range" id="scanIntense" min="0" max="1.2" step="0.01" value="0.5"></div>
+                <div class="ctrl-row"><label>RGB SPLIT</label><input type="range" id="rgbSplitAmt" min="0" max="0.08" step="0.0005" value="0.018"></div>
+                <div class="ctrl-row"><label>VHS NOISE</label><input type="range" id="noiseVol" min="0" max="0.9" step="0.01" value="0.35"></div>
+                <div class="ctrl-row"><label>GLITCH</label><input type="range" id="glitchChaos" min="0" max="1.2" step="0.01" value="0.4"></div>
+                <div class="ctrl-row"><button id="glitchBurstBtn">💢 BURST</button><button id="resetVhsBtn">⚡ RESET VHS</button></div>
+            </div>
+            <div class="cyber-card">
+                <h4>🎛️ PSYTRANCE REACT</h4>
+                <div class="ctrl-row"><button id="audioMicCyber">🎤 MIC</button><select id="audioBandSelect"><option value="0">BASS</option><option value="1">MID</option><option value="2">HIGH</option></select></div>
+                <div class="ctrl-row"><label>REACT INTENSE</label><input type="range" id="audioAmp" min="0" max="2.5" step="0.02" value="1.6"></div>
+                <div class="status-led" id="audioStatusLed">⛔ OFF</div>
+            </div>
+            <div class="cyber-card">
+                <h4>📀 CAPTURE</h4>
+                <div class="ctrl-row"><button id="pngCaptureBtn">📸 PNG</button><button id="recordStartBtn">🎬 REC</button><button id="recordStopBtn">⏹️ STOP</button></div>
+                <div class="ctrl-row"><button id="uiHideBtn">🎭 HIDE</button><button id="fullResetBtn">🔁 RESET</button></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+        scene.fog = new THREE.FogExp2(0x000000, 0.008);
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 5.8);
+        camera.lookAt(0, 0, 0);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+        
+        const renderPass = new RenderPass(scene, camera);
+        const composer = new EffectComposer(renderer);
+        composer.addPass(renderPass);
+        
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.6, 0.85);
+        composer.addPass(bloomPass);
+        
+        // Shader avanzado: Kaleidoscopio + Grid + VHS Glow todo en uno
+        const fxUniforms = {
+            tDiffuse: { value: null },
+            time: { value: 0 },
+            scanIntensity: { value: 0.5 },
+            rgbSplit: { value: 0.018 },
+            noiseAmount: { value: 0.35 },
+            glitchPower: { value: 0.4 },
+            audioGlitch: { value: 0.0 },
+            glowBoost: { value: 1.2 },
+            kaleidoMode: { value: 0 }, // 0=off, 2,4,8
+            gridMode: { value: 0 },    // 0=off, 1=on
+            kaleidoRotate: { value: 0.0 },
+            kaleidoSpeed: { value: 0.6 }
+        };
+        
+        const fragmentFX = `
+            uniform sampler2D tDiffuse;
+            uniform float time;
+            uniform float scanIntensity;
+            uniform float rgbSplit;
+            uniform float noiseAmount;
+            uniform float glitchPower;
+            uniform float audioGlitch;
+            uniform float glowBoost;
+            uniform int kaleidoMode;
+            uniform int gridMode;
+            uniform float kaleidoRotate;
+            uniform float kaleidoSpeed;
+            varying vec2 vUv;
+            
+            float rand(vec2 n) { return fract(sin(dot(n, vec2(12.9898, 78.233))) * 43758.5453); }
+            
+            // Función Kaleidoscopio
+            vec2 kaleido(vec2 uv, int segments) {
+                float angle = atan(uv.y, uv.x);
+                float radius = length(uv);
+                float segmentAngle = 6.28318 / float(segments);
+                float newAngle = mod(angle + kaleidoRotate, segmentAngle);
+                if (newAngle > segmentAngle * 0.5) newAngle = segmentAngle - newAngle;
+                return vec2(cos(newAngle) * radius, sin(newAngle) * radius);
+            }
+            
+            // Función Grid
+            vec2 gridWarp(vec2 uv, float intensity) {
+                vec2 grid = fract(uv * 8.0);
+                float edgeX = min(grid.x, 1.0 - grid.x);
+                float edgeY = min(grid.y, 1.0 - grid.y);
+                float line = min(edgeX, edgeY);
+                float glow = 1.0 - smoothstep(0.0, 0.15, line);
+                return uv + (vec2(glow) * 0.03 * intensity);
+            }
+            
+            void main() {
+                vec2 uv = vUv;
+                float totalGlitch = clamp(glitchPower + audioGlitch, 0.0, 1.2);
+                
+                // --- KALEIDOSCOPIO APLICADO PRIMERO ---
+                vec2 centeredUv = uv * 2.0 - 1.0;
+                vec2 kaleidoUv = centeredUv;
+                if (kaleidoMode == 2) kaleidoUv = kaleido(centeredUv, 2);
+                else if (kaleidoMode == 4) kaleidoUv = kaleido(centeredUv, 4);
+                else if (kaleidoMode == 8) kaleidoUv = kaleido(centeredUv, 8);
+                vec2 finalUv = (kaleidoUv * 0.5) + 0.5;
+                finalUv = clamp(finalUv, 0.01, 0.99);
+                
+                // --- GRID MOD (opcional, se mezcla después del kaleido) ---
+                if (gridMode == 1) {
+                    finalUv = gridWarp(finalUv, 0.8);
+                }
+                
+                // --- GLITCH BLOCK distorsión sobre UV final ---
+                if (totalGlitch > 0.1 && fract(time * 30.0) > 0.92) {
+                    float blockY = floor(finalUv.y * 18.0 + sin(time * 50.0) * 1.5) / 18.0;
+                    finalUv.x += sin(blockY * 60.0 + time * 150.0) * 0.04 * totalGlitch;
+                }
+                
+                // --- RGB SPLIT ---
+                float shiftR = (sin(time * 90.0) * 0.01 + rgbSplit) * (1.0 + totalGlitch);
+                float shiftG = (cos(time * 88.0 + 2.0) * 0.01 + rgbSplit) * (1.0 + totalGlitch * 0.8);
+                float shiftB = (sin(time * 95.0 + 4.0) * 0.01 + rgbSplit) * (1.0 + totalGlitch);
+                
+                vec2 uvR = finalUv + vec2(shiftR, 0.0);
+                vec2 uvG = finalUv + vec2(-shiftG * 0.8, 0.0);
+                vec2 uvB = finalUv + vec2(shiftB * 0.5, 0.0);
+                
+                float r = texture2D(tDiffuse, uvR).r;
+                float g = texture2D(tDiffuse, uvG).g;
+                float b = texture2D(tDiffuse, uvB).b;
+                vec3 color = vec3(r, g, b);
+                
+                // --- SCANLINES (overlay brillante) ---
+                float scanPos = finalUv.y * 650.0;
+                float scanline = sin(scanPos + time * 25.0) * 0.12 * scanIntensity;
+                float scanline2 = cos(scanPos * 1.7 + time * 18.0) * 0.08 * scanIntensity;
+                color += vec3(scanline + scanline2) * 0.8;
+                
+                // --- VHS NOISE (partículas brillantes) ---
+                float noiseVal = rand(finalUv + floor(time * 40.0)) * noiseAmount;
+                color += vec3(noiseVal * 0.6, noiseVal * 0.3, noiseVal * 0.9) * 0.8;
+                
+                // --- Vignette ---
+                vec2 centered = finalUv * 2.0 - 1.0;
+                float vignette = 1.0 - length(centered) * 0.25;
+                color *= (vignette + 0.2);
+                
+                // --- GLOW BOOST + SATURACIÓN ---
+                color = pow(color, vec3(0.92));
+                color *= (0.8 + glowBoost * 0.5);
+                float gray = (color.r + color.g + color.b) / 3.0;
+                color = mix(vec3(gray), color, 1.2);
+                
+                // --- EFECTO GRID VISUAL (líneas brillantes sobre la imagen) ---
+                if (gridMode == 1) {
+                    vec2 gridPos = fract(finalUv * 12.0);
+                    float lineX = smoothstep(0.0, 0.05, min(gridPos.x, 1.0 - gridPos.x));
+                    float lineY = smoothstep(0.0, 0.05, min(gridPos.y, 1.0 - gridPos.y));
+                    float gridIntensity = (1.0 - min(lineX, lineY)) * 0.8;
+                    color += vec3(gridIntensity * 0.6, gridIntensity * 0.8, gridIntensity * 1.0);
+                }
+                
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+        
+        const fxPass = new ShaderPass({ 
+            uniforms: fxUniforms, 
+            vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`, 
+            fragmentShader: fragmentFX 
+        });
+        fxPass.renderToScreen = true;
+        composer.addPass(fxPass);
+        
+        // --- Sistema de partículas ---
+        let particleSys = null;
+        let originalPos = [];
+        let flowRate = 1.6;
+        let particleVisible = true;
+        let currentParticleCount = 15000;
+        let customTexture = null;
+        
+        let colorModeState = 'full';
+        let masterHue = 280, masterSat = 1.2, masterLight = 1.0;
+        
+        // Estados FX
+        let currentKaleido = 0; // 0,2,4,8
+        let gridActive = false;
+        let kaleidoRotation = 0;
+        
+        function rebuildParticleStorm(count, preserveTexture = true) {
+            if (particleSys) scene.remove(particleSys);
+            const geom = new THREE.BufferGeometry();
+            const posArray = new Float32Array(count * 3);
+            const colorArray = new Float32Array(count * 3);
+            originalPos = [];
+            for (let i = 0; i < count; i++) {
+                let radius = 1.8 + Math.random() * 5.5;
+                let theta = Math.random() * Math.PI * 2;
+                let phi = Math.acos(2 * Math.random() - 1);
+                let x = radius * Math.sin(phi) * Math.cos(theta) + (Math.random() - 0.5) * 1.4;
+                let y = radius * Math.sin(phi) * Math.sin(theta) * 0.8 + (Math.random() - 0.5) * 1.2;
+                let z = radius * Math.cos(phi) * 1.3 + (Math.random() - 0.5) * 2.0;
+                posArray[i*3] = x;
+                posArray[i*3+1] = y;
+                posArray[i*3+2] = z;
+                originalPos.push(new THREE.Vector3(x, y, z));
+                colorArray[i*3] = Math.random() * 0.8 + 0.2;
+                colorArray[i*3+1] = Math.random() * 0.6 + 0.2;
+                colorArray[i*3+2] = Math.random() * 0.9 + 0.2;
+            }
+            geom.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            geom.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+            
+            const baseSize = parseFloat(document.getElementById('partSize').value);
+            let mat;
+            if (customTexture && preserveTexture) {
+                mat = new THREE.PointsMaterial({
+                    size: baseSize,
+                    map: customTexture,
+                    color: 0xffffff,
+                    transparent: true,
+                    blending: THREE.AdditiveBlending
+                });
+            } else {
+                mat = new THREE.PointsMaterial({ size: baseSize, vertexColors: true, blending: THREE.AdditiveBlending });
+            }
+            particleSys = new THREE.Points(geom, mat);
+            scene.add(particleSys);
+            applyColorToParticles();
+        }
+        
+        function applyColorToParticles() {
+            if (!particleSys) return;
+            if (customTexture) {
+                if (colorModeState === 'mono') {
+                    const bright = masterLight;
+                    particleSys.material.color.setRGB(bright, bright, bright);
+                } else {
+                    const rgb = new THREE.Color().setHSL(masterHue / 360, Math.min(1.0, masterSat), Math.min(1.0, masterLight));
+                    particleSys.material.color = rgb;
+                }
+            } else {
+                const colorsAttr = particleSys.geometry.attributes.color.array;
+                const count = particleSys.geometry.attributes.color.count;
+                for (let i = 0; i < count; i++) {
+                    let rBase = Math.random() * 0.8 + 0.2;
+                    let gBase = Math.random() * 0.6 + 0.2;
+                    let bBase = Math.random() * 0.9 + 0.2;
+                    if (colorModeState === 'mono') {
+                        let brightness = (rBase + gBase + bBase) / 3;
+                        let val = brightness * masterLight;
+                        colorsAttr[i*3] = Math.min(1.5, val);
+                        colorsAttr[i*3+1] = Math.min(1.5, val);
+                        colorsAttr[i*3+2] = Math.min(1.5, val);
+                    } else if (colorModeState === 'colorama') {
+                        let hueVal = (masterHue + i * 0.35) % 360;
+                        let rgb = new THREE.Color().setHSL(hueVal / 360, Math.min(1.0, masterSat), Math.min(1.0, masterLight));
+                        colorsAttr[i*3] = rgb.r;
+                        colorsAttr[i*3+1] = rgb.g;
+                        colorsAttr[i*3+2] = rgb.b;
+                    } else {
+                        let hueShift = masterHue / 360;
+                        let rgbTemp = new THREE.Color().setHSL(hueShift, Math.min(1.0, masterSat), 0.6);
+                        let r = (rBase + rgbTemp.r) * 0.7;
+                        let g = (gBase + rgbTemp.g) * 0.7;
+                        let b = (bBase + rgbTemp.b) * 0.7;
+                        r *= masterLight;
+                        g *= masterLight;
+                        b *= masterLight;
+                        colorsAttr[i*3] = Math.min(1.6, r);
+                        colorsAttr[i*3+1] = Math.min(1.6, g);
+                        colorsAttr[i*3+2] = Math.min(1.6, b);
+                    }
+                }
+                particleSys.geometry.attributes.color.needsUpdate = true;
+            }
+        }
+        
+        function loadPngAsSprite(file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, img.width, img.height);
+                    const texture = new THREE.CanvasTexture(canvas);
+                    texture.needsUpdate = true;
+                    customTexture = texture;
+                    if (particleSys) {
+                        const newMat = new THREE.PointsMaterial({
+                            size: particleSys.material.size,
+                            map: texture,
+                            color: 0xffffff,
+                            transparent: true,
+                            blending: THREE.AdditiveBlending
+                        });
+                        particleSys.material.dispose();
+                        particleSys.material = newMat;
+                        applyColorToParticles();
+                    }
+                    showToast(`✅ PNG CARGADO (${img.width}x${img.height})`);
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // --- UI Controles ---
+        document.getElementById('masterHue').addEventListener('input', (e) => { masterHue = parseFloat(e.target.value); applyColorToParticles(); });
+        document.getElementById('masterSat').addEventListener('input', (e) => { masterSat = parseFloat(e.target.value); applyColorToParticles(); });
+        document.getElementById('masterLight').addEventListener('input', (e) => { masterLight = parseFloat(e.target.value); applyColorToParticles(); });
+        
+        document.getElementById('monoModeBtn').onclick = () => { colorModeState = 'mono'; applyColorToParticles(); document.getElementById('colorModeLed').innerHTML = '⚫ MONO'; showToast('MONOCHROME'); };
+        document.getElementById('coloramaBtn').onclick = () => { colorModeState = 'colorama'; applyColorToParticles(); document.getElementById('colorModeLed').innerHTML = '🌈 COLORAMA'; showToast('COLORAMA'); };
+        document.getElementById('colorModeLed').ondblclick = () => { colorModeState = 'full'; applyColorToParticles(); document.getElementById('colorModeLed').innerHTML = '💠 FULL RGB'; showToast('FULL RGB'); };
+        
+        document.getElementById('particleCountSlider').addEventListener('input', (e) => {
+            let newCount = parseInt(e.target.value);
+            if (newCount !== currentParticleCount) {
+                currentParticleCount = newCount;
+                rebuildParticleStorm(currentParticleCount, true);
+                showToast(`PARTICLES: ${currentParticleCount}`);
+            }
+        });
+        
+        document.getElementById('partSize').addEventListener('input', (e) => { if (particleSys) particleSys.material.size = parseFloat(e.target.value); });
+        document.getElementById('togglePartsBtn').onclick = () => { if(particleSys) { particleSys.visible = !particleSys.visible; particleVisible = particleSys.visible; showToast(`PARTICLES ${particleVisible?'ON':'OFF'}`); } };
+        document.getElementById('uploadPngSprite').onclick = () => document.getElementById('pngUploadFile').click();
+        document.getElementById('pngUploadFile').onchange = (e) => { if (e.target.files[0]) loadPngAsSprite(e.target.files[0]); };
+        
+        // --- Controles Kaleidoscopio + Grid ---
+        function setKaleidoMode(mode) {
+            currentKaleido = mode;
+            fxPass.uniforms.kaleidoMode.value = mode;
+            // Actualizar UI
+            document.getElementById('kaleidoOffBtn').classList.remove('active-fx');
+            document.getElementById('kaleido2Btn').classList.remove('active-fx');
+            document.getElementById('kaleido4Btn').classList.remove('active-fx');
+            document.getElementById('kaleido8Btn').classList.remove('active-fx');
+            if (mode === 0) document.getElementById('kaleidoOffBtn').classList.add('active-fx');
+            if (mode === 2) document.getElementById('kaleido2Btn').classList.add('active-fx');
+            if (mode === 4) document.getElementById('kaleido4Btn').classList.add('active-fx');
+            if (mode === 8) document.getElementById('kaleido8Btn').classList.add('active-fx');
+            showToast(`KALEIDO ${mode === 0 ? 'OFF' : mode + ' LADOS'}`);
+        }
+        
+        document.getElementById('kaleidoOffBtn').onclick = () => setKaleidoMode(0);
+        document.getElementById('kaleido2Btn').onclick = () => setKaleidoMode(2);
+        document.getElementById('kaleido4Btn').onclick = () => setKaleidoMode(4);
+        document.getElementById('kaleido8Btn').onclick = () => setKaleidoMode(8);
+        
+        document.getElementById('gridBtn').onclick = () => {
+            gridActive = !gridActive;
+            fxPass.uniforms.gridMode.value = gridActive ? 1 : 0;
+            document.getElementById('gridBtn').style.background = gridActive ? '#0ff' : '#0a0a12';
+            document.getElementById('gridBtn').style.color = gridActive ? '#000' : '#0ff';
+            showToast(`GRID FX ${gridActive ? 'ON' : 'OFF'}`);
+        };
+        
+        document.getElementById('gridKaleidoReset').onclick = () => {
+            setKaleidoMode(0);
+            if (gridActive) {
+                gridActive = false;
+                fxPass.uniforms.gridMode.value = 0;
+                document.getElementById('gridBtn').style.background = '#0a0a12';
+                document.getElementById('gridBtn').style.color = '#0ff';
+            }
+            showToast('FX RESET');
+        };
+        
+        document.getElementById('kaleidoSpeed').addEventListener('input', (e) => {
+            const speed = parseFloat(e.target.value);
+            fxPass.uniforms.kaleidoSpeed.value = speed;
+        });
+        
+        // --- Controles VHS ---
+        document.getElementById('glowIntensity').addEventListener('input', (e) => { 
+            const val = parseFloat(e.target.value);
+            fxPass.uniforms.glowBoost.value = val;
+            bloomPass.strength = 0.8 + val * 0.5;
+        });
+        document.getElementById('scanIntense').addEventListener('input', (e) => fxPass.uniforms.scanIntensity.value = parseFloat(e.target.value));
+        document.getElementById('rgbSplitAmt').addEventListener('input', (e) => fxPass.uniforms.rgbSplit.value = parseFloat(e.target.value));
+        document.getElementById('noiseVol').addEventListener('input', (e) => fxPass.uniforms.noiseAmount.value = parseFloat(e.target.value));
+        document.getElementById('glitchChaos').addEventListener('input', (e) => fxPass.uniforms.glitchPower.value = parseFloat(e.target.value));
+        document.getElementById('glitchBurstBtn').onclick = () => { 
+            fxPass.uniforms.glitchPower.value = 1.2; 
+            setTimeout(()=> { if(document.getElementById('glitchChaos')) fxPass.uniforms.glitchPower.value = parseFloat(document.getElementById('glitchChaos').value); }, 400); 
+            showToast('💢 GLITCH BURST'); 
+        };
+        document.getElementById('resetVhsBtn').onclick = () => {
+            fxPass.uniforms.scanIntensity.value = 0.5;
+            fxPass.uniforms.rgbSplit.value = 0.018;
+            fxPass.uniforms.noiseAmount.value = 0.35;
+            fxPass.uniforms.glitchPower.value = 0.4;
+            fxPass.uniforms.glowBoost.value = 1.2;
+            bloomPass.strength = 1.2;
+            document.getElementById('glowIntensity').value = 1.2;
+            document.getElementById('scanIntense').value = 0.5;
+            document.getElementById('rgbSplitAmt').value = 0.018;
+            document.getElementById('noiseVol').value = 0.35;
+            document.getElementById('glitchChaos').value = 0.4;
+            showToast('VHS RESET');
+        };
+        
+        // --- Audio ---
+        let audioActive = false, audioCtx = null, analyser = null, mediaStream = null, audioBuffer = new Uint8Array(128);
+        let audioBandVal = 0, audioAmpGlobal = 1.6;
+        function getAudioIntensity() {
+            if (!audioActive || !analyser) return 0.3;
+            analyser.getByteFrequencyData(audioBuffer);
+            let start=0, end=40;
+            if (audioBandVal===1) { start=40; end=85; }
+            if (audioBandVal===2) { start=85; end=128; }
+            let sum=0;
+            for (let i=start;i<end;i++) sum += audioBuffer[i];
+            let avg = sum / (end-start) / 255;
+            return Math.min(1.6, avg * 1.8) * audioAmpGlobal;
+        }
+        async function toggleAudioSystem() {
+            if (audioActive) {
+                if (mediaStream) mediaStream.getTracks().forEach(t=>t.stop());
+                if (audioCtx) await audioCtx.close();
+                audioActive=false;
+                document.getElementById('audioStatusLed').innerHTML = '⛔ OFF';
+                document.getElementById('audioMicCyber').innerHTML = '🎤 MIC';
+                showToast('AUDIO OFF');
+                return;
+            }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioCtx.createMediaStreamSource(stream);
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 256;
+                source.connect(analyser);
+                audioCtx.resume();
+                mediaStream = stream;
+                audioActive = true;
+                document.getElementById('audioStatusLed').innerHTML = '🎧 ACTIVE';
+                document.getElementById('audioMicCyber').innerHTML = '🔴 ON';
+                showToast('AUDIO ACTIVADO');
+            } catch(e) { showToast('MIC ERROR'); }
+        }
+        document.getElementById('audioMicCyber').onclick = toggleAudioSystem;
+        document.getElementById('audioBandSelect').onchange = (e) => { audioBandVal = parseInt(e.target.value); showToast(`BAND: ${e.target.options[e.target.selectedIndex].text}`); };
+        document.getElementById('audioAmp').oninput = (e) => { audioAmpGlobal = parseFloat(e.target.value); };
+        
+        // --- Warp & flow ---
+        let timeAnim = 0;
+        function updateParticlesFlow() {
+            if (!particleSys || !particleVisible) return;
+            const positions = particleSys.geometry.attributes.position.array;
+            const audioVal = audioActive ? getAudioIntensity() : 0.3;
+            const warpX = parseFloat(document.getElementById('warpX').value);
+            const warpY = parseFloat(document.getElementById('warpY').value);
+            const flow = flowRate * (0.7 + audioVal * 1.1);
+            const count = particleSys.geometry.attributes.position.count;
+            for (let i = 0; i < count; i++) {
+                const orig = originalPos[i];
+                let dx = orig.x - warpX;
+                let dy = orig.y - warpY;
+                let angle = Math.atan2(dy, dx);
+                let rad = Math.sqrt(dx*dx+dy*dy);
+                let newRad = rad + flow * 0.07 * Math.sin(timeAnim * 2.5 + rad * 2.2) * (1+audioVal);
+                let newX = warpX + Math.cos(angle + timeAnim * 0.9 * flow) * newRad;
+                let newY = warpY + Math.sin(angle + timeAnim * 0.9 * flow) * newRad;
+                let newZ = orig.z + Math.sin(timeAnim * 2.0 + orig.z * 1.5) * 0.1 * flow;
+                positions[i*3] = newX * (1 + audioVal * 0.35);
+                positions[i*3+1] = newY * (1 + audioVal * 0.3);
+                positions[i*3+2] = newZ;
+            }
+            particleSys.geometry.attributes.position.needsUpdate = true;
+        }
+        
+        document.getElementById('warpX').addEventListener('input', () => {});
+        document.getElementById('warpY').addEventListener('input', () => {});
+        document.getElementById('flowSpeed').addEventListener('input', (e) => { flowRate = parseFloat(e.target.value); });
+        
+        // --- Export ---
+        let mediaRec = null, recChunks = [];
+        document.getElementById('pngCaptureBtn').onclick = () => { const a = document.createElement('a'); a.href = renderer.domElement.toDataURL(); a.download = `psytronic_${Date.now()}.png`; a.click(); showToast('📸 PNG'); };
+        document.getElementById('recordStartBtn').onclick = () => {
+            const stream = renderer.domElement.captureStream(30);
+            mediaRec = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            recChunks = [];
+            mediaRec.ondataavailable = (e) => { if(e.data.size) recChunks.push(e.data); };
+            mediaRec.onstop = () => { const blob = new Blob(recChunks, {type:'video/webm'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `psytrance_${Date.now()}.webm`; a.click(); showToast('💾 VIDEO'); };
+            mediaRec.start(); showToast('🎬 REC');
+        };
+        document.getElementById('recordStopBtn').onclick = () => { if(mediaRec && mediaRec.state === 'recording') mediaRec.stop(); };
+        document.getElementById('uiHideBtn').onclick = () => document.body.classList.toggle('ui-hidden');
+        document.getElementById('fullResetBtn').onclick = () => { location.reload(); };
+        
+        const hotspot = document.getElementById('hotspotTrigger');
+        hotspot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.body.classList.toggle('ui-hidden');
+            showToast(document.body.classList.contains('ui-hidden') ? 'HIDDEN' : 'VISIBLE');
+        });
+        
+        // --- Dust layer ---
+        const dustCount = 6000;
+        const dustGeo = new THREE.BufferGeometry();
+        const dustPositions = new Float32Array(dustCount * 3);
+        for (let i=0;i<dustCount;i++) {
+            dustPositions[i*3] = (Math.random() - 0.5) * 20;
+            dustPositions[i*3+1] = (Math.random() - 0.5) * 12;
+            dustPositions[i*3+2] = (Math.random() - 0.5) * 18 - 6;
+        }
+        dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+        const dustMat = new THREE.PointsMaterial({ color: 0xff66cc, size: 0.03, transparent: true, blending: THREE.AdditiveBlending });
+        const dustLayer = new THREE.Points(dustGeo, dustMat);
+        scene.add(dustLayer);
+        
+        function showToast(m) { let d = document.createElement('div'); d.className = 'toast-msg'; d.innerText = m; document.body.appendChild(d); setTimeout(()=>d.remove(), 900); }
+        
+        let lastFrame = 0;
+        function animate() {
+            const now = performance.now();
+            let delta = Math.min(0.033, (now-lastFrame)/1000);
+            lastFrame = now;
+            timeAnim += delta * 1.1;
+            const audioVal = audioActive ? getAudioIntensity() : 0.2;
+            
+            // Actualizar uniformes
+            fxPass.uniforms.time.value = timeAnim;
+            fxPass.uniforms.audioGlitch.value = audioVal * 0.7;
+            // Rotación kaleidoscopio
+            const kSpeed = parseFloat(document.getElementById('kaleidoSpeed').value);
+            kaleidoRotation += delta * kSpeed * 1.5;
+            fxPass.uniforms.kaleidoRotate.value = kaleidoRotation;
+            
+            bloomPass.strength = 0.9 + audioVal * 0.8;
+            updateParticlesFlow();
+            if(dustLayer) {
+                dustLayer.rotation.y = timeAnim * 0.1;
+                dustLayer.rotation.x = Math.sin(timeAnim * 0.3) * 0.2;
+            }
+            camera.position.x += (Math.sin(timeAnim * 15) * 0.002 * audioVal - camera.position.x) * 0.06;
+            camera.lookAt(0,0,0);
+            composer.render();
+            requestAnimationFrame(animate);
+        }
+        
+        rebuildParticleStorm(currentParticleCount, false);
+        animate();
+        showToast('⚡ KALEIDO + GRID // VHS GLOW // TOUCH RIGHT EDGE ⚡');
+    </script>
+</body>
+</html>
