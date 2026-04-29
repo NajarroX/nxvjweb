@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# server.py - NX PRO VAULT (Versión final con enlace de compra actualizado)
+# server.py - NX PRO VAULT (Con botón DEMO gigante con glitch)
 
 from flask import Flask, request, jsonify, send_file, abort, redirect
 import os
@@ -22,12 +22,7 @@ app = Flask(__name__)
 # CONFIGURACIÓN
 # ============================================
 
-# ⏱️ TIEMPO DE DEMO EN SEGUNDOS (cambia este valor cuando quieras)
-DEMO_DURATION_SECONDS = 120  # 2 minutos = 120 | 3 minutos = 180 | 1 minuto = 60
-
-# ============================================
-# PRODUCTOS - CON ID REAL DE RECURRENTE
-# ============================================
+DEMO_DURATION_SECONDS = 120
 
 PRODUCTOS = {
     "prod_jfvog09k": {
@@ -50,7 +45,7 @@ descargas_autorizadas = {}
 suscripciones_activas = {}
 
 # ============================================
-# FUNCIONES AUXILIARES
+# FUNCIONES AUXILIARES (igual que antes)
 # ============================================
 
 def generar_contrasena(email_cliente):
@@ -100,9 +95,7 @@ def obtener_temporadas():
     return sorted(seasons, key=lambda x: x["numero"]) if seasons else []
 
 def crear_zip_bundle():
-    """Crea un ZIP con los 3 visualizadores + manual desde los archivos del servidor"""
     memory_file = BytesIO()
-    
     with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
         archivos = [
             ("files/season_01/kaleido.html", "01_NX_KALEIDO_ENGINE.html"),
@@ -113,91 +106,9 @@ def crear_zip_bundle():
             if os.path.exists(origen):
                 zf.write(origen, destino)
         
-        manual_html = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>NX ENGINES • Manual</title>
-            <style>
-                @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Tektur:wght@400;500;600;700;800;900&display=swap');
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                body {
-                    font-family: 'Inter', sans-serif;
-                    background: #ffffff;
-                    color: #1a1a1a;
-                    line-height: 1.4;
-                }
-                .container { max-width: 720px; margin: 0 auto; padding: 60px 24px; }
-                h1 { font-family: 'Tektur', monospace; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 12px; }
-                h2 { font-family: 'Tektur', monospace; font-size: 1rem; font-weight: 600; margin: 24px 0 12px; letter-spacing: -0.01em; text-transform: uppercase; }
-                p { color: #555; margin-bottom: 12px; line-height: 1.4; }
-                .divider { width: 40px; height: 1px; background: #e0e0e0; margin: 24px 0; }
-                .card { border: 1px solid #eaeaea; border-radius: 12px; padding: 20px; margin: 20px 0; background: #fafafa; }
-                .key { font-family: monospace; background: #f0f0f0; padding: 2px 8px; border-radius: 6px; font-size: 0.85rem; }
-                table { width: 100%; border-collapse: collapse; margin: 12px 0; }
-                td, th { padding: 8px 0; border-bottom: 1px solid #eee; text-align: left; }
-                .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 0.75rem; text-align: center; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>NX ENGINES</h1>
-                <p>Manual de usuario — Visuales en tiempo real</p>
-                <div class="divider"></div>
-                
-                <div class="card">
-                    <p><strong>Gracias por adquirir NX ENGINES.</strong> Este manual te ayudará a aprovechar al máximo cada visualizador.</p>
-                </div>
-                
-                <h2>Contenido del bundle</h2>
-                <p><strong>NX KALEIDO ENGINE</strong> — Efectos kaleidoscopio, grid VHS y glow.</p>
-                <p><strong>NX ASCII ENGINE</strong> — ASCII art, mezcla con webcam y fuego 3D.</p>
-                <p><strong>NX GLITCH ENGINE</strong> — Figuras 3D, shaders, glitch, delay y echo.</p>
-                
-                <h2>Inicio rápido</h2>
-                <p>Abre cualquier archivo .html en tu navegador (Chrome, Firefox, Edge). Permite el acceso al micrófono. Conecta tu música y los visuales reaccionarán en tiempo real.</p>
-                
-                <h2>Controles generales</h2>
-                <table>
-                    <tr><th>Tecla</th><th>Función</th></tr>
-                    <tr><td><span class="key">TAB</span></td><td>Ocultar o mostrar interfaz</td></tr>
-                    <tr><td><span class="key">P</span></td><td>Activar o desactivar micrófono</td></tr>
-                    <tr><td><span class="key">O</span></td><td>Cambiar banda de audio (bajo, medios, agudos)</td></tr>
-                    <tr><td><span class="key">+ / -</span></td><td>Ajustar intensidad de efectos</td></tr>
-                    <tr><td><span class="key">T</span></td><td>Capturar pantalla (PNG)</td></tr>
-                    <tr><td><span class="key">Y</span></td><td>Grabar video (WEBM)</td></tr>
-                </table>
-                
-                <h2>Soporte</h2>
-                <p>¿Dudas? Escríbenos a <strong>soporte@najarrox.xyz</strong></p>
-                
-                <div class="footer">
-                    <p>NAJARRO X STUDIO · Panamá · 2026</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
-        
+        manual_html = """<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Manual</title><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Tektur:wght@400;500;600;700&display=swap');body{font-family:'Inter',sans-serif;background:#fff;color:#1a1a1a;line-height:1.4;padding:40px;max-width:800px;margin:0 auto;}h1{font-family:'Tektur',monospace;font-size:2rem;}h2{font-family:'Tektur',monospace;font-size:1rem;text-transform:uppercase;margin-top:32px;}.card{border:1px solid #eaeaea;border-radius:12px;padding:20px;margin:20px 0;background:#fafafa;}.key{background:#f0f0f0;padding:2px 8px;border-radius:6px;font-family:monospace;}</style></head><body><h1>NX ENGINES</h1><p>Manual de usuario</p><div class='card'><p>Gracias por adquirir NX ENGINES.</p></div><h2>Contenido</h2><p><strong>NX KALEIDO ENGINE</strong> — Efectos kaleidoscopio, grid VHS y glow.</p><p><strong>NX ASCII ENGINE</strong> — ASCII art, mezcla con webcam y fuego 3D.</p><p><strong>NX GLITCH ENGINE</strong> — Figuras 3D, shaders, glitch, delay y echo.</p><h2>Controles</h2><table><tr><td><span class='key'>TAB</span></td><td>Ocultar UI</td></tr><tr><td><span class='key'>P</span></td><td>Micrófono</td></tr><tr><td><span class='key'>O</span></td><td>Banda de audio</td></tr><tr><td><span class='key'>T</span></td><td>Capturar PNG</td></tr><tr><td><span class='key'>Y</span></td><td>Grabar video</td></tr></table><div class='footer'><p>NAJARRO X STUDIO · soporte@najarrox.xyz</p></div></body></html>"""
         zf.writestr("00_MANUAL_NX_ENGINES.html", manual_html)
-        
-        readme = """========================================
-   NAJARRO X STUDIO · NX ENGINES
-========================================
-
-Gracias por tu compra.
-
-Este bundle incluye tres visualizadores en tiempo real.
-
-Abre "00_MANUAL_NX_ENGINES.html" para instrucciones.
-
-Soporte: soporte@najarrox.xyz
-Web: www.najarrox.xyz
-
-© NAJARRO X STUDIO
-"""
-        zf.writestr("README.txt", readme)
+        zf.writestr("README.txt", "NX ENGINES Bundle - Gracias por tu compra!")
     
     memory_file.seek(0)
     return memory_file
@@ -228,8 +139,9 @@ def enviar_email_simple(destinatario, nombre, asunto, cuerpo_html):
         logger.error(f"❌ Error email: {e}")
         return False
 
+
 # ============================================
-# WEBHOOK DE RECURRENTE
+# WEBHOOK
 # ============================================
 
 @app.route('/webhook', methods=['POST'])
@@ -240,25 +152,18 @@ def webhook_recurrente():
             return jsonify({"status": "error"}), 400
         
         event_type = data.get('event_type')
-        logger.info(f"📨 Evento recibido: {event_type}")
+        logger.info(f"📨 Evento: {event_type}")
         
-        # ========================================
-        # PAGO ÚNICO EXITOSO (Bundle)
-        # ========================================
         if event_type == 'payment_intent.succeeded':
             producto_id = data.get('product', {}).get('id')
             email = data.get('customer', {}).get('email')
             nombre = data.get('customer', {}).get('full_name', 'Cliente')
             
-            logger.info(f"💰 Pago exitoso - Producto: {producto_id}, Cliente: {email}")
-            
             if not producto_id or not email:
-                logger.error("Faltan datos en el webhook")
                 return jsonify({"status": "error"}), 400
             
             if producto_id not in PRODUCTOS:
-                logger.warning(f"Producto desconocido: {producto_id}")
-                return jsonify({"status": "ignored", "reason": "unknown_product"}), 200
+                return jsonify({"status": "ignored"}), 200
             
             producto = PRODUCTOS[producto_id]
             token = secrets.token_urlsafe(32)
@@ -273,471 +178,128 @@ def webhook_recurrente():
             }
             
             link_descarga = f"https://{request.host}/descargar/{token}"
-            
-            html_email = f"""
-            <!DOCTYPE html>
-            <html>
-            <head><meta charset="UTF-8"></head>
-            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif; background: #ffffff; padding: 32px;">
-                <div style="max-width: 520px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 20px; padding: 32px;">
-                    <h1 style="font-family: 'Tektur', monospace; font-size: 1.5rem; font-weight: 700; margin-bottom: 12px;">Gracias, {nombre}</h1>
-                    <p style="color: #555; margin-bottom: 12px;">Tu bundle <strong>{producto['nombre']}</strong> está listo para descargar.</p>
-                    <div style="background: #fafafa; padding: 20px; border-radius: 12px; margin: 20px 0;">
-                        <p style="margin-bottom: 8px;"><strong>Enlace de descarga</strong></p>
-                        <a href="{link_descarga}" style="color: #000; word-break: break-all;">{link_descarga}</a>
-                        <p style="margin-top: 12px;"><strong>Contraseña</strong><br><span style="font-family: monospace;">{contrasena}</span></p>
-                    </div>
-                    <p style="font-size: 0.7rem; color: #999;">Este enlace expira en 7 días.</p>
-                </div>
-            </body>
-            </html>
-            """
+            html_email = f"<h1>Gracias {nombre}</h1><p>Tu {producto['nombre']} está listo.</p><a href='{link_descarga}'>Descargar</a><p>Contraseña: {contrasena}</p>"
             
             enviar_email_simple(email, nombre, f"Tu {producto['nombre']} está listo", html_email)
-            logger.info(f"✅ Email enviado a {email}")
             return jsonify({"status": "ok"}), 200
         
-        # ========================================
-        # SUSCRIPCIÓN CREADA
-        # ========================================
         elif event_type == 'subscription.create':
-            logger.info("🔄 Procesando creación de suscripción")
-            
             email = data.get('customer', {}).get('email')
             nombre = data.get('customer', {}).get('full_name', 'Cliente')
-            
             if not email:
-                logger.error("No se encontró email en el webhook")
                 return jsonify({"status": "error"}), 400
             
             token_sub = secrets.token_urlsafe(32)
-            fecha_expiracion = datetime.now().timestamp() + 30 * 24 * 3600
-            
             suscripciones_activas[token_sub] = {
-                "email": email,
-                "nombre": nombre,
-                "expira": fecha_expiracion,
-                "activa": True,
-                "fecha_inicio": datetime.now().timestamp()
+                "email": email, "nombre": nombre,
+                "expira": datetime.now().timestamp() + 30*24*3600, "activa": True
             }
-            
             link_vault = f"https://{request.host}/vault?token={token_sub}"
-            
-            html_email = f"""
-            <!DOCTYPE html>
-            <html>
-            <head><meta charset="UTF-8"></head>
-            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif; background: #ffffff; padding: 32px;">
-                <div style="max-width: 520px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 20px; padding: 32px;">
-                    <h1 style="font-family: 'Tektur', monospace; font-size: 1.5rem; font-weight: 700;">Bienvenido a NX PRO</h1>
-                    <p style="color: #555; margin: 16px 0;">Tu suscripción está activa, {nombre}.</p>
-                    <div style="background: #fafafa; padding: 20px; border-radius: 12px; margin: 20px 0;">
-                        <p style="margin-bottom: 8px;"><strong>Tu vault personal</strong></p>
-                        <a href="{link_vault}" style="color: #000; word-break: break-all;">{link_vault}</a>
-                    </div>
-                    <p style="font-size: 0.7rem; color: #999;">Guarda este enlace. Se renueva automáticamente cada mes.</p>
-                </div>
-            </body>
-            </html>
-            """
-            
-            enviar_email_simple(email, nombre, "NX PRO — Tu suscripción está activa", html_email)
-            logger.info(f"✅ Suscripción creada para {email}")
-            return jsonify({"status": "ok", "token": token_sub}), 200
-        
-        # ========================================
-        # SUSCRIPCIÓN CANCELADA
-        # ========================================
-        elif event_type == 'subscription.cance.':
-            logger.info("❌ Procesando cancelación de suscripción")
-            
-            email = data.get('customer', {}).get('email')
-            
-            if not email:
-                logger.error("No se encontró email en el webhook")
-                return jsonify({"status": "error"}), 400
-            
-            encontrado = False
-            for token, sub in suscripciones_activas.items():
-                if sub["email"] == email and sub["activa"]:
-                    suscripciones_activas[token]["activa"] = False
-                    encontrado = True
-                    logger.info(f"❌ Suscripción desactivada para {email}")
-                    break
-            
-            if not encontrado:
-                logger.warning(f"No se encontró suscripción activa para {email}")
-            
+            html_email = f"<h1>Bienvenido {nombre}</h1><p>Tu suscripción NX PRO está activa.</p><a href='{link_vault}'>Acceder al Vault</a>"
+            enviar_email_simple(email, nombre, "NX PRO Activada", html_email)
             return jsonify({"status": "ok"}), 200
         
-        # Eventos no manejados
-        else:
-            logger.info(f"Evento ignorado: {event_type}")
-            return jsonify({"status": "ignored"}), 200
+        elif event_type == 'subscription.cance.':
+            email = data.get('customer', {}).get('email')
+            for token, sub in suscripciones_activas.items():
+                if sub["email"] == email:
+                    suscripciones_activas[token]["activa"] = False
+            return jsonify({"status": "ok"}), 200
         
+        return jsonify({"status": "ignored"}), 200
     except Exception as e:
-        logger.error(f"❌ Error en webhook: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+        logger.error(f"Error: {e}")
+        return jsonify({"status": "error"}), 500
 
-# ============================================
-# ENDPOINTS DE DESCARGA
-# ============================================
 
 @app.route('/descargar/<token>')
 def descargar_archivo(token):
-    """Entrega el ZIP con los visualizadores al cliente que compró"""
-    email = None
-    datos = None
-    for mail, d in descargas_autorizadas.items():
-        if d.get("token") == token:
-            email = mail
-            datos = d
-            break
-    
-    if not datos:
-        return "Enlace inválido", 404
-    
-    if datetime.now().timestamp() - datos["timestamp"] > 7 * 24 * 3600:
-        return "Enlace expirado (máximo 7 días)", 403
-    
-    producto_id = datos["producto_id"]
-    
-    if producto_id not in PRODUCTOS:
-        return "Producto no encontrado", 404
-    
-    return send_file(
-        crear_zip_bundle(), 
-        as_attachment=True, 
-        download_name=f"NX_BUNDLE_{datetime.now().strftime('%Y%m%d')}.zip", 
-        mimetype="application/zip"
-    )
+    for datos in descargas_autorizadas.values():
+        if datos.get("token") == token:
+            if datetime.now().timestamp() - datos["timestamp"] > 7*24*3600:
+                return "Enlace expirado", 403
+            return send_file(crear_zip_bundle(), as_attachment=True, download_name="NX_BUNDLE.zip")
+    return "Enlace inválido", 404
+
 
 @app.route('/verificar-suscripcion')
 def verificar_suscripcion_endpoint():
     token = request.args.get('token')
     if not token:
-        return jsonify({"activa": False, "error": "Token requerido"}), 400
-    
+        return jsonify({"activa": False}), 400
     suscripcion = verificar_suscripcion(token)
     if not suscripcion:
-        return jsonify({"activa": False, "error": "Token inválido"}), 200
-    
-    return jsonify({
-        "activa": True,
-        "expira": suscripcion["expira"],
-        "email": suscripcion["email"],
-        "nombre": suscripcion["nombre"]
-    })
+        return jsonify({"activa": False}), 200
+    return jsonify({"activa": True, "expira": suscripcion["expira"], "nombre": suscripcion["nombre"]})
 
-# ============================================
-# VAULT PARA SUSCRIPTORES
-# ============================================
 
 @app.route('/vault')
 def vault_suscriptor():
     token = request.args.get('token')
     if not token:
-        return '''
-        <!DOCTYPE html>
-        <html>
-        <head><meta charset="UTF-8"><title>Acceso</title></head>
-        <body style="font-family: 'Inter', sans-serif; background: #fff; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
-            <div style="text-align: center; padding: 32px;">
-                <h1 style="font-family: 'Tektur', monospace; font-weight: 700; font-size: 1.5rem; margin-bottom: 12px;">Acceso restringido</h1>
-                <p style="color: #666; margin-bottom: 12px;">Este contenido es exclusivo para suscriptores.</p>
-                <a href="https://www.najarrox.xyz" style="color: #000; border: 1px solid #e0e0e0; padding: 10px 24px; text-decoration: none; display: inline-block; margin-top: 20px;">Suscribirse</a>
-            </div>
-        </body>
-        </html>
-        ''', 403
-    
+        return "Acceso restringido", 403
     suscripcion = verificar_suscripcion(token)
     if not suscripcion:
         return "Suscripción expirada", 403
     
     seasons = obtener_temporadas()
-    fecha_expiracion = datetime.fromtimestamp(suscripcion["expira"]).strftime('%d/%m/%Y')
-    
-    html = f'''
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>NX PRO VAULT</title>
-        <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=Tektur:wght@400;500;600;700;800;900&display=swap');
-            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-            body {{ font-family: 'Inter', sans-serif; background: #ffffff; color: #1a1a1a; line-height: 1.4; }}
-            .header {{ border-bottom: 1px solid #eaeaea; padding: 24px 32px; background: #ffffff; position: sticky; top: 0; z-index: 10; }}
-            .header-inner {{ max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 20px; }}
-            .logo-area h1 {{ font-family: 'Tektur', monospace; font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; color: #1a1a1a; }}
-            .logo-area p {{ font-size: 0.65rem; color: #999; margin-top: 4px; letter-spacing: 0.3px; }}
-            .user-area {{ text-align: right; }}
-            .user-name {{ font-weight: 500; font-size: 0.85rem; }}
-            .user-expiry {{ font-size: 0.65rem; color: #00a86b; margin-top: 2px; }}
-            .badge {{ display: inline-block; background: #f0f0f0; padding: 2px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 400; margin-top: 6px; color: #555; }}
-            .container {{ max-width: 1280px; margin: 0 auto; padding: 40px 32px; }}
-            .stats-grid {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #eaeaea; border-radius: 16px; overflow: hidden; margin-bottom: 60px; }}
-            .stat-card {{ background: #fff; padding: 28px 24px; text-align: center; }}
-            .stat-number {{ font-family: 'Tektur', monospace; font-size: 2.5rem; font-weight: 700; letter-spacing: -0.02em; color: #1a1a1a; }}
-            .stat-label {{ font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-top: 8px; }}
-            .season {{ margin-bottom: 60px; }}
-            .season-title {{ font-family: 'Tektur', monospace; font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 28px; padding-bottom: 10px; border-bottom: 1px solid #eaeaea; }}
-            .visual-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 28px; }}
-            .visual-card {{ border: 1px solid #eaeaea; border-radius: 20px; background: #ffffff; transition: all 0.2s ease; cursor: pointer; overflow: hidden; }}
-            .visual-card:hover {{ transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04); border-color: #d0d0d0; }}
-            .visual-preview {{ height: 180px; background: #fafafa; display: flex; align-items: center; justify-content: center; font-family: 'Tektur', monospace; font-size: 2rem; font-weight: 700; color: #ccc; border-bottom: 1px solid #eaeaea; }}
-            .visual-info {{ padding: 20px; }}
-            .visual-info h3 {{ font-family: 'Tektur', monospace; font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; }}
-            .visual-info p {{ font-size: 0.7rem; color: #888; margin-bottom: 16px; }}
-            .btn-open {{ background: none; border: 1px solid #1a1a1a; padding: 6px 18px; border-radius: 40px; font-size: 0.65rem; font-weight: 500; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s ease; color: #1a1a1a; }}
-            .btn-open:hover {{ background: #1a1a1a; color: #fff; }}
-            .footer {{ border-top: 1px solid #eaeaea; padding: 32px 32px; text-align: center; font-size: 0.65rem; color: #999; }}
-            .footer a {{ color: #1a1a1a; text-decoration: none; }}
-            @media (max-width: 768px) {{
-                .header-inner {{ flex-direction: column; align-items: flex-start; }}
-                .user-area {{ text-align: left; }}
-                .stats-grid {{ grid-template-columns: 1fr; gap: 1px; }}
-                .container {{ padding: 28px 20px; }}
-                .season-title {{ font-size: 0.9rem; }}
-                .visual-grid {{ grid-template-columns: 1fr; }}
-                .stat-number {{ font-size: 1.8rem; }}
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <div class="header-inner">
-                <div class="logo-area">
-                    <h1>NAJARRO X · VJ LIVE</h1>
-                    <p>Real‑time visual engines</p>
-                </div>
-                <div class="user-area">
-                    <div class="user-name">{suscripcion["nombre"]}</div>
-                    <div class="user-expiry">Activo hasta {fecha_expiracion}</div>
-                    <div class="badge">Suscripción activa</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="container">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number">{sum(len(s["visuales"]) for s in seasons)}</div>
-                    <div class="stat-label">visuales disponibles</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">{len(seasons)}</div>
-                    <div class="stat-label">temporadas</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">+3</div>
-                    <div class="stat-label">nuevos / mes</div>
-                </div>
-            </div>
-    '''
-    
+    html = f"<h1>NX PRO VAULT - {suscripcion['nombre']}</h1><p>Activo hasta {datetime.fromtimestamp(suscripcion['expira']).strftime('%d/%m/%Y')}</p>"
     for season in seasons:
-        html += f'''
-            <div class="season">
-                <div class="season-title">{season["nombre"]}</div>
-                <div class="visual-grid">
-        '''
-        for visual in season["visuales"]:
-            letter = "K" if "kaleido" in visual["archivo"].lower() else "A" if "ascii" in visual["archivo"].lower() else "G" if "glitch" in visual["archivo"].lower() else "V"
-            visual_url = f"{visual['ruta']}?token={token}"
-            html += f'''
-                    <div class="visual-card" onclick="window.open('{visual_url}', '_blank')">
-                        <div class="visual-preview">{letter}</div>
-                        <div class="visual-info">
-                            <h3>{visual["nombre"]}</h3>
-                            <p>Audio‑reactivo · 60 fps</p>
-                            <button class="btn-open">Abrir</button>
-                        </div>
-                    </div>
-            '''
-        html += '''
-                </div>
-            </div>
-        '''
-    
-    html += '''
-            <div class="footer">
-                <p><a href="https://www.najarrox.xyz">najarrox.xyz</a> — soporte@najarrox.xyz</p>
-                <p style="margin-top: 8px;">© Najarro X Studio</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    '''
-    
+        html += f"<h2>{season['nombre']}</h2>"
+        for v in season['visuales']:
+            html += f"<a href='{v['ruta']}?token={token}'><button>{v['nombre']}</button></a>"
     return html
 
-# ============================================
-# SERVIDOR DE VISUALES Y DEMO
-# ============================================
 
 @app.route('/visual/<season>/<filename>')
 def servir_visual(season, filename):
     token = request.args.get('token')
-    
-    if token:
-        suscripcion = verificar_suscripcion(token)
-        if not suscripcion:
-            return "Suscripción inválida o expirada", 403
-        modo_suscriptor = True
-    else:
-        modo_suscriptor = False
+    modo_suscriptor = token and verificar_suscripcion(token) is not None
     
     ruta = os.path.join("files", season, filename)
     if not os.path.exists(ruta):
-        return "Visual no encontrado", 404
+        return "No encontrado", 404
     
     with open(ruta, 'r', encoding='utf-8') as f:
         contenido = f.read()
     
     if not modo_suscriptor:
         demo_script = f'''
-        <div id="nx-demo-badge" style="position:fixed;bottom:24px;right:24px;background:#ffffff;color:#1a1a1a;font-family:'Inter',-apple-system,sans-serif;padding:8px 16px;z-index:9999;font-size:12px;font-weight:500;border:1px solid #e0e0e0;border-radius:40px;backdrop-filter:blur(8px);box-shadow:0 2px 8px rgba(0,0,0,0.02);pointer-events:none;">
-            Demo · {DEMO_DURATION_SECONDS//60}:{(DEMO_DURATION_SECONDS%60):02d}
-        </div>
-        <script>
-            (function() {{
-                let tiempo = {DEMO_DURATION_SECONDS};
-                let bloqueado = false;
-                const badge = document.getElementById('nx-demo-badge');
-                if(!badge) return;
-                
-                function bloquearPantalla() {{
-                    if(bloqueado) return;
-                    bloqueado = true;
-                    
-                    if(typeof cancelAnimationFrame !== 'undefined') {{
-                        if(window.__NX_ANIMATION_ID__) cancelAnimationFrame(window.__NX_ANIMATION_ID__);
-                    }}
-                    
-                    const blocker = document.createElement('div');
-                    blocker.id = 'nx-blocker';
-                    blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#ffffff;z-index:100000;display:flex;align-items:center;justify-content:center;font-family:\\'Inter\\',-apple-system,sans-serif;text-align:center;';
-                    blocker.innerHTML = `
-                        <div style="max-width:400px;padding:32px;">
-                            <div style="width:40px;height:1px;background:#e0e0e0;margin:0 auto 24px;"></div>
-                            <h1 style="font-family:\\'Tektur\\',monospace;font-weight:700;font-size:1.5rem;margin-bottom:12px;">Demo finalizada</h1>
-                            <p style="color:#666;margin-bottom:28px;">El tiempo de prueba ha terminado.</p>
-                            <a href="https://nxvjweb.onrender.com/" style="background:#1a1a1a;color:#fff;padding:10px 24px;text-decoration:none;border-radius:40px;display:inline-block;">Adquirir bundle</a>
-                            <div style="width:40px;height:1px;background:#e0e0e0;margin:24px auto 0;"></div>
-                        </div>
-                    `;
-                    document.body.appendChild(blocker);
-                }}
-                
-                const interval = setInterval(function() {{
-                    if(bloqueado) return;
-                    tiempo--;
-                    var mins = Math.floor(tiempo/60);
-                    var segs = (tiempo%60).toString().padStart(2,'0');
-                    if(badge) badge.innerHTML = 'Demo · ' + mins + ':' + segs;
-                    
-                    if(tiempo <= 10 && tiempo > 0) {{
-                        badge.style.borderColor = '#ccc';
-                    }}
-                    
-                    if(tiempo <= 0) {{
-                        clearInterval(interval);
-                        bloquearPantalla();
-                    }}
-                }}, 1000);
-            }})();
-        </script>
+        <div style="position:fixed;bottom:20px;right:20px;background:#fff;border:1px solid #eaeaea;border-radius:40px;padding:8px 20px;font-family:monospace;z-index:9999;">Demo · {DEMO_DURATION_SECONDS//60}:{(DEMO_DURATION_SECONDS%60):02d}</div>
+        <script>let t={DEMO_DURATION_SECONDS};setInterval(()=>{{t--;if(t<=0){{document.body.innerHTML='<div style=\"text-align:center;padding:50px;\"><h1>Demo finalizada</h1><a href=\"/\">Comprar bundle</a></div>';}}}},1000);</script>
         '''
         contenido = contenido.replace('</body>', demo_script + '</body>')
     
-    return contenido, 200, {'Content-Type': 'text/html'}
+    return contenido
+
 
 @app.route('/demo/kaleido')
 def demo_kaleido():
     ruta = os.path.join("files", "season_01", "kaleido.html")
     if not os.path.exists(ruta):
         return "Demo no disponible", 404
-    
     with open(ruta, 'r', encoding='utf-8') as f:
         contenido = f.read()
-    
     demo_script = f'''
-    <div id="nx-demo-badge" style="position:fixed;bottom:24px;right:24px;background:#ffffff;color:#1a1a1a;font-family:'Inter',-apple-system,sans-serif;padding:8px 16px;z-index:9999;font-size:12px;font-weight:500;border:1px solid #e0e0e0;border-radius:40px;backdrop-filter:blur(8px);box-shadow:0 2px 8px rgba(0,0,0,0.02);pointer-events:none;">
-        Demo · {DEMO_DURATION_SECONDS//60}:{(DEMO_DURATION_SECONDS%60):02d}
-    </div>
-    <script>
-        (function() {{
-            let tiempo = {DEMO_DURATION_SECONDS};
-            let bloqueado = false;
-            const badge = document.getElementById('nx-demo-badge');
-            if(!badge) return;
-            
-            function bloquearPantalla() {{
-                if(bloqueado) return;
-                bloqueado = true;
-                
-                if(typeof cancelAnimationFrame !== 'undefined') {{
-                    if(window.__NX_ANIMATION_ID__) cancelAnimationFrame(window.__NX_ANIMATION_ID__);
-                }}
-                
-                const blocker = document.createElement('div');
-                blocker.id = 'nx-blocker';
-                blocker.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#ffffff;z-index:100000;display:flex;align-items:center;justify-content:center;font-family:\\'Inter\\',-apple-system,sans-serif;text-align:center;';
-                blocker.innerHTML = `
-                    <div style="max-width:400px;padding:32px;">
-                        <div style="width:40px;height:1px;background:#e0e0e0;margin:0 auto 24px;"></div>
-                        <h1 style="font-family:\\'Tektur\\',monospace;font-weight:700;font-size:1.5rem;margin-bottom:12px;">Demo finalizada</h1>
-                        <p style="color:#666;margin-bottom:28px;">El tiempo de prueba ha terminado.</p>
-                        <a href="https://nxvjweb.onrender.com/" style="background:#1a1a1a;color:#fff;padding:10px 24px;text-decoration:none;border-radius:40px;display:inline-block;">Adquirir bundle</a>
-                        <div style="width:40px;height:1px;background:#e0e0e0;margin:24px auto 0;"></div>
-                    </div>
-                `;
-                document.body.appendChild(blocker);
-            }}
-            
-            const interval = setInterval(function() {{
-                if(bloqueado) return;
-                tiempo--;
-                var mins = Math.floor(tiempo/60);
-                var segs = (tiempo%60).toString().padStart(2,'0');
-                if(badge) badge.innerHTML = 'Demo · ' + mins + ':' + segs;
-                
-                if(tiempo <= 10 && tiempo > 0) {{
-                    badge.style.borderColor = '#ccc';
-                }}
-                
-                if(tiempo <= 0) {{
-                    clearInterval(interval);
-                    bloquearPantalla();
-                }}
-            }}, 1000);
-        }})();
-    </script>
+    <div style="position:fixed;bottom:20px;right:20px;background:#fff;border:1px solid #eaeaea;border-radius:40px;padding:8px 20px;font-family:monospace;z-index:9999;">Demo · {DEMO_DURATION_SECONDS//60}:{(DEMO_DURATION_SECONDS%60):02d}</div>
+    <script>let t={DEMO_DURATION_SECONDS};setInterval(()=>{{t--;if(t<=0){{document.body.innerHTML='<div style=\"text-align:center;padding:50px;\"><h1>Demo finalizada</h1><a href=\"/\">Comprar bundle</a></div>';}}}},1000);</script>
     '''
     contenido = contenido.replace('</body>', demo_script + '</body>')
-    
-    return contenido, 200, {'Content-Type': 'text/html'}
+    return contenido
+
 
 @app.route('/files/images/<path:filename>')
 def servir_imagen(filename):
     ruta = os.path.join("files", "images", filename)
     if not os.path.exists(ruta):
         return "", 404
-    return send_file(ruta, mimetype='image/png')
+    return send_file(ruta)
 
-# ============================================
-# PÁGINA PRINCIPAL CON ENLACE REAL DE COMPRA
-# ============================================
 
 @app.route('/')
 def home():
     seasons = obtener_temporadas()
     total_visuales = sum(len(s["visuales"]) for s in seasons)
-    
-    logo_html = '<img src="/files/images/logo.png" alt="Najarro X" style="height: 48px; width: auto;">' if os.path.exists("files/images/logo.png") else '<h1 style="font-size: 1.8rem;">NX</h1>'
     
     return f'''
     <!DOCTYPE html>
@@ -748,46 +310,331 @@ def home():
         <title>Najarro X — VJ Live Engines</title>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=Tektur:wght@400;500;600;700;800;900&display=swap');
+            
             * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-            body {{ font-family: 'Inter', sans-serif; background: #ffffff; color: #1a1a1a; line-height: 1.4; }}
-            .nav {{ padding: 24px 32px; border-bottom: 1px solid #eaeaea; max-width: 1280px; margin: 0 auto; width: 100%; }}
-            .nav-inner {{ display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 20px; }}
-            .nav-brand {{ font-family: 'Tektur', monospace; font-size: 0.85rem; font-weight: 700; letter-spacing: -0.01em; }}
-            .nav-brand span {{ color: #999; font-weight: 400; }}
-            .nav-links a {{ color: #1a1a1a; text-decoration: none; font-size: 0.75rem; margin-left: 28px; transition: opacity 0.2s; }}
-            .nav-links a:hover {{ opacity: 0.6; }}
-            .hero {{ max-width: 800px; margin: 60px auto 80px; padding: 0 32px; text-align: center; }}
-            .hero h1 {{ font-family: 'Tektur', monospace; font-size: 4rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 12px; }}
-            .hero p {{ font-size: 0.95rem; color: #666; max-width: 560px; margin: 0 auto; line-height: 1.4; }}
-            .divider {{ width: 40px; height: 1px; background: #e0e0e0; margin: 20px auto 0; }}
-            .products {{ max-width: 1000px; margin: 0 auto; padding: 0 32px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }}
-            .product-card {{ border: 1px solid #eaeaea; border-radius: 24px; padding: 32px; transition: all 0.2s ease; background: #ffffff; }}
-            .product-card:hover {{ transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04); border-color: #d0d0d0; }}
-            .product-card h2 {{ font-family: 'Tektur', monospace; font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 8px; }}
-            .product-price {{ font-family: 'Tektur', monospace; font-size: 3.5rem; font-weight: 800; margin: 20px 0 8px; letter-spacing: -0.02em; line-height: 1; }}
-            .product-price small {{ font-size: 1.1rem; font-weight: 500; color: #888; }}
-            .product-desc {{ font-size: 0.75rem; color: #888; margin-bottom: 24px; line-height: 1.4; }}
-            .product-link {{ display: inline-block; background: #1a1a1a; color: #fff; padding: 8px 24px; border-radius: 40px; text-decoration: none; font-size: 0.7rem; font-weight: 500; transition: background 0.2s; margin-right: 12px; }}
-            .product-link-secondary {{ background: transparent; color: #1a1a1a; border: 1px solid #e0e0e0; }}
-            .product-link-secondary:hover {{ background: #f5f5f5; }}
-            .product-link:hover {{ background: #333; }}
-            .features {{ max-width: 800px; margin: 0 auto; padding: 50px 32px; border-top: 1px solid #eaeaea; display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; }}
-            .feature-item {{ text-align: center; }}
-            .feature-number {{ font-family: 'Tektur', monospace; font-size: 3rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.02em; line-height: 1; }}
-            .feature-label {{ font-size: 0.9rem; color: #999; text-transform: uppercase; letter-spacing: 1.5px; }}
-            .footer {{ border-top: 1px solid #eaeaea; padding: 32px 32px; text-align: center; font-size: 0.65rem; color: #999; }}
-            .footer a {{ color: #1a1a1a; text-decoration: none; }}
+            
+            body {{
+                font-family: 'Inter', sans-serif;
+                background: #ffffff;
+                color: #1a1a1a;
+                line-height: 1.4;
+            }}
+            
+            .nav {{
+                padding: 24px 32px;
+                border-bottom: 1px solid #eaeaea;
+                max-width: 1280px;
+                margin: 0 auto;
+                width: 100%;
+            }}
+            
+            .nav-inner {{
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                flex-wrap: wrap;
+                gap: 20px;
+            }}
+            
+            .nav-brand {{
+                font-family: 'Tektur', monospace;
+                font-size: 0.85rem;
+                font-weight: 700;
+                letter-spacing: -0.01em;
+            }}
+            
+            .nav-brand span {{
+                color: #999;
+                font-weight: 400;
+            }}
+            
+            .nav-links a {{
+                color: #1a1a1a;
+                text-decoration: none;
+                font-size: 0.75rem;
+                margin-left: 28px;
+                transition: opacity 0.2s;
+            }}
+            
+            .nav-links a:hover {{
+                opacity: 0.6;
+            }}
+            
+            .hero {{
+                max-width: 900px;
+                margin: 60px auto 80px;
+                padding: 0 32px;
+                text-align: center;
+            }}
+            
+            .hero h1 {{
+                font-family: 'Tektur', monospace;
+                font-size: 4rem;
+                font-weight: 800;
+                letter-spacing: -0.02em;
+                line-height: 1.1;
+                margin-bottom: 16px;
+            }}
+            
+            .hero p {{
+                font-size: 1rem;
+                color: #666;
+                max-width: 560px;
+                margin: 0 auto;
+                line-height: 1.4;
+            }}
+            
+            /* ============================================
+               BOTÓN DEMO GIGANTE CON GLITCH
+            ============================================ */
+            
+            .demo-container {{
+                margin: 48px auto 40px;
+                position: relative;
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }}
+            
+            .demo-button {{
+                position: relative;
+                display: inline-block;
+                background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+                color: #ffffff;
+                font-family: 'Tektur', monospace;
+                font-size: 1.8rem;
+                font-weight: 800;
+                letter-spacing: 4px;
+                text-transform: uppercase;
+                text-decoration: none;
+                padding: 24px 56px;
+                border-radius: 80px;
+                border: none;
+                cursor: pointer;
+                transition: all 0.1s ease;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+                z-index: 1;
+                text-align: center;
+                min-width: 450px;
+                animation: soft-pulse 2s infinite;
+            }}
+            
+            .demo-button .demo-text {{
+                position: relative;
+                z-index: 3;
+                display: inline-block;
+            }}
+            
+            .demo-button .demo-glitch-layer,
+            .demo-button .demo-glitch-layer2 {{
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+                border-radius: 80px;
+                opacity: 0;
+                pointer-events: none;
+            }}
+            
+            .demo-button .demo-glitch-layer {{
+                color: #ff00cc;
+                text-shadow: -2px 0 #00ffcc;
+                transform: translateX(-4px);
+            }}
+            
+            .demo-button .demo-glitch-layer2 {{
+                color: #00ffcc;
+                text-shadow: 2px 0 #ff00cc;
+                transform: translateX(4px);
+            }}
+            
+            .demo-button:hover {{
+                animation: glitch-pulse 0.3s infinite alternate;
+                box-shadow: 0 0 40px rgba(255, 0, 204, 0.5);
+            }}
+            
+            .demo-button:hover .demo-glitch-layer {{
+                animation: glitch-offset 0.15s infinite alternate;
+                opacity: 0.7;
+            }}
+            
+            .demo-button:hover .demo-glitch-layer2 {{
+                animation: glitch-offset2 0.12s infinite alternate;
+                opacity: 0.7;
+            }}
+            
+            @keyframes glitch-pulse {{
+                0% {{ background: linear-gradient(135deg, #1a1a1a, #2a2a2a); transform: scale(1); }}
+                25% {{ background: linear-gradient(135deg, #ff00cc, #1a1a1a); transform: scale(1.01); }}
+                50% {{ background: linear-gradient(135deg, #1a1a1a, #00ffcc); transform: scale(1); }}
+                75% {{ background: linear-gradient(135deg, #ff00cc, #00ffcc); transform: scale(1.01); }}
+                100% {{ background: linear-gradient(135deg, #1a1a1a, #2a2a2a); transform: scale(1); }}
+            }}
+            
+            @keyframes glitch-offset {{
+                0% {{ transform: translateX(-6px); opacity: 0.6; }}
+                100% {{ transform: translateX(6px); opacity: 0.9; }}
+            }}
+            
+            @keyframes glitch-offset2 {{
+                0% {{ transform: translateX(6px); opacity: 0.6; }}
+                100% {{ transform: translateX(-6px); opacity: 0.9; }}
+            }}
+            
+            @keyframes soft-pulse {{
+                0% {{ box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }}
+                50% {{ box-shadow: 0 10px 50px rgba(255, 0, 204, 0.3); }}
+                100% {{ box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }}
+            }}
+            
+            .divider {{
+                width: 40px;
+                height: 1px;
+                background: #e0e0e0;
+                margin: 32px auto 0;
+            }}
+            
+            .products {{
+                max-width: 1000px;
+                margin: 0 auto;
+                padding: 0 32px 60px;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 32px;
+            }}
+            
+            .product-card {{
+                border: 1px solid #eaeaea;
+                border-radius: 24px;
+                padding: 32px;
+                transition: all 0.2s ease;
+                background: #ffffff;
+            }}
+            
+            .product-card:hover {{
+                transform: translateY(-4px);
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04);
+                border-color: #d0d0d0;
+            }}
+            
+            .product-card h2 {{
+                font-family: 'Tektur', monospace;
+                font-size: 1.2rem;
+                font-weight: 700;
+                letter-spacing: -0.01em;
+                margin-bottom: 8px;
+            }}
+            
+            .product-price {{
+                font-family: 'Tektur', monospace;
+                font-size: 3.5rem;
+                font-weight: 800;
+                margin: 20px 0 8px;
+                letter-spacing: -0.02em;
+                line-height: 1;
+            }}
+            
+            .product-price small {{
+                font-size: 1.1rem;
+                font-weight: 500;
+                color: #888;
+            }}
+            
+            .product-desc {{
+                font-size: 0.75rem;
+                color: #888;
+                margin-bottom: 24px;
+                line-height: 1.4;
+            }}
+            
+            .product-link {{
+                display: inline-block;
+                background: #1a1a1a;
+                color: #fff;
+                padding: 8px 24px;
+                border-radius: 40px;
+                text-decoration: none;
+                font-size: 0.7rem;
+                font-weight: 500;
+                transition: background 0.2s;
+                margin-right: 12px;
+            }}
+            
+            .product-link-secondary {{
+                background: transparent;
+                color: #1a1a1a;
+                border: 1px solid #e0e0e0;
+            }}
+            
+            .product-link-secondary:hover {{
+                background: #f5f5f5;
+            }}
+            
+            .product-link:hover {{
+                background: #333;
+            }}
+            
+            .features {{
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 50px 32px;
+                border-top: 1px solid #eaeaea;
+                display: flex;
+                justify-content: center;
+                gap: 48px;
+                flex-wrap: wrap;
+            }}
+            
+            .feature-item {{
+                text-align: center;
+            }}
+            
+            .feature-number {{
+                font-family: 'Tektur', monospace;
+                font-size: 3rem;
+                font-weight: 800;
+                margin-bottom: 8px;
+                letter-spacing: -0.02em;
+                line-height: 1;
+            }}
+            
+            .feature-label {{
+                font-size: 0.9rem;
+                color: #999;
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+            }}
+            
+            .footer {{
+                border-top: 1px solid #eaeaea;
+                padding: 32px 32px;
+                text-align: center;
+                font-size: 0.65rem;
+                color: #999;
+            }}
+            
+            .footer a {{
+                color: #1a1a1a;
+                text-decoration: none;
+            }}
+            
             @media (max-width: 768px) {{
-                .hero h1 {{ font-size: 2.5rem; }}
+                .hero h1 {{ font-size: 2.2rem; }}
+                .demo-button {{ font-size: 0.9rem; padding: 16px 24px; letter-spacing: 2px; min-width: 280px; }}
+                .demo-container {{ margin: 32px auto 24px; }}
                 .products {{ grid-template-columns: 1fr; gap: 20px; }}
                 .nav-links a {{ margin-left: 0; margin-right: 20px; }}
                 .product-card {{ padding: 24px; }}
                 .hero {{ margin: 40px auto 50px; }}
                 .features {{ gap: 32px; padding: 40px 20px; }}
                 .product-price {{ font-size: 2.2rem; }}
-                .product-price small {{ font-size: 0.9rem; }}
                 .feature-number {{ font-size: 2rem; }}
-                .feature-label {{ font-size: 0.75rem; }}
             }}
         </style>
     </head>
@@ -806,6 +653,15 @@ def home():
         <div class="hero">
             <h1>Visuales en tiempo real.<br>Audio‑reactivos.</h1>
             <p>Tres motores generativos que sincronizan imagen y sonido. Ejecuta desde cualquier navegador, sin instalación.</p>
+            
+            <div class="demo-container">
+                <a href="/demo/kaleido" class="demo-button" id="demoButton">
+                    <span class="demo-text">🎬 PROBAR DEMO GRATIS</span>
+                    <span class="demo-glitch-layer">🎬 PROBAR DEMO GRATIS</span>
+                    <span class="demo-glitch-layer2">🎬 PROBAR DEMO GRATIS</span>
+                </a>
+            </div>
+            
             <div class="divider"></div>
         </div>
         
@@ -856,7 +712,6 @@ def status():
         "temporadas": len(obtener_temporadas()),
         "suscriptores_activos": len(suscripciones_activas),
         "descargas_unicas": len(descargas_autorizadas),
-        "demo_duration_seconds": DEMO_DURATION_SECONDS,
         "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     })
 
@@ -864,13 +719,8 @@ def status():
 def health():
     return "OK", 200
 
-# ============================================
-# EJECUCIÓN
-# ============================================
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
-    logger.info(f"🌐 Servidor NX PRO VAULT iniciado en puerto {port}")
-    logger.info(f"💰 Bundle: $15 | Suscripción: $7/mes")
-    logger.info(f"⏱️ Demo duration: {DEMO_DURATION_SECONDS} segundos")
+    logger.info(f"🌐 Servidor iniciado en puerto {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
