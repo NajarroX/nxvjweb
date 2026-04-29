@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# server.py - NX PRO VAULT (Versión final con servidor de archivos propio)
+# server.py - NX PRO VAULT (Versión final con enlace de compra actualizado)
 
 from flask import Flask, request, jsonify, send_file, abort, redirect
 import os
@@ -26,11 +26,10 @@ app = Flask(__name__)
 DEMO_DURATION_SECONDS = 120  # 2 minutos = 120 | 3 minutos = 180 | 1 minuto = 60
 
 # ============================================
-# PRODUCTOS - ACTUALIZA EL ID CON EL DE RECURRENTE
+# PRODUCTOS - CON ID REAL DE RECURRENTE
 # ============================================
 
 PRODUCTOS = {
-    # ⚠️ CAMBIA "prod_AQUI_VA_TU_ID_DE_RECURRENTE" por el ID real de tu producto
     "prod_jfvog09k": {
         "nombre": "NX VJ LIVE PACK",
         "archivo": "bundle",
@@ -161,6 +160,7 @@ def crear_zip_bundle():
                 
                 <h2>Controles generales</h2>
                 <table>
+                    <tr><th>Tecla</th><th>Función</th></tr>
                     <tr><td><span class="key">TAB</span></td><td>Ocultar o mostrar interfaz</td></tr>
                     <tr><td><span class="key">P</span></td><td>Activar o desactivar micrófono</td></tr>
                     <tr><td><span class="key">O</span></td><td>Cambiar banda de audio (bajo, medios, agudos)</td></tr>
@@ -402,11 +402,9 @@ def descargar_archivo(token):
     
     producto_id = datos["producto_id"]
     
-    # Verificar que el producto existe
     if producto_id not in PRODUCTOS:
         return "Producto no encontrado", 404
     
-    # Entregar el ZIP generado desde el servidor
     return send_file(
         crear_zip_bundle(), 
         as_attachment=True, 
@@ -731,7 +729,7 @@ def servir_imagen(filename):
     return send_file(ruta, mimetype='image/png')
 
 # ============================================
-# PÁGINA PRINCIPAL
+# PÁGINA PRINCIPAL CON ENLACE REAL DE COMPRA
 # ============================================
 
 @app.route('/')
@@ -817,7 +815,7 @@ def home():
                 <div class="product-price">15 <small>USD</small></div>
                 <div class="product-desc">Incluye los tres visualizadores: Kaleido, ASCII y Glitch. Formato HTML listo para usar.</div>
                 <a href="/demo/kaleido" class="product-link product-link-secondary">Probar demo</a>
-                <a href="#" class="product-link" onclick="alert('Próximamente en Recurrente')">Comprar</a>
+                <a href="https://app.recurrente.com/s/najarrox-store/vj-live-pack" class="product-link" target="_blank">Comprar</a>
             </div>
             
             <div class="product-card">
