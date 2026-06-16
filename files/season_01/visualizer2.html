@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>hydra·live visuals pro</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000;
+      font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    /* Canvas principal */
+    #mainCanvas {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      image-rendering: auto;
+    }
+
+    /* Ventana de proyección secundaria */
+    #projectorWindow {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      z-index: 9999;
+    }
+
+    /* Pestaña de controles */
+    #controlTab {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: rgba(20, 10, 40, 0.9);
+      backdrop-filter: blur(15px);
+      border: 1.5px solid rgba(180, 140, 255, 0.5);
+      border-bottom: none;
+      color: #e8d5ff;
+      padding: 10px 24px;
+      border-radius: 20px 20px 0 0;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 1.2px;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 0 -5px 25px rgba(120, 80, 220, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+
+    #controlTab:hover {
+      background: rgba(60, 30, 100, 0.9);
+      box-shadow: 0 -8px 30px rgba(160, 100, 255, 0.6);
+      border-color: #c9a0ff;
+    }
+
+    #controlTab .icon {
+      font-size: 1.1rem;
+      transition: transform 0.3s;
+    }
+
+    /* Panel deslizante */
+    #controlPanel {
+      position: fixed;
+      bottom: -100%;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      background: rgba(10, 5, 20, 0.92);
+      backdrop-filter: blur(30px);
+      border-top: 1.5px solid rgba(160, 120, 240, 0.5);
+      border-radius: 30px 30px 0 0;
+      padding: 20px 15px 30px;
+      transition: bottom 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 75vh;
+      overflow-y: auto;
+      box-shadow: 0 -20px 60px rgba(80, 40, 160, 0.5);
+    }
+
+    #controlPanel.open {
+      bottom: 0;
+    }
+
+    #controlPanel::-webkit-scrollbar {
+      width: 4px;
+    }
+    #controlPanel::-webkit-scrollbar-thumb {
+      background: #6c4fa0;
+      border-radius: 4px;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      max-width: 1000px;
+      margin: 0 auto 16px;
+    }
+
+    .control-card {
+      background: rgba(30, 20, 50, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(150, 120, 220, 0.3);
+      border-radius: 18px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .control-card:hover {
+      border-color: rgba(200, 160, 255, 0.6);
+      background: rgba(40, 25, 65, 0.7);
+    }
+
+    .control-card label {
+      color: #c9b8f0;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .control-card .val {
+      color: #ffd6e0;
+      font-weight: 700;
+      font-size: 0.65rem;
+      background: rgba(120, 60, 180, 0.3);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: linear-gradient(90deg, #4a2d7a, #b088f0);
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e8d0ff;
+      border: 2px solid #6c3fb0;
+      box-shadow: 0 0 15px #a060f0;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e8d0ff;
+      border: 2px solid #6c3fb0;
+      box-shadow: 0 0 15px #a060f0;
+      cursor: pointer;
+    }
+
+    select {
+      background: rgba(25, 15, 45, 0.8);
+      border: 1px solid #604e8a;
+      color: #e6d9ff;
+      padding: 7px 10px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      cursor: pointer;
+      outline: none;
+      font-family: inherit;
+      backdrop-filter: blur(5px);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .btn {
+      background: rgba(80, 40, 140, 0.5);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(170, 130, 230, 0.5);
+      color: #f0e0ff;
+      padding: 10px 22px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.25s;
+      font-family: inherit;
+    }
+
+    .btn:hover {
+      background: rgba(120, 60, 200, 0.6);
+      box-shadow: 0 6px 25px rgba(140, 80, 240, 0.6);
+      border-color: #d4b0ff;
+    }
+
+    .btn.active {
+      background: #7c4dc0;
+      border-color: #d0b0ff;
+      box-shadow: 0 0 30px #9c60f0;
+    }
+
+    .section-title {
+      color: #b9a0e0;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      grid-column: 1 / -1;
+      border-bottom: 1px solid rgba(150, 110, 220, 0.4);
+      padding-bottom: 4px;
+    }
+
+    /* Indicador de audio */
+    .audio-meter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+    }
+    .audio-bar {
+      flex: 1;
+      height: 6px;
+      background: #2a1f3f;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .audio-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6c4fa0, #ff6b9d);
+      transition: width 0.05s;
+      border-radius: 3px;
+    }
+
+    /* Indicador MIDI */
+    .midi-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff4444;
+      display: inline-block;
+      margin-right: 6px;
+    }
+    .midi-indicator.connected {
+      background: #44ff44;
+      box-shadow: 0 0 10px #44ff44;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="mainCanvas"></canvas>
+  <div id="projectorWindow">
+    <canvas id="projectorCanvas"></canvas>
+  </div>
+
+  <div id="controlTab">
+    <span class="icon">⚙️</span> controles
+  </div>
+
+  <div id="controlPanel">
+    <div class="panel-grid" id="dynamicControls"></div>
+    <div class="btn-row" style="margin-bottom: 8px;">
+      <button class="btn" id="randomBtn">🎲 random</button>
+      <button class="btn" id="resetBtn">🔄 reset</button>
+      <button class="btn" id="autoEvolveBtn">🌀 auto-evolve</button>
+      <button class="btn" id="audioBtn">🎤 audio reactivo</button>
+      <button class="btn" id="midiBtn">🎹 MIDI</button>
+      <button class="btn" id="projectorBtn">📺 projector</button>
+    </div>
+    <div id="audioMeter" class="audio-meter" style="display:none;">
+      <span style="color:#c9b8f0;font-size:0.7rem;">🎤</span>
+      <div class="audio-bar"><div class="audio-fill" id="audioFill" style="width:0%"></div></div>
+      <span id="midiStatus" style="color:#c9b8f0;font-size:0.7rem;">
+        <span class="midi-indicator" id="midiDot"></span> MIDI
+      </span>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      // ───────────────────────────────────
+      // CANVAS SETUP
+      // ───────────────────────────────────
+      const mainCanvas = document.getElementById('mainCanvas');
+      const gl = mainCanvas.getContext('webgl', { 
+        preserveDrawingBuffer: false, 
+        antialias: true,
+        alpha: false
+      });
+
+      if (!gl) {
+        document.body.innerHTML = '<div style="color:white;text-align:center;padding:40px;">WebGL no soportado</div>';
+        return;
+      }
+
+      // Projector canvas
+      const projectorWindow = document.getElementById('projectorWindow');
+      const projectorCanvas = document.getElementById('projectorCanvas');
+      const projectorGl = projectorCanvas.getContext('webgl', {
+        preserveDrawingBuffer: false,
+        antialias: true,
+        alpha: false
+      });
+
+      function resizeMainCanvas() {
+        mainCanvas.width = window.innerWidth;
+        mainCanvas.height = window.innerHeight;
+        gl.viewport(0, 0, mainCanvas.width, mainCanvas.height);
+      }
+
+      function resizeProjectorCanvas() {
+        projectorCanvas.width = window.innerWidth;
+        projectorCanvas.height = window.innerHeight;
+        if (projectorGl) projectorGl.viewport(0, 0, projectorCanvas.width, projectorCanvas.height);
+      }
+
+      window.addEventListener('resize', () => {
+        resizeMainCanvas();
+        if (projectorWindow.style.display === 'block') resizeProjectorCanvas();
+      });
+      
+      resizeMainCanvas();
+
+      // ───────────────────────────────────
+      // AUDIO SETUP
+      // ───────────────────────────────────
+      let audioContext = null;
+      let audioAnalyser = null;
+      let audioDataArray = null;
+      let audioActive = false;
+      let audioLevel = 0;
+      let bassLevel = 0;
+      let midLevel = 0;
+      let trebleLevel = 0;
+
+      async function initAudio() {
+        if (!audioContext) {
+          try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const source = audioContext.createMediaStreamSource(stream);
+            audioAnalyser = audioContext.createAnalyser();
+            audioAnalyser.fftSize = 256;
+            source.connect(audioAnalyser);
+            audioDataArray = new Uint8Array(audioAnalyser.frequencyBinCount);
+            audioActive = true;
+            document.getElementById('audioBtn').classList.add('active');
+            document.getElementById('audioMeter').style.display = 'flex';
+          } catch (err) {
+            console.error('Error accediendo al micrófono:', err);
+            alert('No se pudo acceder al micrófono. Asegúrate de dar permisos.');
+            audioActive = false;
+            document.getElementById('audioBtn').classList.remove('active');
+          }
+        }
+      }
+
+      function updateAudioLevels() {
+        if (audioActive && audioAnalyser && audioDataArray) {
+          audioAnalyser.getByteFrequencyData(audioDataArray);
+          
+          // Calcular niveles
+          let total = 0;
+          let bass = 0;
+          let mid = 0;
+          let treble = 0;
+          
+          const bassRange = Math.floor(audioDataArray.length * 0.1);
+          const midRange = Math.floor(audioDataArray.length * 0.5);
+          
+          for (let i = 0; i < audioDataArray.length; i++) {
+            total += audioDataArray[i];
+            if (i < bassRange) bass += audioDataArray[i];
+            else if (i < midRange) mid += audioDataArray[i];
+            else treble += audioDataArray[i];
+          }
+          
+          audioLevel = total / audioDataArray.length / 255;
+          bassLevel = bass / bassRange / 255;
+          midLevel = mid / (midRange - bassRange) / 255;
+          trebleLevel = treble / (audioDataArray.length - midRange) / 255;
+          
+          // Actualizar medidor visual
+          const fill = document.getElementById('audioFill');
+          if (fill) fill.style.width = (audioLevel * 100) + '%';
+        }
+      }
+
+      // ───────────────────────────────────
+      // MIDI SETUP
+      // ───────────────────────────────────
+      let midiActive = false;
+      let midiAccess = null;
+      let midiValues = {};
+
+      async function initMIDI() {
+        if (!navigator.requestMIDIAccess) {
+          alert('Web MIDI no está soportado en este navegador. Usa Chrome o Edge.');
+          return;
+        }
+
+        try {
+          midiAccess = await navigator.requestMIDIAccess();
+          midiActive = true;
+          document.getElementById('midiBtn').classList.add('active');
+          document.getElementById('midiDot').classList.add('connected');
+          document.getElementById('audioMeter').style.display = 'flex';
+
+          midiAccess.inputs.forEach(input => {
+            input.onmidimessage = (event) => {
+              const [command, controller, value] = event.data;
+              if (command === 176) { // Control Change
+                midiValues[controller] = value / 127;
+                
+                // Mapear controles MIDI a parámetros
+                if (controller === 1) state.srcFreq = value / 127 * 3.5;
+                if (controller === 2) state.srcAmp = value / 127 * 2;
+                if (controller === 3) state.transAmount = value / 127;
+                if (controller === 4) state.hueShift = value / 127 * 3;
+                if (controller === 5) state.organicWarp = value / 127 * 1.5;
+                if (controller === 6) state.feedbackAmount = value / 127 * 0.8;
+                if (controller === 7) state.colorSpeed = value / 127 * 3;
+                if (controller === 8) state.modAmount = value / 127 * 2;
+                
+                renderControls();
+                updateProgram();
+              }
+            };
+          });
+
+        } catch (err) {
+          console.error('Error accediendo a MIDI:', err);
+          midiActive = false;
+          document.getElementById('midiBtn').classList.remove('active');
+        }
+      }
+
+      // ───────────────────────────────────
+      // SHADERS
+      // ───────────────────────────────────
+      const vertexSrc = `
+        attribute vec2 a_position;
+        varying vec2 v_uv;
+        void main() {
+          v_uv = a_position * 0.5 + 0.5;
+          gl_Position = vec4(a_position, 0.0, 1.0);
+        }`;
+
+      function buildFragment(params) {
+        const {
+          srcType, srcFreq, srcAmp, srcPhase, srcScale, srcSides, srcRadius,
+          transType, transAmount, transSecondary,
+          colorMode, hueShift, saturation, brightness, contrast, colorSpeed,
+          compType, compMix, compSecondary,
+          modType, modAmount, modSecondary,
+          feedbackAmount, timeScale, organicWarp,
+          audioReactive, bassInfluence, midInfluence, trebleInfluence
+        } = params;
+
+        return `#version 100
+precision highp float;
+varying vec2 v_uv;
+uniform vec2 u_resolution;
+uniform float u_time;
+uniform float u_audioLevel;
+uniform float u_bassLevel;
+uniform float u_midLevel;
+uniform float u_trebleLevel;
+
+// ── Hash & Noise ──
+float hash(vec2 p) { return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+vec2 hash2(vec2 p) {
+    return fract(sin(vec2(dot(p,vec2(269.5,183.3)),dot(p,vec2(420.2,631.2))))*43758.5453);
+}
+float noise(vec2 st) {
+    vec2 i=floor(st), f=fract(st);
+    vec2 u=f*f*(3.0-2.0*f);
+    return mix(mix(dot(hash2(i),f),dot(hash2(i+vec2(1,0)),f-vec2(1,0)),u.x),
+               mix(dot(hash2(i+vec2(0,1)),f-vec2(0,1)),dot(hash2(i+vec2(1,1)),f-vec2(1,1)),u.x),u.y);
+}
+float fbm(vec2 p) {
+    float v=0.0, a=0.5, f=1.0;
+    for(int i=0;i<5;i++){ v+=a*noise(p*f); f*=2.1; a*=0.5; } return v;
+}
+float fbmWarp(vec2 p, float t) {
+    return fbm(p + fbm(p*1.3 + t*0.1)*0.7);
+}
+
+// ── Paletas dinámicas ──
+vec3 palette(float t, vec3 a, vec3 b, vec3 c, vec3 d) {
+    return a + b*cos(6.28318*(c*t + d));
+}
+vec3 dynamicPalette(float t, float hue) {
+    float audioMod = ${audioReactive ? '1.0 + u_audioLevel * 0.5' : '1.0'};
+    float h = hue + t * ${colorSpeed.toFixed(2)} * audioMod;
+    return palette(h, 
+        vec3(0.5,0.5,0.5), 
+        vec3(0.5,0.5,0.5), 
+        vec3(1.0,1.0,1.0), 
+        vec3(0.0,0.33,0.67) + t*0.1);
+}
+vec3 psychedelicPalette(float t, float v) {
+    float audioShift = ${audioReactive ? 'u_midLevel * 0.5' : '0.3'};
+    return palette(v*2.0 + t*audioShift,
+        vec3(0.5,0.5,0.5),
+        vec3(0.5,0.5,0.5),
+        vec3(1.0,0.7,0.4) + 0.3*sin(t*0.5),
+        vec3(0.2,0.4,0.6) + 0.2*cos(t*0.7));
+}
+
+// ── FUENTES ──
+vec4 getSource(vec2 uv, float t) {
+    vec2 uv2 = uv;
+    float warpAmount = ${organicWarp.toFixed(2)};
+    ${audioReactive ? 'warpAmount += u_bassLevel * 0.8;' : ''}
+    
+    uv2 += warpAmount * vec2(
+        fbmWarp(uv*1.5 + t*0.2, t),
+        fbmWarp(uv*1.5 + t*0.3 + 1.7, t)
+    );
+    
+    ${srcType === 'gradient' ? `
+    vec3 c1 = dynamicPalette(t, uv2.x*${srcFreq.toFixed(2)});
+    vec3 c2 = psychedelicPalette(t, uv2.y*${srcAmp.toFixed(2)});
+    return vec4(mix(c1, c2, 0.5 + 0.5*sin(t*1.3 + uv2.x*3.0)), 1.0);
+    ` : srcType === 'osc' ? `
+    float f = ${srcFreq.toFixed(2)}*10.0;
+    float v = sin(uv2.x*f + t*${srcPhase.toFixed(2)}*3.0)*${srcAmp.toFixed(2)};
+    v += cos(uv2.y*f*1.3 - t*2.1)*0.5;
+    v += sin((uv2.x+uv2.y)*f*0.7 + t*1.7)*0.3;
+    ${audioReactive ? 'v += u_audioLevel * 0.3 * sin(uv2.x*5.0 + t*8.0);' : ''}
+    return vec4(psychedelicPalette(t, v*0.5+0.5), 1.0);
+    ` : srcType === 'noise' ? `
+    float n = fbmWarp(uv2*${srcScale.toFixed(2)}*6.0, t);
+    n = n*0.5 + 0.5;
+    return vec4(dynamicPalette(t, n), 1.0);
+    ` : srcType === 'shape' ? `
+    float sides = ${srcSides.toFixed(1)};
+    vec2 c = uv2 - 0.5;
+    float a = atan(c.y, c.x);
+    float r = length(c);
+    float poly = cos(a*sides + t*0.5)*0.5 + 0.5;
+    float s = smoothstep(${srcRadius.toFixed(2)}, ${srcRadius.toFixed(2)}+0.08, r + poly*0.25);
+    vec3 col = psychedelicPalette(t, s + uv2.x*0.3);
+    return vec4(col * (1.0 - s*0.6), 1.0);
+    ` : srcType === 'voronoi' ? `
+    vec2 st = uv2 * ${srcScale.toFixed(2)}*6.0;
+    vec2 i = floor(st); vec2 f = fract(st);
+    float md = 1.0;
+    for(int y=-1; y<=1; y++)
+        for(int x=-1; x<=1; x++) {
+            vec2 n = vec2(float(x),float(y));
+            vec2 p = hash2(i+n);
+            float d = distance(n+p, f);
+            md = min(md, d);
+        }
+    float vor = md * ${srcAmp.toFixed(2)};
+    return vec4(psychedelicPalette(t, vor), 1.0);
+    ` : srcType === 'spiral' ? `
+    vec2 c = uv2 - 0.5;
+    float r = length(c);
+    float a = atan(c.y, c.x);
+    float sp = sin(r*${srcFreq.toFixed(2)}*20.0 - a*6.0 + t*${srcPhase.toFixed(2)}*4.0);
+    sp = sp*0.5 + 0.5;
+    vec3 col = mix(dynamicPalette(t, sp), psychedelicPalette(t, r), 0.5);
+    return vec4(col, 1.0);
+    ` : `
+    return vec4(0.2);
+    `}
+}
+
+// ── TRANSFORM ──
+vec2 applyTransform(vec2 uv, float t) {
+    ${transType === 'kaleid' ? `
+    float seg = clamp(${transAmount.toFixed(2)}*20.0, 2.0, 30.0);
+    ${audioReactive ? 'seg += u_trebleLevel * 10.0;' : ''}
+    uv -= 0.5;
+    float a = atan(uv.y, uv.x);
+    float r = length(uv);
+    a = mod(a + t*0.2*${transSecondary.toFixed(2)}, 6.28318/seg);
+    a = abs(a - 3.14159/seg);
+    uv = vec2(cos(a), sin(a))*r + 0.5;
+    ` : transType === 'rotate' ? `
+    float ang = ${transAmount.toFixed(2)}*6.283 + t*${transSecondary.toFixed(2)};
+    ${audioReactive ? 'ang += u_bassLevel * 3.14159;' : ''}
+    uv -= 0.5;
+    uv *= mat2(cos(ang), -sin(ang), sin(ang), cos(ang));
+    uv += 0.5;
+    ` : transType === 'pixelate' ? `
+    float px = ${Math.max(0.005, transAmount).toFixed(3)}*120.0;
+    ${audioReactive ? 'px += u_audioLevel * 60.0;' : ''}
+    uv = floor(uv*px)/px;
+    ` : transType === 'swirl' ? `
+    vec2 c = uv - 0.5;
+    float r = length(c);
+    float a = atan(c.y, c.x);
+    a += r*${transAmount.toFixed(2)}*12.0 + t*${transSecondary.toFixed(2)};
+    ${audioReactive ? 'a += u_midLevel * 3.0;' : ''}
+    uv = vec2(cos(a), sin(a))*r + 0.5;
+    ` : transType === 'fisheye' ? `
+    vec2 c = uv - 0.5;
+    float r = length(c);
+    float factor = 1.0 + ${transAmount.toFixed(2)} * r * 2.0;
+    ${audioReactive ? 'factor += u_bassLevel * 0.5;' : ''}
+    uv = c * factor + 0.5;
+    ` : ``}
+    return uv;
+}
+
+// ── COLOR ──
+vec4 applyColor(vec4 col, vec2 uv, float t) {
+    ${colorMode === 'hueShift' ? `
+    float hue = (col.r + col.g + col.b)/3.0 + ${hueShift.toFixed(2)} + t*0.1;
+    ${audioReactive ? 'hue += u_audioLevel * 0.5;' : ''}
+    col.rgb = dynamicPalette(t, hue);
+    ` : colorMode === 'saturation' ? `
+    float lum = dot(col.rgb, vec3(0.299, 0.587, 0.114));
+    float sat = ${saturation.toFixed(2)};
+    ${audioReactive ? 'sat += u_midLevel * 2.0;' : ''}
+    col.rgb = mix(vec3(lum), col.rgb, sat);
+    ` : colorMode === 'brightness' ? `
+    float bri = ${brightness.toFixed(2)};
+    ${audioReactive ? 'bri += u_audioLevel * 0.5;' : ''}
+    col.rgb += bri;
+    ` : colorMode === 'contrast' ? `
+    float con = ${contrast.toFixed(2)};
+    ${audioReactive ? 'con += u_bassLevel * 2.0;' : ''}
+    col.rgb = (col.rgb - 0.5)*con + 0.5;
+    ` : colorMode === 'colorize' ? `
+    col.rgb = psychedelicPalette(t, col.r*${hueShift.toFixed(2)});
+    ` : ``}
+    return col;
+}
+
+// ── COMPOSITOR ──
+vec4 blendSources(vec4 src1, vec2 uv, float t) {
+    float n = fbmWarp(uv*3.5 + t*0.3, t);
+    vec4 src2 = vec4(psychedelicPalette(t + 0.5, n), 1.0);
+    
+    ${compType === 'blend' ? `return mix(src1, src2, ${compMix.toFixed(2)});`
+    : compType === 'diff' ? `return vec4(abs(src1.rgb - src2.rgb), 1.0);`
+    : compType === 'mult' ? `return vec4(src1.rgb * src2.rgb, 1.0);`
+    : compType === 'add' ? `return vec4(src1.rgb + src2.rgb*${compMix.toFixed(2)}, 1.0);`
+    : compType === 'layer' ? `return mix(src1, src2, src2.r*${compMix.toFixed(2)});`
+    : compType === 'screen' ? `return vec4(1.0 - (1.0-src1.rgb)*(1.0-src2.rgb), 1.0);`
+    : `return src1;`}
+}
+
+// ── MODULATOR ──
+vec4 applyModulator(vec4 col, vec2 uv, float t) {
+    ${modType === 'modulate' ? `
+    float modForce = ${modAmount.toFixed(2)};
+    ${audioReactive ? 'modForce += u_trebleLevel * 1.5;' : ''}
+    vec2 modUV = uv + col.rg*modForce*0.5;
+    vec4 modSrc = getSource(modUV, t + 0.3);
+    return mix(col, modSrc, 0.65);
+    ` : modType === 'modulateScale' ? `
+    float sc = 1.0 + col.r*${modAmount.toFixed(2)};
+    ${audioReactive ? 'sc += u_audioLevel * 0.5;' : ''}
+    vec2 modUV = (uv - 0.5)*sc + 0.5;
+    vec4 modSrc = getSource(modUV, t + 0.3);
+    return mix(col, modSrc, 0.65);
+    ` : modType === 'modulateRotate' ? `
+    float ang = col.r*${modAmount.toFixed(2)}*6.283;
+    ${audioReactive ? 'ang += u_bassLevel * 3.14159;' : ''}
+    vec2 modUV = uv - 0.5;
+    modUV *= mat2(cos(ang), -sin(ang), sin(ang), cos(ang));
+    modUV += 0.5;
+    vec4 modSrc = getSource(modUV, t + 0.3);
+    return mix(col, modSrc, 0.65);
+    ` : modType === 'modulateKaleid' ? `
+    vec2 modUV = uv;
+    float seg = 4.0 + col.g*${modAmount.toFixed(2)}*16.0;
+    ${audioReactive ? 'seg += u_midLevel * 10.0;' : ''}
+    modUV -= 0.5;
+    float a = atan(modUV.y, modUV.x);
+    float r = length(modUV);
+    a = mod(a, 6.28318/seg);
+    a = abs(a - 3.14159/seg);
+    modUV = vec2(cos(a), sin(a))*r + 0.5;
+    vec4 modSrc = getSource(modUV, t + 0.3);
+    return mix(col, modSrc, 0.65);
+    ` : `return col;`}
+}
+
+void main() {
+    vec2 uv = v_uv;
+    uv.x *= u_resolution.x / u_resolution.y;
+    
+    float t = u_time * ${timeScale.toFixed(2)};
+    vec2 uvOrig = uv;
+    
+    uv = applyTransform(uv, t);
+    vec4 color = getSource(uv, t);
+    color = applyColor(color, uvOrig, t);
+    color = blendSources(color, uvOrig, t);
+    color = applyModulator(color, uvOrig, t);
+    
+    color.rgb += ${feedbackAmount.toFixed(3)} * vec3(
+        fbmWarp(uvOrig*3.0 + t, t*1.3),
+        fbmWarp(uvOrig*3.0 + t + 1.0, t*1.3),
+        fbmWarp(uvOrig*3.0 + t + 2.0, t*1.3)
+    ) * 0.15;
+    
+    gl_FragColor = color;
+}`;
+      }
+
+      function createShader(gl, type, src) {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+          console.error(gl.getShaderInfoLog(s));
+          return null;
+        }
+        return s;
+      }
+
+      function createProgram(gl, vs, fs) {
+        const v = createShader(gl, gl.VERTEX_SHADER, vs);
+        const f = createShader(gl, gl.FRAGMENT_SHADER, fs);
+        if (!v || !f) return null;
+        const p = gl.createProgram();
+        gl.attachShader(p, v);
+        gl.attachShader(p, f);
+        gl.linkProgram(p);
+        return p;
+      }
+
+      // ───────────────────────────────────
+      // STATE
+      // ───────────────────────────────────
+      const state = {
+        srcType: 'gradient', srcFreq: 1.2, srcAmp: 0.8, srcPhase: 1.0,
+        srcScale: 1.5, srcSides: 5, srcRadius: 0.45,
+        transType: 'kaleid', transAmount: 0.5, transSecondary: 0.3,
+        colorMode: 'hueShift', hueShift: 0.7, saturation: 1.5,
+        brightness: 0.15, contrast: 1.8, colorSpeed: 0.8,
+        compType: 'blend', compMix: 0.55, compSecondary: 0.5,
+        modType: 'modulate', modAmount: 0.6, modSecondary: 0.5,
+        feedbackAmount: 0.25, timeScale: 0.7, organicWarp: 0.4,
+        audioReactive: false, bassInfluence: 0.5, midInfluence: 0.5, trebleInfluence: 0.5
+      };
+
+      let program;
+      let autoEvolveActive = false;
+      let autoEvolveInterval;
+
+      function updateProgram() {
+        const frag = buildFragment(state);
+        const np = createProgram(gl, vertexSrc, frag);
+        if (np) {
+          if (program) gl.deleteProgram(program);
+          program = np;
+        }
+      }
+
+      // ───────────────────────────────────
+      // BUFFERS
+      // ───────────────────────────────────
+      const mainBuffer = (() => {
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+        return b;
+      })();
+
+      const projectorBuffer = projectorGl ? (() => {
+        const b = projectorGl.createBuffer();
+        projectorGl.bindBuffer(projectorGl.ARRAY_BUFFER, b);
+        projectorGl.bufferData(projectorGl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), projectorGl.STATIC_DRAW);
+        return b;
+      })() : null;
+
+      let startTime = Date.now();
+
+      function renderToContext(context, buffer, canvas, programToUse) {
+        if (!programToUse || !context) return;
+        context.clearColor(0, 0, 0, 1);
+        context.clear(context.COLOR_BUFFER_BIT);
+        context.useProgram(programToUse);
+
+        const pos = context.getAttribLocation(programToUse, 'a_position');
+        context.bindBuffer(context.ARRAY_BUFFER, buffer);
+        context.enableVertexAttribArray(pos);
+        context.vertexAttribPointer(pos, 2, context.FLOAT, false, 0, 0);
+
+        context.uniform2f(context.getUniformLocation(programToUse, 'u_resolution'), canvas.width, canvas.height);
+        context.uniform1f(context.getUniformLocation(programToUse, 'u_time'), (Date.now() - startTime) * 0.001);
+        
+        // Audio uniforms
+        context.uniform1f(context.getUniformLocation(programToUse, 'u_audioLevel'), audioLevel);
+        context.uniform1f(context.getUniformLocation(programToUse, 'u_bassLevel'), bassLevel);
+        context.uniform1f(context.getUniformLocation(programToUse, 'u_midLevel'), midLevel);
+        context.uniform1f(context.getUniformLocation(programToUse, 'u_trebleLevel'), trebleLevel);
+
+        context.drawArrays(context.TRIANGLE_STRIP, 0, 4);
+      }
+
+      function render() {
+        updateAudioLevels();
+        renderToContext(gl, mainBuffer, mainCanvas, program);
+        
+        if (projectorWindow.style.display === 'block' && projectorGl) {
+          renderToContext(projectorGl, projectorBuffer, projectorCanvas, program);
+        }
+        
+        requestAnimationFrame(render);
+      }
+
+      // ───────────────────────────────────
+      // UI CONTROLS
+      // ───────────────────────────────────
+      const controlPanel = document.getElementById('controlPanel');
+      const controlTab = document.getElementById('controlTab');
+      const dynamicControls = document.getElementById('dynamicControls');
+
+      let panelOpen = false;
+
+      controlTab.addEventListener('click', () => {
+        panelOpen = !panelOpen;
+        controlPanel.classList.toggle('open', panelOpen);
+        controlTab.querySelector('.icon').textContent = panelOpen ? '▼' : '⚙️';
+        controlTab.style.bottom = panelOpen ? '75vh' : '0';
+      });
+
+      function sliderHTML(id, label, min, max, val, step = 0.01) {
+        return `<div class="control-card">
+          <label>${label} <span class="val" id="${id}Val">${val.toFixed(2)}</span></label>
+          <input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}">
+        </div>`;
+      }
+
+      function selectHTML(id, label, options, selected) {
+        let opts = options.map(o => `<option value="${o}" ${o===selected?'selected':''}>${o}</option>`).join('');
+        return `<div class="control-card">
+          <label>${label}</label>
+          <select id="${id}">${opts}</select>
+        </div>`;
+      }
+
+      function renderControls() {
+        let html = '';
+        
+        // Source
+        html += '<div class="section-title">🌊 fuente</div>';
+        html += selectHTML('srcType', 'tipo', ['gradient','osc','noise','shape','voronoi','spiral'], state.srcType);
+        
+        if (state.srcType === 'gradient' || state.srcType === 'osc' || state.srcType === 'spiral') {
+          html += sliderHTML('srcFreq', 'frecuencia', 0.2, 3.5, state.srcFreq);
+          html += sliderHTML('srcAmp', 'amplitud', 0.1, 2.0, state.srcAmp);
+        }
+        if (state.srcType === 'osc' || state.srcType === 'spiral') {
+          html += sliderHTML('srcPhase', 'fase/vel', 0.1, 3.0, state.srcPhase);
+        }
+        if (state.srcType === 'noise' || state.srcType === 'voronoi') {
+          html += sliderHTML('srcScale', 'escala', 0.3, 4.0, state.srcScale);
+        }
+        if (state.srcType === 'shape') {
+          html += sliderHTML('srcSides', 'lados', 2, 16, state.srcSides, 0.5);
+          html += sliderHTML('srcRadius', 'radio', 0.1, 0.8, state.srcRadius);
+        }
+        if (state.srcType === 'voronoi') {
+          html += sliderHTML('srcAmp', 'intensidad', 0.3, 2.5, state.srcAmp);
+        }
+
+        // Transform
+        html += '<div class="section-title">🔄 transformación</div>';
+        html += selectHTML('transType', 'tipo', ['kaleid','rotate','pixelate','swirl','fisheye','none'], state.transType);
+        html += sliderHTML('transAmount', 'cantidad', 0.0, 1.0, state.transAmount);
+        if (['kaleid','rotate','swirl'].includes(state.transType)) {
+          html += sliderHTML('transSecondary', 'velocidad', 0.0, 2.0, state.transSecondary);
+        }
+
+        // Color
+        html += '<div class="section-title">🎨 color</div>';
+        html += selectHTML('colorMode', 'modo', ['hueShift','saturation','brightness','contrast','colorize'], state.colorMode);
+        if (['hueShift','colorize'].includes(state.colorMode)) {
+          html += sliderHTML('hueShift', 'tono', 0.0, 3.0, state.hueShift);
+        }
+        if (state.colorMode === 'saturation') {
+          html += sliderHTML('saturation', 'saturación', 0.0, 3.0, state.saturation);
+        }
+        if (state.colorMode === 'brightness') {
+          html += sliderHTML('brightness', 'brillo', -0.5, 1.0, state.brightness);
+        }
+        if (state.colorMode === 'contrast') {
+          html += sliderHTML('contrast', 'contraste', 0.2, 4.0, state.contrast);
+        }
+        html += sliderHTML('colorSpeed', 'velocidad color', 0.1, 3.0, state.colorSpeed);
+
+        // Compositor
+        html += '<div class="section-title">🧬 compositor</div>';
+        html += selectHTML('compType', 'tipo', ['blend','diff','mult','add','layer','screen'], state.compType);
+        html += sliderHTML('compMix', 'mezcla', 0.0, 1.0, state.compMix);
+
+        // Modulator
+        html += '<div class="section-title">🌀 modulador</div>';
+        html += selectHTML('modType', 'tipo', ['modulate','modulateScale','modulateRotate','modulateKaleid','none'], state.modType);
+        if (state.modType !== 'none') {
+          html += sliderHTML('modAmount', 'fuerza', 0.0, 2.0, state.modAmount);
+        }
+
+        // Dinamismo
+        html += '<div class="section-title">✨ dinamismo</div>';
+        html += sliderHTML('organicWarp', 'warp orgánico', 0.0, 1.5, state.organicWarp);
+        html += sliderHTML('feedbackAmount', 'feedback', 0.0, 0.8, state.feedbackAmount);
+        html += sliderHTML('timeScale', 'velocidad tiempo', 0.1, 2.5, state.timeScale);
+
+        dynamicControls.innerHTML = html;
+
+        // Bind events
+        document.querySelectorAll('#dynamicControls input[type=range]').forEach(slider => {
+          slider.addEventListener('input', (e) => {
+            state[e.target.id] = parseFloat(e.target.value);
+            const valEl = document.getElementById(e.target.id + 'Val');
+            if (valEl) valEl.textContent = parseFloat(e.target.value).toFixed(2);
+            updateProgram();
+          });
+        });
+
+        document.querySelectorAll('#dynamicControls select').forEach(select => {
+          select.addEventListener('change', (e) => {
+            state[e.target.id] = e.target.value;
+            renderControls();
+            updateProgram();
+          });
+        });
+      }
+
+      // ───────────────────────────────────
+      // BUTTON HANDLERS
+      // ───────────────────────────────────
+      document.getElementById('randomBtn').addEventListener('click', () => {
+        const srcTypes = ['gradient','osc','noise','shape','voronoi','spiral'];
+        const transTypes = ['kaleid','rotate','pixelate','swirl','fisheye','none'];
+        const colorModes = ['hueShift','saturation','brightness','contrast','colorize'];
+        const compTypes = ['blend','diff','mult','add','layer','screen'];
+        const modTypes = ['modulate','modulateScale','modulateRotate','modulateKaleid','none'];
+
+        state.srcType = srcTypes[Math.floor(Math.random()*srcTypes.length)];
+        state.transType = transTypes[Math.floor(Math.random()*transTypes.length)];
+        state.colorMode = colorModes[Math.floor(Math.random()*colorModes.length)];
+        state.compType = compTypes[Math.floor(Math.random()*compTypes.length)];
+        state.modType = modTypes[Math.floor(Math.random()*modTypes.length)];
+
+        state.srcFreq = Math.random()*3 + 0.2;
+        state.srcAmp = Math.random()*2 + 0.1;
+        state.srcPhase = Math.random()*3 + 0.1;
+        state.srcScale = Math.random()*3.5 + 0.5;
+        state.srcSides = Math.floor(Math.random()*14) + 3;
+        state.srcRadius = Math.random()*0.7 + 0.1;
+        state.transAmount = Math.random();
+        state.transSecondary = Math.random()*2;
+        state.hueShift = Math.random()*3;
+        state.saturation = Math.random()*3;
+        state.brightness = (Math.random()-0.5)*1.5;
+        state.contrast = Math.random()*4 + 0.2;
+        state.colorSpeed = Math.random()*2.8 + 0.2;
+        state.compMix = Math.random();
+        state.modAmount = Math.random()*2;
+        state.organicWarp = Math.random()*1.5;
+        state.feedbackAmount = Math.random()*0.8;
+        state.timeScale = Math.random()*2.3 + 0.2;
+
+        renderControls();
+        updateProgram();
+      });
+
+      document.getElementById('resetBtn').addEventListener('click', () => {
+        Object.assign(state, {
+          srcType: 'gradient', srcFreq: 1.2, srcAmp: 0.8, srcPhase: 1.0,
+          srcScale: 1.5, srcSides: 5, srcRadius: 0.45,
+          transType: 'kaleid', transAmount: 0.5, transSecondary: 0.3,
+          colorMode: 'hueShift', hueShift: 0.7, saturation: 1.5,
+          brightness: 0.15, contrast: 1.8, colorSpeed: 0.8,
+          compType: 'blend', compMix: 0.55,
+          modType: 'modulate', modAmount: 0.6,
+          feedbackAmount: 0.25, timeScale: 0.7, organicWarp: 0.4,
+          audioReactive: false
+        });
+        renderControls();
+        updateProgram();
+      });
+
+      document.getElementById('autoEvolveBtn').addEventListener('click', function() {
+        autoEvolveActive = !autoEvolveActive;
+        this.classList.toggle('active', autoEvolveActive);
+        this.textContent = autoEvolveActive ? '⏸️ pausar evolución' : '🌀 auto-evolve';
+
+        if (autoEvolveActive) {
+          autoEvolveInterval = setInterval(() => {
+            state.srcFreq += (Math.random() - 0.5) * 0.3;
+            state.srcFreq = Math.max(0.1, Math.min(3.5, state.srcFreq));
+            state.hueShift += (Math.random() - 0.5) * 0.2;
+            state.hueShift = Math.max(0, Math.min(3, state.hueShift));
+            state.transAmount += (Math.random() - 0.5) * 0.15;
+            state.transAmount = Math.max(0, Math.min(1, state.transAmount));
+            state.organicWarp += (Math.random() - 0.5) * 0.2;
+            state.organicWarp = Math.max(0, Math.min(1.5, state.organicWarp));
+            state.colorSpeed += (Math.random() - 0.5) * 0.2;
+            state.colorSpeed = Math.max(0.1, Math.min(3, state.colorSpeed));
+            state.modAmount += (Math.random() - 0.5) * 0.15;
+            state.modAmount = Math.max(0, Math.min(2, state.modAmount));
+            state.timeScale += (Math.random() - 0.5) * 0.15;
+            state.timeScale = Math.max(0.1, Math.min(2.5, state.timeScale));
+            
+            renderControls();
+            updateProgram();
+          }, 2000);
+        } else {
+          clearInterval(autoEvolveInterval);
+        }
+      });
+
+      // Audio button
+      document.getElementById('audioBtn').addEventListener('click', async () => {
+        if (!audioActive) {
+          await initAudio();
+          if (audioActive) {
+            state.audioReactive = true;
+            updateProgram();
+          }
+        } else {
+          audioActive = false;
+          state.audioReactive = false;
+          if (audioContext) {
+            audioContext.close();
+            audioContext = null;
+          }
+          document.getElementById('audioBtn').classList.remove('active');
+          document.getElementById('audioMeter').style.display = 'none';
+          updateProgram();
+        }
+      });
+
+      // MIDI button
+      document.getElementById('midiBtn').addEventListener('click', async () => {
+        if (!midiActive) {
+          await initMIDI();
+        } else {
+          midiActive = false;
+          document.getElementById('midiBtn').classList.remove('active');
+          document.getElementById('midiDot').classList.remove('connected');
+          if (document.getElementById('audioMeter').style.display === 'flex' && !audioActive) {
+            document.getElementById('audioMeter').style.display = 'none';
+          }
+        }
+      });
+
+      // Projector button
+      document.getElementById('projectorBtn').addEventListener('click', function() {
+        const isVisible = projectorWindow.style.display === 'block';
+        
+        if (!isVisible) {
+          projectorWindow.style.display = 'block';
+          resizeProjectorCanvas();
+          this.classList.add('active');
+          this.textContent = '📺 projector ON';
+          
+          // Intentar abrir en pantalla completa o segunda pantalla
+          if (projectorWindow.requestFullscreen) {
+            projectorWindow.requestFullscreen().catch(() => {});
+          } else if (projectorWindow.webkitRequestFullscreen) {
+            projectorWindow.webkitRequestFullscreen();
+          }
+        } else {
+          projectorWindow.style.display = 'none';
+          this.classList.remove('active');
+          this.textContent = '📺 projector';
+          
+          if (document.fullscreenElement) {
+            document.exitFullscreen();
+          }
+        }
+      });
+
+      // Escuchar cambios de pantalla completa
+      document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+          projectorWindow.style.display = 'none';
+          document.getElementById('projectorBtn').classList.remove('active');
+          document.getElementById('projectorBtn').textContent = '📺 projector';
+        }
+      });
+
+      // ───────────────────────────────────
+      // INIT
+      // ───────────────────────────────────
+      renderControls();
+      updateProgram();
+      render();
+    })();
+  </script>
+</body>
+</html>
